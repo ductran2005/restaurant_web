@@ -83,8 +83,10 @@
             <h1>🍽️ Restaurant POS</h1>
             <p>Hệ thống quản lý nhà hàng</p>
             <div class="nav-links">
+                <a href="${pageContext.request.contextPath}/tables" class="nav-link">🪑 Quản Lý Bàn</a>
+                <a href="${pageContext.request.contextPath}/orders" class="nav-link">📋 Đơn Hàng</a>
                 <a href="${pageContext.request.contextPath}/admin/product" class="nav-link">📦 Quản Lý Sản Phẩm</a>
-                <a href="${pageContext.request.contextPath}/checkout" class="nav-link checkout">💰 Thanh Toán</a>
+                <a href="${pageContext.request.contextPath}/auth/login" class="nav-link checkout">🔑 Đăng Nhập</a>
             </div>
         </div>
     </body>

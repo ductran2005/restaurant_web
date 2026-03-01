@@ -25,4 +25,37 @@
         <filter-name>encodingFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+
+    <!-- Authentication Filter -->
+    <filter>
+        <filter-name>authenticationFilter</filter-name>
+        <filter-class>market.restaurant_web.filter.AuthenticationFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>authenticationFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- Authorization Filter -->
+    <filter>
+        <filter-name>authorizationFilter</filter-name>
+        <filter-class>market.restaurant_web.filter.AuthorizationFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>authorizationFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!-- VNPay Servlet -->
+    <servlet>
+        <servlet-name>vnpayServlet</servlet-name>
+        <servlet-class>market.restaurant_web.controller.VNPayServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>vnpayServlet</servlet-name>
+        <url-pattern>/vnpay-pay</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>vnpayServlet</servlet-name>
+        <url-pattern>/vnpay-return</url-pattern>
+    </servlet-mapping>
 </web-app>

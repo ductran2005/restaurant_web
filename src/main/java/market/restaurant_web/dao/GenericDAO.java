@@ -88,4 +88,22 @@ public class GenericDAO<T> {
             delete(entity);
         }
     }
+
+    // ====== FIND BY QUERY ======
+    protected List<T> findByQuery(String hql, String paramName, Object paramValue) {
+        try (Session session = getSession()) {
+            Query<T> query = session.createQuery(hql, entityClass);
+            query.setParameter(paramName, paramValue);
+            return query.getResultList();
+        }
+    }
+
+    // ====== COUNT ======
+    public long count() {
+        try (Session session = getSession()) {
+            Query<Long> query = session.createQuery(
+                    "SELECT COUNT(*) FROM " + entityClass.getSimpleName(), Long.class);
+            return query.getSingleResult();
+        }
+    }
 }

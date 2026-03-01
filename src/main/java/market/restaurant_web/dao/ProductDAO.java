@@ -35,7 +35,7 @@ public class ProductDAO extends GenericDAO<Product> {
     public List<Product> getByCategory(int categoryId) {
         try (Session session = getSession()) {
             Query<Product> query = session.createQuery(
-                    "FROM Product p WHERE p.categoryId = :categoryId", Product.class);
+                    "FROM Product p WHERE p.category.categoryId = :categoryId", Product.class);
             query.setParameter("categoryId", categoryId);
             return query.list();
         }

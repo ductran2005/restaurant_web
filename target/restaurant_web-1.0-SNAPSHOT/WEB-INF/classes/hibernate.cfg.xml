@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- SQL Server Connection -->
+        <property name="hibernate.connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
+        <property name="hibernate.connection.url">jdbc:sqlserver://localhost:1433;databaseName=Restaurant_Ipos;encrypt=true;trustServerCertificate=true</property>
+        <property name="hibernate.connection.username">sa</property>
+        <property name="hibernate.connection.password">sa</property>
+
+        <!-- Hibernate Settings -->
+        <property name="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</property>
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.format_sql">true</property>
+        <property name="hibernate.hbm2ddl.auto">validate</property>
+
+        <!-- Connection Pool -->
+        <property name="hibernate.c3p0.min_size">5</property>
+        <property name="hibernate.c3p0.max_size">20</property>
+        <property name="hibernate.c3p0.timeout">300</property>
+
+        <!-- Entity Mappings -->
+        <mapping class="market.restaurant_web.entity.Role"/>
+        <mapping class="market.restaurant_web.entity.User"/>
+        <mapping class="market.restaurant_web.entity.UserSession"/>
+        <mapping class="market.restaurant_web.entity.Area"/>
+        <mapping class="market.restaurant_web.entity.RestaurantTable"/>
+        <mapping class="market.restaurant_web.entity.Category"/>
+        <mapping class="market.restaurant_web.entity.Product"/>
+        <mapping class="market.restaurant_web.entity.Order"/>
+        <mapping class="market.restaurant_web.entity.OrderDetail"/>
+        <mapping class="market.restaurant_web.entity.Payment"/>
+        <mapping class="market.restaurant_web.entity.Inventory"/>
+        <mapping class="market.restaurant_web.entity.InventoryLog"/>
+    </session-factory>
+</hibernate-configuration>
