@@ -3,14 +3,18 @@ package market.restaurant_web.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * Maps to DB table: inventory_logs
+ * (log_id, inventory_id, changed_by, type, qty_change, reason, created_at)
+ * type: IN, OUT, ADJUST
+ */
 @Entity
 @Table(name = "inventory_logs")
 public class InventoryLog {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "log_id")
-    private Integer logId;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "inventory_id", nullable = false)
@@ -21,7 +25,7 @@ public class InventoryLog {
     private User changedBy;
 
     @Column(name = "type", nullable = false, length = 20)
-    private String type; // IN, OUT, ADJUST
+    private String type;
 
     @Column(name = "qty_change", nullable = false)
     private Integer qtyChange;
@@ -29,20 +33,22 @@ public class InventoryLog {
     @Column(name = "reason", length = 255)
     private String reason;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // === Constructors ===
-    public InventoryLog() {
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null)
+            createdAt = LocalDateTime.now();
     }
 
-    // === Getters & Setters ===
-    public Integer getLogId() {
-        return logId;
+    // Getters & Setters
+    public Integer getId() {
+        return id;
     }
 
-    public void setLogId(Integer logId) {
-        this.logId = logId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Inventory getInventory() {
@@ -87,9 +93,5 @@ public class InventoryLog {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 }

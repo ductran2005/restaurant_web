@@ -14,6 +14,7 @@
         <property name="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</property>
         <property name="hibernate.show_sql">true</property>
         <property name="hibernate.format_sql">true</property>
+        <!-- VALIDATE: do not modify DB, just verify entities match -->
         <property name="hibernate.hbm2ddl.auto">validate</property>
 
         <!-- Connection Pool -->
@@ -21,12 +22,11 @@
         <property name="hibernate.c3p0.max_size">20</property>
         <property name="hibernate.c3p0.timeout">300</property>
 
-        <!-- Entity Mappings -->
+        <!-- Entity Mappings - only tables that exist in DB -->
         <mapping class="market.restaurant_web.entity.Role"/>
         <mapping class="market.restaurant_web.entity.User"/>
-        <mapping class="market.restaurant_web.entity.UserSession"/>
         <mapping class="market.restaurant_web.entity.Area"/>
-        <mapping class="market.restaurant_web.entity.RestaurantTable"/>
+        <mapping class="market.restaurant_web.entity.DiningTable"/>
         <mapping class="market.restaurant_web.entity.Category"/>
         <mapping class="market.restaurant_web.entity.Product"/>
         <mapping class="market.restaurant_web.entity.Order"/>
@@ -34,5 +34,6 @@
         <mapping class="market.restaurant_web.entity.Payment"/>
         <mapping class="market.restaurant_web.entity.Inventory"/>
         <mapping class="market.restaurant_web.entity.InventoryLog"/>
+        <mapping class="market.restaurant_web.entity.UserSession"/>
     </session-factory>
 </hibernate-configuration>

@@ -3,20 +3,24 @@ package market.restaurant_web.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * Maps to DB table: users
+ * (user_id, role_id, username, password_hash, full_name, phone, email,
+ * status, created_at, failed_login_count, last_failed_login_at, locked_until)
+ */
 @Entity
 @Table(name = "users")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Integer userId;
+    private Integer id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    @Column(name = "username", nullable = false, unique = true, length = 50)
+    @Column(name = "username", unique = true, nullable = false, length = 50)
     private String username;
 
     @Column(name = "password_hash", nullable = false, length = 255)
@@ -34,7 +38,7 @@ public class User {
     @Column(name = "status", nullable = false, length = 20)
     private String status = "ACTIVE";
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "failed_login_count", nullable = false)
@@ -46,17 +50,23 @@ public class User {
     @Column(name = "locked_until")
     private LocalDateTime lockedUntil;
 
-    // === Constructors ===
-    public User() {
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null)
+            createdAt = LocalDateTime.now();
+        if (status == null)
+            status = "ACTIVE";
+        if (failedLoginCount == null)
+            failedLoginCount = 0;
     }
 
     // === Getters & Setters ===
-    public Integer getUserId() {
-        return userId;
+    public Integer getId() {
+        return id;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Role getRole() {
@@ -115,12 +125,13 @@ public class User {
         this.status = status;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    /** Helper: check if user is active (status == 'ACTIVE') */
+    public boolean isActive() {
+        return "ACTIVE".equals(status);
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
     public Integer getFailedLoginCount() {

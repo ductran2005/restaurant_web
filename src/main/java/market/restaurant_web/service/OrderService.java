@@ -1,61 +1,188 @@
 package market.restaurant_web.service;
 
-import market.restaurant_web.dao.OrderDAO;
-import market.restaurant_web.dao.TableDAO;
-import market.restaurant_web.entity.Order;
-import market.restaurant_web.entity.RestaurantTable;
-import market.restaurant_web.entity.User;
-
+import market.restaurant_web.config.HibernateUtil;
+import market.restaurant_web.dao.*;
+import market.restaurant_web.entity.*;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * OrderService - Quản lý tạo đơn hàng.
- * (Migrated từ restaurant-ipos-java)
- */
 public class OrderService {
+    private final OrderDao orderDao = new OrderDao();
+    private final ProductDao productDao = new ProductDao();
+    private final TableDao tableDao = new TableDao();
 
-    private final TableDAO tableDAO = new TableDAO();
-    private final OrderDAO orderDAO = new OrderDAO();
+    public Order findById(int id) {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            Order o = orderDao.findById(s, id);
+            if (o != null && o.getOrderDetails() != null)
+                o.getOrderDetails().size(); // init lazy
+            return o;
+        }
+    }
+
+    public List<Order> findActiveOrders() {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            return orderDao.findActiveOrders(s);
+        }
+    }
+
+    public List<Order> findByStatus(String status) {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            return orderDao.findByStatus(s, status);
+        }
+    }
 
     /**
-     * Tạo đơn hàng mới cho bàn. Kiểm tra:
-     * 1. Bàn phải tồn tại
-     * 2. Bàn phải đang AVAILABLE (trống)
-     * 3. Bàn chưa có đơn đang mở
+     * Create order for a table.
+     * Business rule: 1 table only has 1 OPEN order (DB filtered unique index).
      */
-    public int createOrderForTable(int tableId, User createdBy) {
-        RestaurantTable table = tableDAO.getById(tableId);
-        if (table == null) {
-            throw new RuntimeException("Bàn không tồn tại: " + tableId);
+    public Order createOrder(int tableId, int staffId) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            // Check constraint: 1 table 1 open order
+            Order existing = orderDao.findOpenByTable(s, tableId);
+            if (existing != null) {
+                throw new RuntimeException("Bàn này đã có order đang mở (#" + existing.getId() + ")");
+            }
+
+            DiningTable table = tableDao.findById(s, tableId);
+            User staff = s.get(User.class, staffId);
+
+            Order order = new Order();
+            order.setTable(table);
+            order.setCreatedByUser(staff);
+            order.setStatus("OPEN");
+            order.setOrderType("DINE_IN");
+            order.setOrderDetails(new ArrayList<>());
+            orderDao.save(s, order);
+
+            // Update table status
+            table.setStatus("IN_USE");
+            tableDao.update(s, table);
+
+            tx.commit();
+            return order;
+        } catch (Exception e) {
+            if (tx != null)
+                tx.rollback();
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            s.close();
         }
+    }
 
-        if (!"AVAILABLE".equals(table.getStatus())) {
-            throw new RuntimeException("Bàn đang sử dụng, không thể tạo đơn.");
+    /**
+     * Add item to order.
+     * Business rule: cannot add if product is UNAVAILABLE.
+     */
+    public void addItem(int orderId, int productId, int qty) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            Order order = orderDao.findById(s, orderId);
+            if (order == null)
+                throw new RuntimeException("Order không tồn tại");
+            if (!"OPEN".equals(order.getStatus())) {
+                throw new RuntimeException("Không thể thêm món vào order đã đóng");
+            }
+
+            Product product = productDao.findById(s, productId);
+            if (product == null)
+                throw new RuntimeException("Sản phẩm không tồn tại");
+            if (!"AVAILABLE".equals(product.getStatus()))
+                throw new RuntimeException("Sản phẩm không khả dụng: " + product.getName());
+
+            OrderDetail detail = new OrderDetail();
+            detail.setOrder(order);
+            detail.setProduct(product);
+            detail.setQuantity(qty);
+            detail.setUnitPrice(product.getPrice()); // snapshot price
+            detail.setItemStatus("ORDERED");
+            s.persist(detail);
+
+            // Update order subtotal
+            recalculateOrder(s, order);
+
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null)
+                tx.rollback();
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            s.close();
         }
+    }
 
-        // Kiểm tra có đơn mở chưa
-        Order existingOpen = orderDAO.getOpenOrderByTableId(tableId);
-        if (existingOpen != null) {
-            throw new RuntimeException("Bàn này đã có đơn đang mở (Order #" + existingOpen.getOrderId() + ").");
+    public void removeItem(int orderDetailId) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            OrderDetail detail = s.get(OrderDetail.class, orderDetailId);
+            if (detail == null)
+                throw new RuntimeException("Item không tồn tại");
+
+            Order order = detail.getOrder();
+            // Instead of removing, cancel the item per DB trigger constraint
+            detail.setItemStatus("CANCELLED");
+            s.merge(detail);
+
+            recalculateOrder(s, order);
+
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null)
+                tx.rollback();
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            s.close();
         }
+    }
 
-        // Tạo đơn mới
-        Order order = new Order();
-        order.setTable(table);
-        order.setCreatedBy(createdBy);
-        order.setOrderType("DINE_IN");
-        order.setOpenedAt(LocalDateTime.now());
-        order.setSubtotal(BigDecimal.ZERO);
-        order.setDiscountAmount(BigDecimal.ZERO);
-        order.setTotalAmount(BigDecimal.ZERO);
-        order.setStatus("OPEN");
-        orderDAO.insert(order);
+    /**
+     * Recalculate order subtotal/total from non-cancelled order_details.
+     */
+    private void recalculateOrder(Session s, Order order) {
+        List<OrderDetail> details = s.createQuery(
+                "FROM OrderDetail WHERE order.id = :oid AND itemStatus = 'ORDERED'", OrderDetail.class)
+                .setParameter("oid", order.getId()).list();
 
-        // Đổi trạng thái bàn
-        table.setStatus("IN_USE");
-        tableDAO.update(table);
+        BigDecimal subtotal = BigDecimal.ZERO;
+        for (OrderDetail d : details) {
+            subtotal = subtotal.add(d.getUnitPrice().multiply(BigDecimal.valueOf(d.getQuantity())));
+        }
+        order.setSubtotal(subtotal);
+        order.setTotalAmount(subtotal.subtract(order.getDiscountAmount()));
+        s.merge(order);
+    }
 
-        return order.getOrderId();
+    /**
+     * Calculate subtotal for an order (sum of qty * unit_price for ORDERED items).
+     */
+    public BigDecimal calculateSubtotal(int orderId) {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            List<OrderDetail> items = s.createQuery(
+                    "FROM OrderDetail WHERE order.id = :oid AND itemStatus = 'ORDERED'", OrderDetail.class)
+                    .setParameter("oid", orderId).list();
+
+            BigDecimal subtotal = BigDecimal.ZERO;
+            for (OrderDetail item : items) {
+                subtotal = subtotal.add(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+            }
+            return subtotal;
+        }
+    }
+
+    public List<Order> findByDateRange(LocalDate from, LocalDate to) {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            return orderDao.findByDateRange(s,
+                    from.atStartOfDay(),
+                    to.atTime(LocalTime.MAX));
+        }
     }
 }

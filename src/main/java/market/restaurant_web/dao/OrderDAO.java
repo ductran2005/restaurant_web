@@ -3,48 +3,48 @@ package market.restaurant_web.dao;
 import market.restaurant_web.entity.Order;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-
+import java.time.LocalDateTime;
 import java.util.List;
 
-public class OrderDAO extends GenericDAO<Order> {
-
-    public OrderDAO() {
+public class OrderDao extends GenericDao<Order> {
+    public OrderDao() {
         super(Order.class);
     }
 
-    // ====== GET BY STATUS ======
-    public List<Order> getByStatus(String status) {
-        try (Session session = getSession()) {
-            Query<Order> query = session.createQuery(
-                    "FROM Order o WHERE o.status = :status", Order.class);
-            query.setParameter("status", status);
-            return query.list();
-        }
+    /** DB filtered unique index: only 1 OPEN order per table */
+    public Order findOpenByTable(Session session, int tableId) {
+        Query<Order> q = session.createQuery(
+                "FROM Order WHERE table.id = :tid AND status = 'OPEN'", Order.class);
+        q.setParameter("tid", tableId);
+        return q.uniqueResult();
     }
 
-    // ====== GET BY TABLE ======
-    public List<Order> getByTable(int tableId) {
-        try (Session session = getSession()) {
-            Query<Order> query = session.createQuery(
-                    "FROM Order o WHERE o.table.tableId = :tableId AND o.status = 'OPEN'", Order.class);
-            query.setParameter("tableId", tableId);
-            return query.list();
-        }
+    public List<Order> findByStatus(Session session, String status) {
+        Query<Order> q = session.createQuery(
+                "FROM Order WHERE status = :s ORDER BY openedAt DESC", Order.class);
+        q.setParameter("s", status);
+        return q.list();
     }
 
-    // ====== GET OPEN ORDER BY TABLE ID ======
-    /**
-     * Tìm đơn đang mở cho 1 bàn cụ thể (trả về null nếu không có).
-     * (Migrated từ restaurant-ipos-java)
-     */
-    public Order getOpenOrderByTableId(int tableId) {
-        try (Session session = getSession()) {
-            return session.createQuery(
-                    "FROM Order o WHERE o.table.tableId = :tid AND o.status = 'OPEN' ORDER BY o.openedAt DESC",
-                    Order.class)
-                    .setParameter("tid", tableId)
-                    .setMaxResults(1)
-                    .uniqueResult();
-        }
+    public List<Order> findActiveOrders(Session session) {
+        return session.createQuery(
+                "FROM Order WHERE status IN ('OPEN','SERVED') ORDER BY openedAt DESC", Order.class).list();
+    }
+
+    public List<Order> findByDateRange(Session session, LocalDateTime from, LocalDateTime to) {
+        Query<Order> q = session.createQuery(
+                "FROM Order WHERE openedAt BETWEEN :f AND :t ORDER BY openedAt DESC", Order.class);
+        q.setParameter("f", from);
+        q.setParameter("t", to);
+        return q.list();
+    }
+
+    public List<Order> findPaidByDateRange(Session session, LocalDateTime from, LocalDateTime to) {
+        Query<Order> q = session.createQuery(
+                "FROM Order WHERE status = 'PAID' AND openedAt BETWEEN :f AND :t ORDER BY openedAt DESC",
+                Order.class);
+        q.setParameter("f", from);
+        q.setParameter("t", to);
+        return q.list();
     }
 }

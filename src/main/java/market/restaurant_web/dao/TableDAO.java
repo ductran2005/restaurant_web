@@ -1,34 +1,37 @@
 package market.restaurant_web.dao;
 
-import market.restaurant_web.entity.RestaurantTable;
+import market.restaurant_web.entity.DiningTable;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-
 import java.util.List;
 
-public class TableDAO extends GenericDAO<RestaurantTable> {
-
-    public TableDAO() {
-        super(RestaurantTable.class);
+public class TableDao extends GenericDao<DiningTable> {
+    public TableDao() {
+        super(DiningTable.class);
     }
 
-    // ====== GET BY STATUS ======
-    public List<RestaurantTable> getByStatus(String status) {
-        try (Session session = getSession()) {
-            Query<RestaurantTable> query = session.createQuery(
-                    "FROM RestaurantTable t WHERE t.status = :status", RestaurantTable.class);
-            query.setParameter("status", status);
-            return query.list();
-        }
+    public List<DiningTable> findByArea(Session session, int areaId) {
+        Query<DiningTable> q = session.createQuery(
+                "FROM DiningTable WHERE area.id = :aid ORDER BY tableName",
+                DiningTable.class);
+        q.setParameter("aid", areaId);
+        return q.list();
     }
 
-    // ====== GET BY AREA ======
-    public List<RestaurantTable> getByArea(int areaId) {
-        try (Session session = getSession()) {
-            Query<RestaurantTable> query = session.createQuery(
-                    "FROM RestaurantTable t WHERE t.area.areaId = :areaId", RestaurantTable.class);
-            query.setParameter("areaId", areaId);
-            return query.list();
-        }
+    public List<DiningTable> findByStatus(Session session, String status) {
+        Query<DiningTable> q = session.createQuery(
+                "FROM DiningTable WHERE status = :s ORDER BY tableName", DiningTable.class);
+        q.setParameter("s", status);
+        return q.list();
+    }
+
+    public List<DiningTable> findAvailable(Session session) {
+        return findByStatus(session, "AVAILABLE");
+    }
+
+    public List<DiningTable> findAll(Session session) {
+        return session.createQuery(
+                "FROM DiningTable ORDER BY area.id, tableName", DiningTable.class)
+                .list();
     }
 }

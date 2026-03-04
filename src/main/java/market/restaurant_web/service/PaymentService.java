@@ -1,103 +1,117 @@
 package market.restaurant_web.service;
 
+import market.restaurant_web.config.HibernateUtil;
 import market.restaurant_web.dao.*;
 import market.restaurant_web.entity.*;
-
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 /**
- * PaymentService - Xác nhận đơn, thanh toán, trừ tồn kho.
- * (Kết hợp từ restaurant-ipos-java)
+ * Payment service - handles order checkout and payment operations.
+ * In new DB schema, there's no invoices table.
+ * Payment links directly to Order. Order has
+ * subtotal/discount_amount/total_amount.
  */
 public class PaymentService {
-    private final PaymentDAO paymentDAO = new PaymentDAO();
-    private final OrderDAO orderDAO = new OrderDAO();
-    private final OrderDetailDAO detailDAO = new OrderDetailDAO();
-    private final InventoryDAO inventoryDAO = new InventoryDAO();
-    private final TableDAO tableDAO = new TableDAO();
+    private final OrderDao orderDao = new OrderDao();
+    private final PaymentDao paymentDao = new PaymentDao();
+    private final TableDao tableDao = new TableDao();
 
     /**
-     * Xác nhận đơn hàng (chuyển từ OPEN → SERVED).
-     * Trừ tồn kho ngay khi xác nhận.
+     * Checkout: calculate order totals, create payment, mark order PAID.
      */
-    public void confirm(int orderId) {
-        Order order = orderDAO.getById(orderId);
-        if (order == null) {
-            throw new RuntimeException("Không tìm thấy đơn hàng: " + orderId);
-        }
-        if (!"OPEN".equals(order.getStatus())) {
-            throw new RuntimeException("Chỉ có thể xác nhận đơn đang OPEN.");
-        }
+    public Payment checkout(int orderId, String paymentMethod, int cashierId) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            Order order = orderDao.findById(s, orderId);
+            if (order == null)
+                throw new RuntimeException("Order không tồn tại");
+            if ("PAID".equals(order.getStatus()))
+                throw new RuntimeException("Order đã được thanh toán");
+            if ("CANCELLED".equals(order.getStatus()))
+                throw new RuntimeException("Order đã bị hủy");
 
-        order.setStatus("SERVED");
-        orderDAO.update(order);
-
-        // Trừ tồn kho
-        subtractInventory(orderId);
-    }
-
-    /**
-     * Thanh toán đơn hàng.
-     *
-     * @param orderId    id đơn
-     * @param amountPaid số tiền khách trả
-     * @param method     CASH/CARD/TRANSFER
-     * @param cashierId  người thu tiền
-     */
-    public boolean processPayment(int orderId, BigDecimal amountPaid,
-            String method, int cashierId) {
-        Order order = orderDAO.getById(orderId);
-        if (order == null || "PAID".equals(order.getStatus()) || "CANCELLED".equals(order.getStatus())) {
-            return false;
-        }
-
-        // Nếu đơn còn OPEN (chưa confirm), trừ kho trước
-        if ("OPEN".equals(order.getStatus())) {
-            subtractInventory(orderId);
-        }
-
-        // Tạo payment
-        Payment p = new Payment();
-        p.setOrderId(orderId);
-        p.setCashierId(cashierId);
-        p.setPaidAt(LocalDateTime.now());
-        p.setMethod(method);
-        p.setAmountPaid(amountPaid);
-        p.setDiscountAmount(order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO);
-        p.setFinalAmount(order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO);
-        p.setPaymentStatus("SUCCESS");
-
-        paymentDAO.insert(p);
-
-        // Cập nhật đơn → PAID
-        order.setStatus("PAID");
-        order.setClosedAt(LocalDateTime.now());
-        orderDAO.update(order);
-
-        // Giải phóng bàn
-        RestaurantTable table = order.getTable();
-        if (table != null) {
-            table.setStatus("AVAILABLE");
-            tableDAO.update(table);
-        }
-
-        return true;
-    }
-
-    /**
-     * Trừ tồn kho dựa trên chi tiết đơn hàng.
-     */
-    private void subtractInventory(int orderId) {
-        List<OrderDetail> details = detailDAO.getByOrderId(orderId);
-        for (OrderDetail d : details) {
-            try {
-                inventoryDAO.subtract(d.getProduct().getProductId(), d.getQuantity());
-            } catch (RuntimeException e) {
-                // Log lỗi nhưng không dừng thanh toán (tồn kho có thể chưa setup)
-                System.err.println("Cảnh báo tồn kho: " + e.getMessage());
+            // Check if payment already exists (UQ on order_id)
+            Payment existingPayment = paymentDao.findByOrderId(s, orderId);
+            if (existingPayment != null && "SUCCESS".equals(existingPayment.getPaymentStatus())) {
+                throw new RuntimeException("Order đã được thanh toán");
             }
+
+            // Calculate subtotal from non-cancelled order details
+            List<OrderDetail> details = s.createQuery(
+                    "FROM OrderDetail WHERE order.id = :oid AND itemStatus = 'ORDERED'", OrderDetail.class)
+                    .setParameter("oid", orderId).list();
+
+            BigDecimal subtotal = BigDecimal.ZERO;
+            for (OrderDetail d : details) {
+                subtotal = subtotal.add(d.getUnitPrice().multiply(BigDecimal.valueOf(d.getQuantity())));
+            }
+
+            BigDecimal discountAmount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
+            BigDecimal totalAmount = subtotal.subtract(discountAmount);
+            if (totalAmount.compareTo(BigDecimal.ZERO) < 0)
+                totalAmount = BigDecimal.ZERO;
+
+            // Update order amounts
+            order.setSubtotal(subtotal);
+            order.setTotalAmount(totalAmount);
+            order.setStatus("PAID");
+            order.setClosedAt(LocalDateTime.now());
+            orderDao.update(s, order);
+
+            // Create payment record
+            User cashier = s.get(User.class, cashierId);
+            Payment payment = new Payment();
+            payment.setOrder(order);
+            payment.setCashier(cashier);
+            payment.setPaidAt(LocalDateTime.now());
+            payment.setMethod(paymentMethod);
+            payment.setAmountPaid(totalAmount);
+            payment.setDiscountAmount(discountAmount);
+            payment.setFinalAmount(totalAmount);
+            payment.setPaymentStatus("SUCCESS");
+            s.persist(payment);
+
+            // Update table status back to AVAILABLE
+            if (order.getTable() != null) {
+                DiningTable table = order.getTable();
+                table.setStatus("AVAILABLE");
+                tableDao.update(s, table);
+            }
+
+            tx.commit();
+            return payment;
+        } catch (Exception e) {
+            if (tx != null)
+                tx.rollback();
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            s.close();
+        }
+    }
+
+    /**
+     * Find payment by order ID.
+     */
+    public Payment findByOrderId(int orderId) {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            return paymentDao.findByOrderId(s, orderId);
+        }
+    }
+
+    /**
+     * Find all paid orders in date range (for dashboard revenue).
+     */
+    public List<Order> findPaidOrdersByDateRange(LocalDate from, LocalDate to) {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            return orderDao.findPaidByDateRange(s,
+                    from.atStartOfDay(), to.atTime(LocalTime.MAX));
         }
     }
 }

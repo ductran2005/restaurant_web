@@ -1,109 +1,68 @@
 package market.restaurant_web.dao;
 
-import market.restaurant_web.utils.HibernateUtil;
+import market.restaurant_web.config.HibernateUtil;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.query.Query;
-
 import java.util.List;
 
 /**
- * Generic DAO cung cấp các thao tác CRUD cơ bản dùng Hibernate.
- * 
- * @param <T> Kiểu entity
+ * Generic DAO providing common CRUD operations.
+ * All methods receive a Session parameter for transaction control at service
+ * layer.
  */
-public class GenericDAO<T> {
+public abstract class GenericDao<T> {
 
     private final Class<T> entityClass;
 
-    public GenericDAO(Class<T> entityClass) {
+    protected GenericDao(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
 
-    protected Session getSession() {
+    public Session openSession() {
         return HibernateUtil.getSessionFactory().openSession();
     }
 
-    // ====== GET BY ID ======
-    public T getById(int id) {
-        try (Session session = getSession()) {
-            return session.get(entityClass, id);
-        }
+    public T findById(Session session, Object id) {
+        return session.get(entityClass, id);
     }
 
-    // ====== GET ALL ======
-    public List<T> getAll() {
-        try (Session session = getSession()) {
-            Query<T> query = session.createQuery("FROM " + entityClass.getSimpleName(), entityClass);
-            return query.list();
-        }
+    public List<T> findAll(Session session) {
+        Query<T> query = session.createQuery("FROM " + entityClass.getSimpleName(), entityClass);
+        return query.list();
     }
 
-    // ====== INSERT ======
-    public void insert(T entity) {
-        Transaction tx = null;
-        try (Session session = getSession()) {
-            tx = session.beginTransaction();
-            session.persist(entity);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null)
-                tx.rollback();
-            throw e;
-        }
+    public List<T> findAll(Session session, String orderBy) {
+        Query<T> query = session.createQuery(
+                "FROM " + entityClass.getSimpleName() + " ORDER BY " + orderBy, entityClass);
+        return query.list();
     }
 
-    // ====== UPDATE ======
-    public void update(T entity) {
-        Transaction tx = null;
-        try (Session session = getSession()) {
-            tx = session.beginTransaction();
-            session.merge(entity);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null)
-                tx.rollback();
-            throw e;
-        }
+    public List<T> findWithPagination(Session session, int page, int size) {
+        Query<T> query = session.createQuery("FROM " + entityClass.getSimpleName(), entityClass);
+        query.setFirstResult((page - 1) * size);
+        query.setMaxResults(size);
+        return query.list();
     }
 
-    // ====== DELETE ======
-    public void delete(T entity) {
-        Transaction tx = null;
-        try (Session session = getSession()) {
-            tx = session.beginTransaction();
-            session.remove(session.merge(entity));
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null)
-                tx.rollback();
-            throw e;
-        }
+    public long count(Session session) {
+        Query<Long> query = session.createQuery(
+                "SELECT COUNT(*) FROM " + entityClass.getSimpleName(), Long.class);
+        return query.uniqueResult();
     }
 
-    // ====== DELETE BY ID ======
-    public void deleteById(int id) {
-        T entity = getById(id);
-        if (entity != null) {
-            delete(entity);
-        }
+    public void save(Session session, T entity) {
+        session.persist(entity);
     }
 
-    // ====== FIND BY QUERY ======
-    protected List<T> findByQuery(String hql, String paramName, Object paramValue) {
-        try (Session session = getSession()) {
-            Query<T> query = session.createQuery(hql, entityClass);
-            query.setParameter(paramName, paramValue);
-            return query.getResultList();
-        }
+    public T update(Session session, T entity) {
+        return session.merge(entity);
     }
 
-    // ====== COUNT ======
-    public long count() {
-        try (Session session = getSession()) {
-            Query<Long> query = session.createQuery(
-                    "SELECT COUNT(*) FROM " + entityClass.getSimpleName(), Long.class);
-            return query.getSingleResult();
-        }
+    public void delete(Session session, T entity) {
+        session.remove(entity);
+    }
+
+    protected Class<T> getEntityClass() {
+        return entityClass;
     }
 }

@@ -4,20 +4,28 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Maps to DB table: payments
+ * (payment_id, order_id, cashier_id, paid_at, method,
+ * amount_paid, discount_amount, final_amount, payment_status, transaction_ref)
+ * method: CASH, CARD, TRANSFER
+ * payment_status: SUCCESS, FAILED, REFUNDED
+ */
 @Entity
 @Table(name = "payments")
 public class Payment {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "payment_id")
-    private Integer paymentId;
+    private Integer id;
 
-    @Column(name = "order_id", nullable = false)
-    private Integer orderId;
+    @ManyToOne
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 
-    @Column(name = "cashier_id", nullable = false)
-    private Integer cashierId;
+    @ManyToOne
+    @JoinColumn(name = "cashier_id", nullable = false)
+    private User cashier;
 
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
@@ -40,33 +48,29 @@ public class Payment {
     @Column(name = "transaction_ref", length = 100)
     private String transactionRef;
 
-    // === Constructors ===
-    public Payment() {
+    // Getters & Setters
+    public Integer getId() {
+        return id;
     }
 
-    // === Getters & Setters ===
-    public Integer getPaymentId() {
-        return paymentId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public void setPaymentId(Integer paymentId) {
-        this.paymentId = paymentId;
+    public Order getOrder() {
+        return order;
     }
 
-    public Integer getOrderId() {
-        return orderId;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
+    public User getCashier() {
+        return cashier;
     }
 
-    public Integer getCashierId() {
-        return cashierId;
-    }
-
-    public void setCashierId(Integer cashierId) {
-        this.cashierId = cashierId;
+    public void setCashier(User cashier) {
+        this.cashier = cashier;
     }
 
     public LocalDateTime getPaidAt() {

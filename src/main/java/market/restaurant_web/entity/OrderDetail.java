@@ -3,20 +3,25 @@ package market.restaurant_web.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
+/**
+ * Maps to DB table: order_details
+ * (order_detail_id, order_id, product_id, quantity, unit_price,
+ * line_total [computed], item_status)
+ * item_status: ORDERED, CANCELLED
+ */
 @Entity
 @Table(name = "order_details")
 public class OrderDetail {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_detail_id")
-    private Integer orderDetailId;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
@@ -26,25 +31,23 @@ public class OrderDetail {
     @Column(name = "unit_price", nullable = false, precision = 18, scale = 2)
     private BigDecimal unitPrice;
 
-    // line_total is a computed persisted column in SQL: quantity * unit_price
-    // Hibernate reads it but does not write it
+    /**
+     * Computed persisted column in DB: quantity * unit_price
+     * insertable=false, updatable=false because DB manages this.
+     */
     @Column(name = "line_total", insertable = false, updatable = false, precision = 18, scale = 2)
     private BigDecimal lineTotal;
 
     @Column(name = "item_status", nullable = false, length = 20)
     private String itemStatus = "ORDERED";
 
-    // === Constructors ===
-    public OrderDetail() {
+    // Getters & Setters
+    public Integer getId() {
+        return id;
     }
 
-    // === Getters & Setters ===
-    public Integer getOrderDetailId() {
-        return orderDetailId;
-    }
-
-    public void setOrderDetailId(Integer orderDetailId) {
-        this.orderDetailId = orderDetailId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Order getOrder() {
@@ -82,7 +85,6 @@ public class OrderDetail {
     public BigDecimal getLineTotal() {
         return lineTotal;
     }
-    // No setter for lineTotal - it's a computed column in DB
 
     public String getItemStatus() {
         return itemStatus;

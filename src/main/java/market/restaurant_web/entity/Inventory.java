@@ -3,16 +3,19 @@ package market.restaurant_web.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * Maps to DB table: inventory
+ * (inventory_id, product_id, current_qty, reorder_level, updated_at)
+ */
 @Entity
 @Table(name = "inventory")
 public class Inventory {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "inventory_id")
-    private Integer inventoryId;
+    private Integer id;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "product_id", nullable = false, unique = true)
     private Product product;
 
@@ -25,17 +28,24 @@ public class Inventory {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    // === Constructors ===
-    public Inventory() {
+    @PrePersist
+    protected void onCreate() {
+        if (updatedAt == null)
+            updatedAt = LocalDateTime.now();
     }
 
-    // === Getters & Setters ===
-    public Integer getInventoryId() {
-        return inventoryId;
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
-    public void setInventoryId(Integer inventoryId) {
-        this.inventoryId = inventoryId;
+    // Getters & Setters
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Product getProduct() {
@@ -64,9 +74,5 @@ public class Inventory {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }

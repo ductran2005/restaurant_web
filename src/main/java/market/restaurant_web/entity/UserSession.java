@@ -3,10 +3,13 @@ package market.restaurant_web.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * Maps to DB table: user_sessions
+ * (session_id, user_id, created_at, expires_at, ip, user_agent)
+ */
 @Entity
 @Table(name = "user_sessions")
 public class UserSession {
-
     @Id
     @Column(name = "session_id", length = 128)
     private String sessionId;
@@ -15,7 +18,7 @@ public class UserSession {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "expires_at", nullable = false)
@@ -27,11 +30,13 @@ public class UserSession {
     @Column(name = "user_agent", length = 255)
     private String userAgent;
 
-    // === Constructors ===
-    public UserSession() {
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null)
+            createdAt = LocalDateTime.now();
     }
 
-    // === Getters & Setters ===
+    // Getters & Setters
     public String getSessionId() {
         return sessionId;
     }
@@ -50,10 +55,6 @@ public class UserSession {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 
     public LocalDateTime getExpiresAt() {

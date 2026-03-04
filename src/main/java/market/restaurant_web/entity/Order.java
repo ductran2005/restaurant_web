@@ -5,27 +5,33 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Maps to DB table: orders
+ * (order_id, table_id, created_by, order_type, opened_at, closed_at,
+ * status, subtotal, discount_amount, total_amount, note)
+ * Status values: OPEN, SERVED, CANCELLED, PAID
+ * Order type: DINE_IN, TAKE_AWAY, DELIVERY
+ */
 @Entity
 @Table(name = "orders")
 public class Order {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
-    private Integer orderId;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "table_id", nullable = false)
-    private RestaurantTable table;
+    private DiningTable table;
 
     @ManyToOne
     @JoinColumn(name = "created_by", nullable = false)
-    private User createdBy;
+    private User createdByUser;
 
     @Column(name = "order_type", nullable = false, length = 20)
     private String orderType = "DINE_IN";
 
-    @Column(name = "opened_at", nullable = false)
+    @Column(name = "opened_at", updatable = false)
     private LocalDateTime openedAt;
 
     @Column(name = "closed_at")
@@ -46,36 +52,48 @@ public class Order {
     @Column(name = "note", length = 500)
     private String note;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails;
 
-    // === Constructors ===
-    public Order() {
+    @PrePersist
+    protected void onCreate() {
+        if (openedAt == null)
+            openedAt = LocalDateTime.now();
+        if (status == null)
+            status = "OPEN";
+        if (orderType == null)
+            orderType = "DINE_IN";
+        if (subtotal == null)
+            subtotal = BigDecimal.ZERO;
+        if (discountAmount == null)
+            discountAmount = BigDecimal.ZERO;
+        if (totalAmount == null)
+            totalAmount = BigDecimal.ZERO;
     }
 
-    // === Getters & Setters ===
-    public Integer getOrderId() {
-        return orderId;
+    // Getters & Setters
+    public Integer getId() {
+        return id;
     }
 
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public RestaurantTable getTable() {
+    public DiningTable getTable() {
         return table;
     }
 
-    public void setTable(RestaurantTable table) {
+    public void setTable(DiningTable table) {
         this.table = table;
     }
 
-    public User getCreatedBy() {
-        return createdBy;
+    public User getCreatedByUser() {
+        return createdByUser;
     }
 
-    public void setCreatedBy(User createdBy) {
-        this.createdBy = createdBy;
+    public void setCreatedByUser(User user) {
+        this.createdByUser = user;
     }
 
     public String getOrderType() {
@@ -90,8 +108,9 @@ public class Order {
         return openedAt;
     }
 
-    public void setOpenedAt(LocalDateTime openedAt) {
-        this.openedAt = openedAt;
+    /** Alias for backward compat */
+    public LocalDateTime getCreatedAt() {
+        return openedAt;
     }
 
     public LocalDateTime getClosedAt() {
