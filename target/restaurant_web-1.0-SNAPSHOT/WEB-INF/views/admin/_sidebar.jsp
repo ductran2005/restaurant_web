@@ -1,77 +1,88 @@
 <%-- Admin Sidebar Partial --%>
     <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <div class="nav-brand-icon"><i class="fa-solid fa-utensils"></i></div>
-                <span style="font-size:.875rem;font-weight:500">Huong Viet</span>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon"><i class="fa-solid fa-utensils"></i></div>
+                <div>
+                    <div class="sidebar-logo-name">Hương Việt</div>
+                    <div class="sidebar-logo-role">${sessionScope.user.role.name}</div>
+                </div>
             </div>
             <nav class="sidebar-nav">
                 <!-- Admin Section -->
                 <c:if test="${sessionScope.user.role.name == 'ADMIN'}">
-                    <div class="sidebar-section">
-                        <div class="sidebar-section-title">Quản lý</div>
-                        <a href="${pageContext.request.contextPath}/admin"
-                            class="sidebar-link ${sidebarActive == 'dashboard' ? 'active' : ''}">
-                            <i class="fa-solid fa-chart-pie"></i> Dashboard
-                        </a>
-                        <a href="${pageContext.request.contextPath}/admin/categories"
-                            class="sidebar-link ${sidebarActive == 'categories' ? 'active' : ''}">
-                            <i class="fa-solid fa-tags"></i> Danh mục
-                        </a>
-                        <a href="${pageContext.request.contextPath}/admin/menu"
-                            class="sidebar-link ${sidebarActive == 'menu' ? 'active' : ''}">
-                            <i class="fa-solid fa-bowl-food"></i> Thực đơn
-                        </a>
-                        <a href="${pageContext.request.contextPath}/admin/tables"
-                            class="sidebar-link ${sidebarActive == 'tables' ? 'active' : ''}">
-                            <i class="fa-solid fa-chair"></i> Bàn & Khu vực
-                        </a>
-                        <%-- Phân quyền & Cấu hình: controller đã xóa (không có bảng permissions/system_configs trong
-                            DB) --%>
-                    </div>
+                    <div class="nav-group-label">Quản trị</div>
+                    <a href="${pageContext.request.contextPath}/admin"
+                        class="nav-item ${sidebarActive == 'dashboard' ? 'active' : ''}">
+                        <i class="fa-solid fa-chart-pie"></i> Dashboard
+                    </a>
+                    <a href="${pageContext.request.contextPath}/admin/categories"
+                        class="nav-item ${sidebarActive == 'categories' ? 'active' : ''}">
+                        <i class="fa-solid fa-tags"></i> Danh mục
+                    </a>
+                    <a href="${pageContext.request.contextPath}/admin/menu"
+                        class="nav-item ${sidebarActive == 'menu' ? 'active' : ''}">
+                        <i class="fa-solid fa-bowl-food"></i> Thực đơn
+                    </a>
+                    <a href="${pageContext.request.contextPath}/admin/tables"
+                        class="nav-item ${sidebarActive == 'tables' ? 'active' : ''}">
+                        <i class="fa-solid fa-chair"></i> Bàn & Khu vực
+                    </a>
+                    <a href="${pageContext.request.contextPath}/admin/users"
+                        class="nav-item ${sidebarActive == 'users' ? 'active' : ''}">
+                        <i class="fa-solid fa-users"></i> Người dùng
+                    </a>
+                    <a href="${pageContext.request.contextPath}/admin/rbac"
+                        class="nav-item ${sidebarActive == 'rbac' ? 'active' : ''}">
+                        <i class="fa-solid fa-shield-halved"></i> Phân quyền
+                    </a>
+                    <a href="${pageContext.request.contextPath}/admin/reports"
+                        class="nav-item ${sidebarActive == 'reports' ? 'active' : ''}">
+                        <i class="fa-solid fa-chart-bar"></i> Báo cáo
+                    </a>
+                    <a href="${pageContext.request.contextPath}/admin/config"
+                        class="nav-item ${sidebarActive == 'config' ? 'active' : ''}">
+                        <i class="fa-solid fa-gear"></i> Cấu hình
+                    </a>
                 </c:if>
 
                 <!-- Staff Section -->
                 <c:if test="${sessionScope.user.role.name == 'ADMIN' || sessionScope.user.role.name == 'STAFF'}">
-                    <div class="sidebar-section">
-                        <div class="sidebar-section-title">Phục vụ</div>
-                        <a href="${pageContext.request.contextPath}/staff"
-                            class="sidebar-link ${sidebarActive == 'tablemap' ? 'active' : ''}">
-                            <i class="fa-solid fa-map"></i> Sơ đồ bàn
-                        </a>
-                        <%-- Booking: controller đã xóa (không có bảng bookings trong DB) --%>
-                            <a href="${pageContext.request.contextPath}/staff/orders"
-                                class="sidebar-link ${sidebarActive == 'orders' ? 'active' : ''}">
-                                <i class="fa-solid fa-clipboard-list"></i> Order
-                            </a>
-                    </div>
+                    <div class="nav-group-label">Phục vụ</div>
+                    <a href="${pageContext.request.contextPath}/staff"
+                        class="nav-item ${sidebarActive == 'tablemap' ? 'active' : ''}">
+                        <i class="fa-solid fa-map"></i> Sơ đồ bàn
+                    </a>
+                    <a href="${pageContext.request.contextPath}/staff/bookings"
+                        class="nav-item ${sidebarActive == 'bookings' ? 'active' : ''}">
+                        <i class="fa-solid fa-calendar-check"></i> Booking
+                    </a>
+                    <a href="${pageContext.request.contextPath}/staff/orders"
+                        class="nav-item ${sidebarActive == 'orders' ? 'active' : ''}">
+                        <i class="fa-solid fa-clipboard-list"></i> Order
+                    </a>
                 </c:if>
 
                 <!-- Cashier Section -->
                 <c:if test="${sessionScope.user.role.name == 'ADMIN' || sessionScope.user.role.name == 'CASHIER'}">
-                    <div class="sidebar-section">
-                        <div class="sidebar-section-title">Thu ngân</div>
-                        <a href="${pageContext.request.contextPath}/cashier"
-                            class="sidebar-link ${sidebarActive == 'invoices' ? 'active' : ''}">
-                            <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
-                        </a>
-                    </div>
+                    <div class="nav-group-label">Thu ngân</div>
+                    <a href="${pageContext.request.contextPath}/cashier"
+                        class="nav-item ${sidebarActive == 'invoices' ? 'active' : ''}">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
+                    </a>
+                    <a href="${pageContext.request.contextPath}/cashier/checkout"
+                        class="nav-item ${sidebarActive == 'checkout' ? 'active' : ''}">
+                        <i class="fa-solid fa-cash-register"></i> Thanh toán
+                    </a>
                 </c:if>
             </nav>
-            <div class="sidebar-footer">
-                <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
-                    <div
-                        style="width:2rem;height:2rem;border-radius:50%;background:var(--primary);color:var(--primary-fg);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700">
-                        ${sessionScope.user.fullName.substring(0,1)}
-                    </div>
-                    <div>
-                        <div style="font-size:.8125rem;font-weight:600">${sessionScope.user.fullName}</div>
-                        <div style="font-size:.6875rem;color:var(--muted-fg)">${sessionScope.user.role.name}</div>
-                    </div>
+            <div class="sidebar-user">
+                <div class="sidebar-avatar">${sessionScope.user.fullName.substring(0,1)}</div>
+                <div>
+                    <div class="sidebar-user-name">${sessionScope.user.fullName}</div>
+                    <div class="sidebar-user-role">${sessionScope.user.role.name}</div>
                 </div>
-                <a href="${pageContext.request.contextPath}/logout" class="btn btn-ghost btn-sm btn-block"
-                    style="justify-content:flex-start">
-                    <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-                </a>
+                <a href="${pageContext.request.contextPath}/logout" title="Đăng xuất"
+                    style="margin-left:auto;color:var(--text-muted)"><i class="fa-solid fa-right-from-bracket"></i></a>
             </div>
         </aside>
