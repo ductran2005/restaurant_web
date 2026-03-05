@@ -62,6 +62,7 @@ market\restaurant_web\service\CategoryService.class
 market\restaurant_web\controller\customer\BookingFormController.class
 market\restaurant_web\filter\AuthFilter.class
 market\restaurant_web\service\BookingService.class
+market\restaurant_web\TestConnection.class
 market\restaurant_web\controller\auth\RegisterController.class
 market\restaurant_web\dao\TableDAO.class
 market\restaurant_web\controller\auth\AccessDeniedController.class
