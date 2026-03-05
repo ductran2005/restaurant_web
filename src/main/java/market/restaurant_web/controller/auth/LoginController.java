@@ -2,6 +2,7 @@ package market.restaurant_web.controller.auth;
 
 import market.restaurant_web.entity.User;
 import market.restaurant_web.service.AuthService;
+import market.restaurant_web.service.PermissionService;
 import market.restaurant_web.util.ValidationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -50,8 +51,10 @@ public class LoginController extends HttpServlet {
         session = req.getSession(true);
         session.setAttribute("user", user);
         session.setAttribute("role", user.getRole().getName());
-        // No permissions table in DB - role-based access only
-        session.setAttribute("permissions", java.util.Set.of());
+        // Load permissions from DB
+        PermissionService permService = new PermissionService();
+        java.util.Set<String> permissions = permService.getPermissionsByRoleId(user.getRole().getId());
+        session.setAttribute("permissions", permissions);
 
         // Redirect to saved URL or role-based home
         String redirectUrl = (String) session.getAttribute("redirect_after_login");

@@ -76,6 +76,7 @@
                                                 <th>Danh mục</th>
                                                 <th style="text-align:right">Giá bán</th>
                                                 <th style="text-align:right">Giá vốn</th>
+                                                <th style="text-align:center">Số lượng</th>
                                                 <th>Trạng thái</th>
                                                 <th>Thao tác</th>
                                             </tr>
@@ -93,13 +94,17 @@
                                                     <td style="text-align:right;color:var(--text-muted)">
                                                         <fmt:formatNumber value="${p.costPrice}" pattern="#,###" />đ
                                                     </td>
+                                                    <td style="text-align:center">
+                                                        <span
+                                                            class="badge ${p.quantity > 0 ? 'b-success' : 'b-danger'}">${p.quantity}</span>
+                                                    </td>
                                                     <td><span
                                                             class="badge ${p.status=='AVAILABLE'?'b-success':'b-danger'}">${p.status=='AVAILABLE'?'Đang
                                                             bán':'Ngừng bán'}</span></td>
                                                     <td>
                                                         <div style="display:flex;gap:4px">
                                                             <button class="btn btn-ghost btn-sm"
-                                                                onclick="openEditModal(${p.id},'${p.productName}',${p.category.id},${p.price},${p.costPrice},'${p.status}','${p.description}')"
+                                                                onclick="openEditModal(${p.id},'${p.productName}',${p.category.id},${p.price},${p.costPrice},${p.quantity},'${p.status}','${p.description}')"
                                                                 title="Sửa"><i class="fa-solid fa-pen"></i></button>
                                                             <form method="post" action="${ctx}/admin/menu"
                                                                 style="display:inline">
@@ -122,7 +127,7 @@
                                             </c:forEach>
                                             <c:if test="${empty products}">
                                                 <tr>
-                                                    <td colspan="6" class="empty-state"><i
+                                                    <td colspan="7" class="empty-state"><i
                                                             class="fa-solid fa-bowl-food"></i>
                                                         <h3>Chưa có sản phẩm</h3>
                                                     </td>
@@ -165,6 +170,9 @@
                                                 type="number" name="costPrice" id="pCost" class="form-control" required
                                                 min="0" step="1000"></div>
                                     </div>
+                                    <div class="form-group"><label class="form-label">Số lượng *</label><input
+                                            type="number" name="quantity" id="pQty" class="form-control" required
+                                            min="0" step="1" value="0"></div>
                                     <div class="form-group"><label class="form-label">Mô tả</label><textarea
                                             name="description" id="pDesc" class="form-control" rows="2"></textarea>
                                     </div>
@@ -212,8 +220,8 @@
                             function closeModal(id) { document.getElementById(id).classList.remove('active') }
                             function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').classList.add('active') }
                             function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('active') }
-                            function openCreateModal() { document.getElementById('fTitle').textContent = 'Thêm sản phẩm'; document.getElementById('fBtn').textContent = 'Thêm mới'; document.getElementById('pAction').value = 'create'; document.getElementById('pId').value = ''; document.getElementById('pName').value = ''; document.getElementById('pPrice').value = ''; document.getElementById('pCost').value = ''; document.getElementById('pDesc').value = ''; document.getElementById('pIsActive').checked = true; openModal('formModal') }
-                            function openEditModal(id, n, cat, pr, co, st, de) { document.getElementById('fTitle').textContent = 'Sửa sản phẩm'; document.getElementById('fBtn').textContent = 'Cập nhật'; document.getElementById('pAction').value = 'update'; document.getElementById('pId').value = id; document.getElementById('pName').value = n; document.getElementById('pCat').value = cat; document.getElementById('pPrice').value = pr; document.getElementById('pCost').value = co; document.getElementById('pIsActive').checked = (st === 'AVAILABLE'); document.getElementById('pDesc').value = de || ''; openModal('formModal') }
+                            function openCreateModal() { document.getElementById('fTitle').textContent = 'Thêm sản phẩm'; document.getElementById('fBtn').textContent = 'Thêm mới'; document.getElementById('pAction').value = 'create'; document.getElementById('pId').value = ''; document.getElementById('pName').value = ''; document.getElementById('pPrice').value = ''; document.getElementById('pCost').value = ''; document.getElementById('pQty').value = '0'; document.getElementById('pDesc').value = ''; document.getElementById('pIsActive').checked = true; openModal('formModal') }
+                            function openEditModal(id, n, cat, pr, co, qty, st, de) { document.getElementById('fTitle').textContent = 'Sửa sản phẩm'; document.getElementById('fBtn').textContent = 'Cập nhật'; document.getElementById('pAction').value = 'update'; document.getElementById('pId').value = id; document.getElementById('pName').value = n; document.getElementById('pCat').value = cat; document.getElementById('pPrice').value = pr; document.getElementById('pCost').value = co; document.getElementById('pQty').value = qty; document.getElementById('pIsActive').checked = (st === 'AVAILABLE'); document.getElementById('pDesc').value = de || ''; openModal('formModal') }
                             function openDeleteModal(id, n) { document.getElementById('delId').value = id; document.getElementById('delDesc').textContent = 'Xóa "' + n + '"? Không thể hoàn tác.'; openModal('delModal') }
                         </script>
             </body>

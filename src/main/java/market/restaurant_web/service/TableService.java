@@ -1,21 +1,25 @@
 package market.restaurant_web.service;
 
 import market.restaurant_web.config.HibernateUtil;
-import market.restaurant_web.dao.AreaDao;
-import market.restaurant_web.dao.TableDao;
+import market.restaurant_web.dao.AreaDAO;
+import market.restaurant_web.dao.TableDAO;
 import market.restaurant_web.entity.Area;
 import market.restaurant_web.entity.DiningTable;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import java.util.List;
 
 public class TableService {
-    private final AreaDao areaDao = new AreaDao();
-    private final TableDao tableDao = new TableDao();
+    private final AreaDAO areaDao = new AreaDAO();
+    private final TableDAO tableDao = new TableDAO();
 
     public List<Area> findAllAreas() {
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {
-            return areaDao.findAllOrdered(s);
+            List<Area> list = areaDao.findAllOrdered(s);
+            for (Area a : list)
+                Hibernate.initialize(a.getTables());
+            return list;
         }
     }
 
@@ -102,6 +106,29 @@ public class TableService {
             throw new RuntimeException(e);
         } finally {
             s.close();
+        }
+    }
+
+    /** Check if table_name already exists (exclude self when updating) */
+    public boolean isTableNameDuplicate(String tableName, Integer excludeId) {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            DiningTable existing = tableDao.findByName(s, tableName);
+            if (existing == null)
+                return false;
+            return excludeId == null || !existing.getId().equals(excludeId);
+        }
+    }
+
+    /** Check if area_name already exists (exclude self when updating) */
+    public boolean isAreaNameDuplicate(String areaName, Integer excludeId) {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            Area existing = s.createQuery(
+                    "FROM Area WHERE areaName = :n", Area.class)
+                    .setParameter("n", areaName)
+                    .uniqueResult();
+            if (existing == null)
+                return false;
+            return excludeId == null || !existing.getId().equals(excludeId);
         }
     }
 }

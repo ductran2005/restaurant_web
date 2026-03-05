@@ -8,8 +8,8 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 public class AuthService {
-    private final UserDao userDao = new UserDao();
-    private final RoleDao roleDao = new RoleDao();
+    private final UserDAO userDao = new UserDAO();
+    private final RoleDAO roleDao = new RoleDAO();
 
     /**
      * Login by username + password.
@@ -72,12 +72,17 @@ public class AuthService {
 
     /**
      * Get role-based home URL for redirect after login.
+     * Supports ADMIN, STAFF, CASHIER, CUSTOMER.
      */
     public static String getHomeUrl(String roleName) {
-        return switch (roleName) {
+        if (roleName == null) {
+            return "/";
+        }
+        return switch (roleName.toUpperCase()) {
             case "ADMIN" -> "/admin";
             case "STAFF" -> "/staff";
             case "CASHIER" -> "/cashier";
+            case "CUSTOMER" -> "/";
             default -> "/";
         };
     }

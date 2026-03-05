@@ -414,7 +414,6 @@
                     </div>
                     <div class="nav-actions">
                         <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
-                        <a href="${pageContext.request.contextPath}/login" class="btn-login">Đăng nhập</a>
                     </div>
                     <div class="nav-burger" id="navBurger"><span></span><span></span><span></span></div>
                 </nav>

@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
     <%@ taglib prefix="c" uri="jakarta.tags.core" %>
         <c:set var="ctx" value="${pageContext.request.contextPath}" />
+        <c:set var="sidebarActive" value="dashboard" />
         <!DOCTYPE html>
         <html lang="vi">
 
@@ -15,73 +16,8 @@
 
         <body>
             <div class="shell">
-
-                <%-- Sidebar --%>
-                    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-                    <aside class="sidebar" id="sidebar">
-                        <div class="sidebar-logo">
-                            <div class="sidebar-logo-icon"><i class="fa-solid fa-utensils"></i></div>
-                            <div>
-                                <div class="sidebar-logo-name">Hương Việt</div>
-                                <div class="sidebar-logo-role">${sessionScope.user.role.name}</div>
-                            </div>
-                        </div>
-
-                        <nav class="sidebar-nav">
-                            <c:if test="${sessionScope.user.role.name == 'ADMIN'}">
-                                <div class="nav-group-label">Quản trị</div>
-                                <a href="${ctx}/admin"
-                                    class="nav-item ${pageContext.request.servletPath.contains('/admin') && !pageContext.request.servletPath.contains('/admin/') ? 'active' : ''}">
-                                    <i class="fa-solid fa-chart-line"></i> Dashboard
-                                </a>
-                                <a href="${ctx}/admin/categories" class="nav-item">
-                                    <i class="fa-solid fa-tags"></i> Danh mục
-                                </a>
-                                <a href="${ctx}/admin/menu" class="nav-item">
-                                    <i class="fa-solid fa-book-open"></i> Thực đơn
-                                </a>
-                                <a href="${ctx}/admin/tables" class="nav-item">
-                                    <i class="fa-solid fa-chair"></i> Bàn & Khu vực
-                                </a>
-                                <a href="${ctx}/admin/users" class="nav-item">
-                                    <i class="fa-solid fa-users"></i> Người dùng
-                                </a>
-                                <%-- Phân quyền & Cấu hình: đã xóa controller (không có table permissions/system_configs
-                                    trong DB) --%>
-                            </c:if>
-
-                            <c:if test="${sessionScope.user.role.name == 'STAFF'}">
-                                <div class="nav-group-label">Nhân viên</div>
-                                <a href="${ctx}/staff" class="nav-item active">
-                                    <i class="fa-solid fa-map"></i> Sơ đồ bàn
-                                </a>
-                                <%-- Booking: đã xóa controller (không có bảng bookings trong DB) --%>
-                                    <a href="${ctx}/staff/orders" class="nav-item">
-                                        <i class="fa-solid fa-clipboard-list"></i> Quản lý Order
-                                    </a>
-                            </c:if>
-
-                            <c:if test="${sessionScope.user.role.name == 'CASHIER'}">
-                                <div class="nav-group-label">Thu ngân</div>
-                                <a href="${ctx}/cashier" class="nav-item active">
-                                    <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
-                                </a>
-                                <a href="${ctx}/cashier/checkout" class="nav-item">
-                                    <i class="fa-solid fa-cash-register"></i> Thanh toán
-                                </a>
-                            </c:if>
-                        </nav>
-
-                        <div class="sidebar-user">
-                            <div class="sidebar-avatar">${sessionScope.user.fullName.substring(0,1)}</div>
-                            <div>
-                                <div class="sidebar-user-name">${sessionScope.user.fullName}</div>
-                                <div class="sidebar-user-role">${sessionScope.user.role.name}</div>
-                            </div>
-                            <a href="${ctx}/logout" title="Đăng xuất" style="margin-left:auto;color:#9e9488"><i
-                                    class="fa-solid fa-right-from-bracket"></i></a>
-                        </div>
-                    </aside>
+                <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+                <%@ include file="/WEB-INF/views/admin/_sidebar.jsp" %>
 
                     <%-- Main --%>
                         <div class="main">

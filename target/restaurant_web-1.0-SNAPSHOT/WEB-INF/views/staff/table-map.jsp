@@ -2,6 +2,7 @@
     <%@ taglib prefix="c" uri="jakarta.tags.core" %>
         <%@ taglib prefix="fn" uri="jakarta.tags.fn" %>
             <c:set var="ctx" value="${pageContext.request.contextPath}" />
+            <c:set var="sidebarActive" value="tablemap" />
             <!DOCTYPE html>
             <html lang="vi">
 
@@ -16,94 +17,67 @@
             <body>
                 <div class="shell">
                     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-                    <aside class="sidebar" id="sidebar">
-                        <div class="sidebar-logo">
-                            <div class="sidebar-logo-icon"><i class="fa-solid fa-utensils"></i></div>
-                            <div>
-                                <div class="sidebar-logo-name">Hương Việt</div>
-                                <div class="sidebar-logo-role">STAFF</div>
-                            </div>
-                        </div>
-                        <nav class="sidebar-nav">
-                            <div class="nav-group-label">Nhân viên phục vụ</div>
-                            <a href="${ctx}/staff" class="nav-item active">
-                                <i class="fa-solid fa-map"></i> Sơ đồ bàn
-                            </a>
-                            <a href="${ctx}/staff/orders" class="nav-item">
-                                <i class="fa-solid fa-clipboard-list"></i> Quản lý Order
-                            </a>
-                        </nav>
-                        <div class="sidebar-user">
-                            <div class="sidebar-avatar">${sessionScope.user.fullName.substring(0,1)}</div>
-                            <div>
-                                <div class="sidebar-user-name">${sessionScope.user.fullName}</div>
-                                <div class="sidebar-user-role">STAFF</div>
-                            </div>
-                            <a href="${ctx}/logout" title="Đăng xuất" style="margin-left:auto;color:#9e9488">
-                                <i class="fa-solid fa-right-from-bracket"></i>
-                            </a>
-                        </div>
-                    </aside>
+                    <%@ include file="/WEB-INF/views/admin/_sidebar.jsp" %>
 
-                    <div class="main">
-                        <header class="topbar">
-                            <button class="burger" onclick="openSidebar()"><i class="fa-solid fa-bars"></i></button>
-                            <h1 class="topbar-title"><i class="fa-solid fa-map"></i> Sơ đồ bàn</h1>
-                            <div class="topbar-right">
-                                <div style="display:flex;gap:14px;font-size:12px;color:#9e9488;align-items:center">
-                                    <span>
-                                        <span
-                                            style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:4px"></span>
-                                        Trống (AVAILABLE)
-                                    </span>
-                                    <span>
-                                        <span
-                                            style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b82f6;margin-right:4px"></span>
-                                        Đang dùng (IN_USE)
-                                    </span>
-                                </div>
-                            </div>
-                        </header>
-
-                        <div class="content">
-                            <c:choose>
-                                <c:when test="${empty areas}">
-                                    <div class="empty-state">
-                                        <i class="fa-solid fa-chair"></i>
-                                        <h3>Chưa có khu vực nào</h3>
+                        <div class="main">
+                            <header class="topbar">
+                                <button class="burger" onclick="openSidebar()"><i class="fa-solid fa-bars"></i></button>
+                                <h1 class="topbar-title"><i class="fa-solid fa-map"></i> Sơ đồ bàn</h1>
+                                <div class="topbar-right">
+                                    <div style="display:flex;gap:14px;font-size:12px;color:#9e9488;align-items:center">
+                                        <span>
+                                            <span
+                                                style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:4px"></span>
+                                            Trống (AVAILABLE)
+                                        </span>
+                                        <span>
+                                            <span
+                                                style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b82f6;margin-right:4px"></span>
+                                            Đang dùng (IN_USE)
+                                        </span>
                                     </div>
-                                </c:when>
-                                <c:otherwise>
-                                    <c:forEach var="area" items="${areas}">
-                                        <div class="area-section">
-                                            <div class="area-heading">
-                                                <i class="fa-solid fa-location-dot"></i>
-                                                <c:out value="${area.areaName}" />
-                                            </div>
-                                            <div class="table-grid">
-                                                <c:forEach var="t" items="${area.tables}">
-                                                    <div class="table-tile t-${fn:toLowerCase(t.status)}"
-                                                        data-id="${t.id}" data-name="${t.tableName}"
-                                                        data-status="${t.status}" data-cap="${t.capacity}"
-                                                        onclick="openTableDetail(this)">
-                                                        <div class="table-tile-name">
-                                                            <c:out value="${t.tableName}" />
-                                                        </div>
-                                                        <div class="table-tile-cap">
-                                                            <i class="fa-solid fa-user"></i> ${t.capacity} chỗ
-                                                        </div>
-                                                        <div style="margin-top:8px;font-size:11px;font-weight:600">
-                                                            ${t.status}
-                                                        </div>
-                                                    </div>
-                                                </c:forEach>
-                                            </div>
+                                </div>
+                            </header>
+
+                            <div class="content">
+                                <c:choose>
+                                    <c:when test="${empty areas}">
+                                        <div class="empty-state">
+                                            <i class="fa-solid fa-chair"></i>
+                                            <h3>Chưa có khu vực nào</h3>
                                         </div>
-                                    </c:forEach>
-                                </c:otherwise>
-                            </c:choose>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <c:forEach var="area" items="${areas}">
+                                            <div class="area-section">
+                                                <div class="area-heading">
+                                                    <i class="fa-solid fa-location-dot"></i>
+                                                    <c:out value="${area.areaName}" />
+                                                </div>
+                                                <div class="table-grid">
+                                                    <c:forEach var="t" items="${area.tables}">
+                                                        <div class="table-tile t-${fn:toLowerCase(t.status)}"
+                                                            data-id="${t.id}" data-name="${t.tableName}"
+                                                            data-status="${t.status}" data-cap="${t.capacity}"
+                                                            onclick="openTableDetail(this)">
+                                                            <div class="table-tile-name">
+                                                                <c:out value="${t.tableName}" />
+                                                            </div>
+                                                            <div class="table-tile-cap">
+                                                                <i class="fa-solid fa-user"></i> ${t.capacity} chỗ
+                                                            </div>
+                                                            <div style="margin-top:8px;font-size:11px;font-weight:600">
+                                                                ${t.status}
+                                                            </div>
+                                                        </div>
+                                                    </c:forEach>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
                         </div>
-                    </div>
                 </div>
 
                 <!-- Table Detail Modal -->

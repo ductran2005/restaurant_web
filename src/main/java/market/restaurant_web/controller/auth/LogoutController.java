@@ -1,6 +1,5 @@
 package market.restaurant_web.controller.auth;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;

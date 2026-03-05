@@ -607,7 +607,6 @@
                     </div>
                     <div class="nav-actions">
                         <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
-                        <a href="${pageContext.request.contextPath}/login" class="btn-login">Đăng nhập</a>
                     </div>
                     <div class="nav-burger" id="navBurger"><span></span><span></span><span></span></div>
                 </nav>
@@ -657,7 +656,8 @@
                             <div class="booking-bar">
                                 <div class="booking-bar-info">
                                     <div class="info-chip"><i class="fa-solid fa-ticket"></i>
-                                        <strong>${booking.bookingCode}</strong></div>
+                                        <strong>${booking.bookingCode}</strong>
+                                    </div>
                                     <div class="info-chip"><i class="fa-solid fa-user"></i> ${booking.customerName}
                                     </div>
                                     <div class="info-chip"><i class="fa-solid fa-calendar"></i> ${booking.bookingDate}

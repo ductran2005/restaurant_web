@@ -314,16 +314,6 @@
                     </div>
                     <div class="nav-actions">
                         <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
-                        <c:choose>
-                            <c:when test="${not empty sessionScope.user}">
-                                <span
-                                    style="color:var(--text-muted);font-size:13px">${sessionScope.user.fullName}</span>
-                                <a href="${pageContext.request.contextPath}/logout" class="btn-login">Đăng xuất</a>
-                            </c:when>
-                            <c:otherwise>
-                                <a href="${pageContext.request.contextPath}/login" class="btn-login">Đăng nhập</a>
-                            </c:otherwise>
-                        </c:choose>
                         <a href="${pageContext.request.contextPath}/booking/create" class="btn-book">
                             <i class="fa-solid fa-calendar-check"></i> Đặt bàn
                         </a>

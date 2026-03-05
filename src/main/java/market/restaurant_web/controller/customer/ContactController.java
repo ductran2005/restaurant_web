@@ -24,15 +24,11 @@ public class ContactController extends HttpServlet {
             String subject = ValidationUtil.sanitize(req.getParameter("subject"));
             String message = ValidationUtil.sanitize(req.getParameter("message"));
 
-            // Validate required fields
-            if (ValidationUtil.isBlank(name) || ValidationUtil.isBlank(email) || 
-                ValidationUtil.isBlank(subject) || ValidationUtil.isBlank(message)) {
+            if (ValidationUtil.isBlank(name) || ValidationUtil.isBlank(email) ||
+                    ValidationUtil.isBlank(subject) || ValidationUtil.isBlank(message)) {
                 throw new IllegalArgumentException("Vui lòng điền đầy đủ thông tin");
             }
 
-            // TODO: Implement email sending logic here
-            // For now, just show success message
-            
             req.setAttribute("success", "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong vòng 24h.");
             req.getRequestDispatcher("/WEB-INF/views/customer/contact.jsp").forward(req, resp);
 

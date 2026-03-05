@@ -15,6 +15,7 @@ public class DashboardController extends HttpServlet {
     private final OrderService orderService = new OrderService();
     private final PaymentService paymentService = new PaymentService();
     private final ProductService productService = new ProductService();
+    private final BookingService bookingService = new BookingService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -31,8 +32,7 @@ public class DashboardController extends HttpServlet {
 
         req.setAttribute("totalOrders", todayOrders.size());
         req.setAttribute("totalRevenue", todayRevenue);
-        // No bookings table - set 0
-        req.setAttribute("totalBookings", 0);
+        req.setAttribute("totalBookings", bookingService.findByDateAndStatus(today, null).size());
         req.setAttribute("activeProducts", productService.findAvailable().size());
 
         // Chart data: last 7 days revenue

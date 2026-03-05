@@ -1,7 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
     <%@ taglib prefix="c" uri="jakarta.tags.core" %>
         <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-            <c:set var="sidebarActive" value="invoices" />
+            <c:set var="ctx" value="${pageContext.request.contextPath}" />
+            <c:set var="sidebarActive" value="checkout" />
             <!DOCTYPE html>
             <html lang="vi">
 
@@ -10,28 +11,33 @@
                 <meta name="viewport" content="width=device-width,initial-scale=1">
                 <title>Thanh toán — Thu ngân</title>
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-                <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/customer.css">
+                <link rel="stylesheet" href="${ctx}/assets/css/admin.css">
             </head>
 
             <body>
-                <div class="admin-layout">
+                <div class="shell">
+                    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
                     <%@ include file="/WEB-INF/views/admin/_sidebar.jsp" %>
-                        <div class="admin-main">
-                            <div class="admin-topbar">
-                                <h2 style="font-size:1.125rem"><i class="fa-solid fa-cash-register"></i> Thanh toán —
-                                    ${order.table.tableName}</h2>
-                                <a href="${pageContext.request.contextPath}/cashier" class="btn btn-outline btn-sm"><i
-                                        class="fa-solid fa-arrow-left"></i> Quay lại</a>
-                            </div>
-                            <div class="admin-content">
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:64rem">
+                        <div class="main">
+                            <header class="topbar">
+                                <button class="burger" onclick="openSidebar()"><i class="fa-solid fa-bars"></i></button>
+                                <h1 class="topbar-title"><i class="fa-solid fa-cash-register"></i> Thanh toán —
+                                    ${order.table.tableName}</h1>
+                                <div class="topbar-right">
+                                    <a href="${ctx}/cashier" class="btn btn-ghost btn-sm"><i
+                                            class="fa-solid fa-arrow-left"></i> Quay lại</a>
+                                    <span class="badge-role">${sessionScope.user.role.name}</span>
+                                </div>
+                            </header>
+                            <div class="content">
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:960px">
                                     <!-- Order items -->
-                                    <div class="form-card" style="padding:0;overflow:hidden">
-                                        <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border)">
-                                            <span class="font-bold"><i class="fa-solid fa-utensils"></i> Danh sách món —
-                                                Order #${order.id}</span>
+                                    <div class="table-card">
+                                        <div class="table-card-header">
+                                            <span style="font-weight:700"><i class="fa-solid fa-utensils"></i> Danh sách
+                                                món — Order #${order.id}</span>
                                         </div>
-                                        <table class="data-table">
+                                        <table class="admin-table">
                                             <thead>
                                                 <tr>
                                                     <th>Món</th>
@@ -44,11 +50,11 @@
                                                 <c:forEach var="d" items="${order.orderDetails}">
                                                     <c:if test="${d.itemStatus == 'ORDERED'}">
                                                         <tr>
-                                                            <td>
+                                                            <td style="font-weight:600">
                                                                 <c:out value="${d.product.productName}" />
                                                             </td>
                                                             <td style="text-align:right">${d.quantity}</td>
-                                                            <td style="text-align:right">
+                                                            <td style="text-align:right;color:var(--text-muted)">
                                                                 <fmt:formatNumber value="${d.unitPrice}"
                                                                     pattern="#,###" />
                                                             </td>
@@ -63,57 +69,66 @@
                                         </table>
                                     </div>
 
-                                    <!-- Payment summary (replaces Invoice) -->
-                                    <div class="form-card">
-                                        <h3 style="margin-bottom:1.25rem"><i
-                                                class="fa-solid fa-file-invoice-dollar"></i> Thanh toán</h3>
-                                        <div style="display:flex;flex-direction:column;gap:.75rem">
-                                            <div style="display:flex;justify-content:space-between"><span
-                                                    class="text-muted">Tạm tính:</span><span>
+                                    <!-- Payment summary -->
+                                    <div class="table-card" style="padding:24px">
+                                        <h3
+                                            style="font-size:15px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px">
+                                            <i class="fa-solid fa-file-invoice-dollar" style="color:var(--primary)"></i>
+                                            Thanh toán
+                                        </h3>
+
+                                        <div class="money-breakdown">
+                                            <div class="breakdown-row">
+                                                <span>Tạm tính:</span>
+                                                <span>
                                                     <fmt:formatNumber value="${order.subtotal}" pattern="#,###" /> đ
-                                                </span></div>
-                                            <%-- VAT/Service fee: không có trong DB mới (no invoices table) --%>
-                                                <div style="display:flex;justify-content:space-between"><span
-                                                        class="text-muted">Giảm giá:</span><span>
-                                                        <fmt:formatNumber value="${order.discountAmount}"
-                                                            pattern="#,###" /> đ
-                                                    </span></div>
-                                                <hr style="border:1px solid var(--border)">
-                                                <div
-                                                    style="display:flex;justify-content:space-between;font-size:1.25rem;font-weight:700">
-                                                    <span>Tổng cộng:</span><span style="color:#16a34a">
-                                                        <fmt:formatNumber value="${order.totalAmount}"
-                                                            pattern="#,###" />
-                                                        đ
-                                                    </span>
-                                                </div>
+                                                </span>
+                                            </div>
+                                            <div class="breakdown-row">
+                                                <span>Giảm giá:</span>
+                                                <span>
+                                                    <fmt:formatNumber value="${order.discountAmount}" pattern="#,###" />
+                                                    đ
+                                                </span>
+                                            </div>
+                                            <div class="breakdown-row total">
+                                                <span>Tổng cộng:</span>
+                                                <span>
+                                                    <fmt:formatNumber value="${order.totalAmount}" pattern="#,###" /> đ
+                                                </span>
+                                            </div>
                                         </div>
+
                                         <c:if test="${order.status != 'PAID'}">
-                                            <form method="post" style="margin-top:1.5rem">
+                                            <form method="post" style="margin-top:20px">
                                                 <input type="hidden" name="action" value="pay">
                                                 <input type="hidden" name="orderId" value="${order.id}">
                                                 <div class="form-group">
-                                                    <label>Phương thức thanh toán</label>
-                                                    <select name="paymentMethod" required>
+                                                    <label class="form-label">Phương thức thanh toán <span
+                                                            style="color:var(--destructive)">*</span></label>
+                                                    <select name="paymentMethod" class="form-control" required>
                                                         <option value="">Chọn...</option>
                                                         <option value="CASH">Tiền mặt</option>
                                                         <option value="CARD">Thẻ</option>
                                                         <option value="TRANSFER">Chuyển khoản</option>
                                                     </select>
                                                 </div>
-                                                <button type="submit" class="btn btn-primary btn-block"
-                                                    style="padding:.875rem;font-size:1rem">
+                                                <button type="submit" class="btn btn-primary"
+                                                    style="width:100%;padding:12px;font-size:14px;justify-content:center">
                                                     <i class="fa-solid fa-check-circle"></i> Xác nhận thanh toán
                                                 </button>
                                             </form>
                                         </c:if>
+
                                         <c:if test="${order.status == 'PAID'}">
-                                            <div style="margin-top:1.5rem;text-align:center;color:#16a34a">
-                                                <i class="fa-solid fa-circle-check" style="font-size:2rem"></i>
-                                                <p style="margin-top:.5rem;font-weight:600">Đã thanh toán</p>
+                                            <div
+                                                style="margin-top:20px;text-align:center;color:var(--success);padding:20px">
+                                                <i class="fa-solid fa-circle-check" style="font-size:2.5rem"></i>
+                                                <p style="margin-top:8px;font-weight:700;font-size:16px">Đã thanh toán
+                                                </p>
                                                 <c:if test="${not empty payment}">
-                                                    <p class="text-muted text-sm">PTTT: ${payment.method} | Mã TT:
-                                                        #${payment.id}</p>
+                                                    <p style="color:var(--text-muted);font-size:13px;margin-top:4px">
+                                                        PTTT: ${payment.method} | Mã TT: #${payment.id}</p>
                                                 </c:if>
                                             </div>
                                         </c:if>
@@ -122,6 +137,10 @@
                             </div>
                         </div>
                 </div>
+                <script>
+                    function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').classList.add('active'); }
+                    function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
+                </script>
             </body>
 
             </html>

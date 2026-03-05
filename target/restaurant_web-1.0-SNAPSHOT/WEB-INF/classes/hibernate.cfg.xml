@@ -32,8 +32,12 @@
         <mapping class="market.restaurant_web.entity.Order"/>
         <mapping class="market.restaurant_web.entity.OrderDetail"/>
         <mapping class="market.restaurant_web.entity.Payment"/>
-        <mapping class="market.restaurant_web.entity.Inventory"/>
-        <mapping class="market.restaurant_web.entity.InventoryLog"/>
+        <!-- Inventory tables removed from new schema -->
         <mapping class="market.restaurant_web.entity.UserSession"/>
+        <mapping class="market.restaurant_web.entity.Booking"/>
+        <mapping class="market.restaurant_web.entity.PreOrderItem"/>
+        <mapping class="market.restaurant_web.entity.SystemConfig"/>
+        <mapping class="market.restaurant_web.entity.Permission"/>
+        <mapping class="market.restaurant_web.entity.AuditLog"/>
     </session-factory>
 </hibernate-configuration>

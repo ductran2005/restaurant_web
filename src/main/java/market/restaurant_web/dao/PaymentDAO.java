@@ -5,8 +5,8 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import java.util.List;
 
-public class PaymentDao extends GenericDao<Payment> {
-    public PaymentDao() {
+public class PaymentDAO extends GenericDAO<Payment> {
+    public PaymentDAO() {
         super(Payment.class);
     }
 

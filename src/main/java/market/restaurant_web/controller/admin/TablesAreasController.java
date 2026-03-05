@@ -22,30 +22,50 @@ public class TablesAreasController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
+        HttpSession session = req.getSession();
+
         if ("saveArea".equals(action)) {
-            Area area = new Area();
+            String areaName = ValidationUtil.sanitize(req.getParameter("areaName"));
             String idStr = req.getParameter("areaId");
-            if (idStr != null && !idStr.isEmpty())
-                area.setId(Integer.parseInt(idStr));
-            area.setName(ValidationUtil.sanitize(req.getParameter("areaName")));
-            // description column exists in areas table
+            Integer areaId = (idStr != null && !idStr.isEmpty()) ? Integer.parseInt(idStr) : null;
+
+            if (tableService.isAreaNameDuplicate(areaName, areaId)) {
+                session.setAttribute("flash_msg", "Tên khu vực \"" + areaName + "\" đã tồn tại!");
+                session.setAttribute("flash_type", "error");
+                resp.sendRedirect(req.getContextPath() + "/admin/tables");
+                return;
+            }
+
+            Area area = new Area();
+            area.setId(areaId);
+            area.setName(areaName);
             area.setDescription(ValidationUtil.sanitize(req.getParameter("description")));
             tableService.saveArea(area);
+
         } else if ("saveTable".equals(action)) {
-            DiningTable table = new DiningTable();
+            String tableCode = ValidationUtil.sanitize(req.getParameter("tableCode"));
             String idStr = req.getParameter("tableId");
-            if (idStr != null && !idStr.isEmpty())
-                table.setId(Integer.parseInt(idStr));
-            table.setCode(ValidationUtil.sanitize(req.getParameter("tableCode")));
+            Integer tableId = (idStr != null && !idStr.isEmpty()) ? Integer.parseInt(idStr) : null;
+
+            if (tableService.isTableNameDuplicate(tableCode, tableId)) {
+                session.setAttribute("flash_msg", "Tên bàn \"" + tableCode + "\" đã tồn tại!");
+                session.setAttribute("flash_type", "error");
+                resp.sendRedirect(req.getContextPath() + "/admin/tables");
+                return;
+            }
+
+            DiningTable table = new DiningTable();
+            table.setId(tableId);
+            table.setCode(tableCode);
             table.setArea(tableService.findAreaById(Integer.parseInt(req.getParameter("areaId"))));
             table.setSeats(ValidationUtil.parseInt(req.getParameter("seats"), 4));
-            // DB constraint: status IN ('AVAILABLE','IN_USE')
             String status = req.getParameter("status");
             table.setStatus(status != null ? status : "AVAILABLE");
             tableService.saveTable(table);
         }
-        req.getSession().setAttribute("flash_msg", "Thao tác thành công!");
-        req.getSession().setAttribute("flash_type", "success");
+
+        session.setAttribute("flash_msg", "Thao tác thành công!");
+        session.setAttribute("flash_type", "success");
         resp.sendRedirect(req.getContextPath() + "/admin/tables");
     }
 }

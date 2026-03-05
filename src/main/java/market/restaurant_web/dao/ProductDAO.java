@@ -5,8 +5,8 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import java.util.List;
 
-public class ProductDao extends GenericDao<Product> {
-    public ProductDao() {
+public class ProductDAO extends GenericDAO<Product> {
+    public ProductDAO() {
         super(Product.class);
     }
 

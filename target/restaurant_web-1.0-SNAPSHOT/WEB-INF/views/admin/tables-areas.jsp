@@ -40,9 +40,9 @@
                                     <p>Tổ chức sơ đồ nhà hàng</p>
                                 </div>
                                 <div style="display:flex;gap:8px">
-                                    <button class="btn btn-ghost" onclick="openModal('areaModal')"><i
+                                    <button class="btn btn-ghost" onclick="openCreateArea()"><i
                                             class="fa-solid fa-plus"></i> Thêm Khu vực</button>
-                                    <button class="btn btn-primary" onclick="openModal('tableModal')"><i
+                                    <button class="btn btn-primary" onclick="openCreateTable()"><i
                                             class="fa-solid fa-plus"></i> Thêm Bàn</button>
                                 </div>
                             </div>
@@ -163,17 +163,44 @@
                         function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').classList.add('active') }
                         function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('active') }
 
+                        function openCreateArea() {
+                            document.getElementById('areaMTitle').textContent = 'Thêm khu vực';
+                            document.getElementById('areaMBtn').textContent = 'Thêm';
+                            document.getElementById('areaId').value = '';
+                            document.getElementById('areaName').value = '';
+                            document.getElementById('areaDesc').value = '';
+                            openModal('areaModal');
+                        }
                         function editArea(id, name, desc) {
-                            document.getElementById('areaMTitle').textContent = 'Sửa khu vực'; document.getElementById('areaMBtn').textContent = 'Cập nhật';
-                            document.getElementById('areaAction').value = 'saveArea'; document.getElementById('areaId').value = id;
-                            document.getElementById('areaName').value = name; document.getElementById('areaDesc').value = desc || ''; openModal('areaModal');
+                            document.getElementById('areaMTitle').textContent = 'Sửa khu vực';
+                            document.getElementById('areaMBtn').textContent = 'Cập nhật';
+                            document.getElementById('areaId').value = id;
+                            document.getElementById('areaName').value = name;
+                            document.getElementById('areaDesc').value = desc || '';
+                            openModal('areaModal');
+                        }
+                        function openCreateTable() {
+                            document.getElementById('tableMTitle').textContent = 'Thêm bàn';
+                            document.getElementById('tableMBtn').textContent = 'Thêm';
+                            document.getElementById('tableId').value = '';
+                            document.getElementById('tName').value = '';
+                            document.getElementById('tCap').value = '4';
+                            document.getElementById('tStatus').value = 'AVAILABLE';
+                            document.getElementById('tStatusGroup').style.display = 'none';
+                            document.getElementById('tDelBtn').style.display = 'none';
+                            openModal('tableModal');
                         }
                         function editTable(id, name, cap, status, areaId) {
-                            document.getElementById('tableMTitle').textContent = 'Sửa bàn'; document.getElementById('tableMBtn').textContent = 'Cập nhật';
-                            document.getElementById('tableAction').value = 'saveTable'; document.getElementById('tableId').value = id;
-                            document.getElementById('tName').value = name; document.getElementById('tCap').value = cap; document.getElementById('tAreaId').value = areaId;
-                            document.getElementById('tStatus').value = status; document.getElementById('tStatusGroup').style.display = 'block';
-                            document.getElementById('tDelBtn').style.display = 'inline-flex'; openModal('tableModal');
+                            document.getElementById('tableMTitle').textContent = 'Sửa bàn';
+                            document.getElementById('tableMBtn').textContent = 'Cập nhật';
+                            document.getElementById('tableId').value = id;
+                            document.getElementById('tName').value = name;
+                            document.getElementById('tCap').value = cap;
+                            document.getElementById('tAreaId').value = areaId;
+                            document.getElementById('tStatus').value = status;
+                            document.getElementById('tStatusGroup').style.display = 'block';
+                            document.getElementById('tDelBtn').style.display = 'inline-flex';
+                            openModal('tableModal');
                         }
                         function deleteTable() {
                             var id = document.getElementById('tableId').value;

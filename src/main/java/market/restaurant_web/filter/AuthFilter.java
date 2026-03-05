@@ -15,14 +15,16 @@ import java.util.Set;
 public class AuthFilter implements Filter {
 
     private static final Set<String> PUBLIC_PREFIXES = Set.of(
-            "/assets/", "/css/", "/js/", "/img/", "/images/");
+            "/assets/", "/css/", "/js/", "/img/", "/images/",
+            "/booking");
 
     private static final Set<String> PUBLIC_PAGES = Set.of(
             "", "/", "/index.jsp",
             "/login", "/register", "/forgot-password",
             "/access-denied",
             "/menu", "/public-menu",
-            "/about", "/contact");
+            "/about", "/contact",
+            "/booking", "/booking/status", "/booking/pre-order");
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)

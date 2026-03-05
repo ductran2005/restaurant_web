@@ -4,8 +4,8 @@ import market.restaurant_web.entity.Area;
 import org.hibernate.Session;
 import java.util.List;
 
-public class AreaDao extends GenericDao<Area> {
-    public AreaDao() {
+public class AreaDAO extends GenericDAO<Area> {
+    public AreaDAO() {
         super(Area.class);
     }
 

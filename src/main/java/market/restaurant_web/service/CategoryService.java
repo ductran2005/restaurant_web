@@ -1,18 +1,22 @@
 package market.restaurant_web.service;
 
 import market.restaurant_web.config.HibernateUtil;
-import market.restaurant_web.dao.CategoryDao;
+import market.restaurant_web.dao.CategoryDAO;
 import market.restaurant_web.entity.Category;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import java.util.List;
 
 public class CategoryService {
-    private final CategoryDao dao = new CategoryDao();
+    private final CategoryDAO dao = new CategoryDAO();
 
     public List<Category> findAll() {
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {
-            return dao.findAll(s, "categoryName");
+            List<Category> list = dao.findAll(s, "categoryName");
+            for (Category c : list)
+                Hibernate.initialize(c.getProducts());
+            return list;
         }
     }
 
@@ -30,7 +34,10 @@ public class CategoryService {
 
     public List<Category> search(String keyword) {
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {
-            return dao.search(s, keyword);
+            List<Category> list = dao.search(s, keyword);
+            for (Category c : list)
+                Hibernate.initialize(c.getProducts());
+            return list;
         }
     }
 

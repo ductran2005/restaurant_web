@@ -30,6 +30,9 @@ public class Product {
     @Column(name = "cost_price", nullable = false, precision = 18, scale = 2)
     private BigDecimal costPrice;
 
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity = 0;
+
     @Column(name = "status", nullable = false, length = 20)
     private String status = "AVAILABLE";
 
@@ -84,6 +87,14 @@ public class Product {
 
     public void setCostPrice(BigDecimal costPrice) {
         this.costPrice = costPrice;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 
     public String getStatus() {

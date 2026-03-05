@@ -5,8 +5,8 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import java.util.List;
 
-public class TableDao extends GenericDao<DiningTable> {
-    public TableDao() {
+public class TableDAO extends GenericDAO<DiningTable> {
+    public TableDAO() {
         super(DiningTable.class);
     }
 
@@ -33,5 +33,13 @@ public class TableDao extends GenericDao<DiningTable> {
         return session.createQuery(
                 "FROM DiningTable ORDER BY area.id, tableName", DiningTable.class)
                 .list();
+    }
+
+    public DiningTable findByName(Session session, String name) {
+        List<DiningTable> list = session.createQuery(
+                "FROM DiningTable WHERE tableName = :n", DiningTable.class)
+                .setParameter("n", name)
+                .list();
+        return list.isEmpty() ? null : list.get(0);
     }
 }

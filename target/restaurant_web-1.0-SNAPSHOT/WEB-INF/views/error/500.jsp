@@ -77,8 +77,29 @@
                     <%=exception.getMessage()%>
                 </div>
                 <% } %>
-                    <a href="${pageContext.request.contextPath}/" class="btn-home"><i class="fa-solid fa-house"></i> Về
-                        trang chủ</a>
+                    <% Throwable t=(Throwable) request.getAttribute("jakarta.servlet.error.exception"); if (t==null)
+                        t=(Throwable) request.getAttribute("javax.servlet.error.exception"); String msg=(String)
+                        request.getAttribute("jakarta.servlet.error.message"); if (msg==null) msg=(String)
+                        request.getAttribute("javax.servlet.error.message"); %>
+                        <% if (t !=null) { %>
+                            <div class="detail">
+                                <%= t.getClass().getName() %>: <%= t.getMessage() %>
+                                        <br><br>
+                                        <% for (StackTraceElement ste : t.getStackTrace()) { out.print(ste.toString()
+                                            + "<br>" ); if (ste.toString().contains("market.restaurant_web")) break; }
+                                            if (t.getCause() !=null) { out.print("<br>Caused by: " +
+                                            t.getCause().getClass().getName() + ": " + t.getCause().getMessage());
+                                            }
+                                            %>
+                            </div>
+                            <% } else if (msg !=null && !msg.isEmpty()) { %>
+                                <div class="detail">
+                                    <%= msg %>
+                                </div>
+                                <% } %>
+                                    <a href="${pageContext.request.contextPath}/" class="btn-home"><i
+                                            class="fa-solid fa-house"></i> Về
+                                        trang chủ</a>
         </div>
     </body>
 

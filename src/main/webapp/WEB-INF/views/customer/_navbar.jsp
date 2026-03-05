@@ -35,25 +35,7 @@
                             <i class="fa-solid fa-phone"></i> <span class="nav-label">Liên hệ</span>
                         </a>
             </div>
-            <div class="nav-auth">
-                <c:choose>
-                    <c:when test="${not empty sessionScope.user}">
-                        <%-- Customer home: controller đã xóa --%>
-                            <span class="nav-link">
-                                <i class="fa-solid fa-user"></i> <span
-                                    class="nav-label">${sessionScope.user.fullName}</span>
-                            </span>
-                            <a href="${pageContext.request.contextPath}/logout" class="nav-link"
-                                style="color:var(--muted-fg)">
-                                <i class="fa-solid fa-right-from-bracket"></i>
-                            </a>
-                    </c:when>
-                    <c:otherwise>
-                        <a href="${pageContext.request.contextPath}/login" class="nav-link">
-                            <i class="fa-solid fa-right-to-bracket"></i> <span class="nav-label">Đăng nhập</span>
-                        </a>
-                    </c:otherwise>
-                </c:choose>
-            </div>
+            <%-- Login/Register đã chuyển sang dành riêng cho nhà hàng (admin/staff/cashier) --%>
+                <%-- Khách hàng không cần đăng nhập --%>
         </div>
     </nav>

@@ -33,7 +33,6 @@
             </div>
             <div class="nav-actions">
                 <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
-                <a href="${pageContext.request.contextPath}/login" class="btn-login">Đăng nhập</a>
                 <a href="${pageContext.request.contextPath}/booking/create" class="btn-book">
                     <i class="fa-solid fa-calendar-check"></i> Đặt bàn
                 </a>
@@ -478,11 +477,10 @@
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Tài khoản</h4>
+                    <h4>Về chúng tôi</h4>
                     <ul>
-                        <li><a href="${pageContext.request.contextPath}/login">Đăng nhập</a></li>
-                        <li><a href="${pageContext.request.contextPath}/register">Đăng ký</a></li>
-                        <li><a href="${pageContext.request.contextPath}/customer/home">Lịch sử đặt bàn</a></li>
+                        <li><a href="${pageContext.request.contextPath}/about">Giới thiệu</a></li>
+                        <li><a href="${pageContext.request.contextPath}/contact">Liên hệ</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">

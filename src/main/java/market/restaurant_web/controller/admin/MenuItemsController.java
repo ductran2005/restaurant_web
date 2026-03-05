@@ -51,6 +51,8 @@ public class MenuItemsController extends HttpServlet {
                     ? new BigDecimal(costPriceStr)
                     : BigDecimal.ZERO);
             product.setDescription(ValidationUtil.sanitize(req.getParameter("description")));
+            String qtyStr = req.getParameter("quantity");
+            product.setQuantity(qtyStr != null && !qtyStr.isEmpty() ? Integer.parseInt(qtyStr) : 0);
             product.setStatus(req.getParameter("isActive") != null ? "AVAILABLE" : "UNAVAILABLE");
             productService.save(product);
         }

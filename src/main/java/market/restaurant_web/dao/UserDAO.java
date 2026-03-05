@@ -5,9 +5,9 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import java.util.List;
 
-public class UserDao extends GenericDao<User> {
+public class UserDAO extends GenericDAO<User> {
 
-    public UserDao() {
+    public UserDAO() {
         super(User.class);
     }
 
