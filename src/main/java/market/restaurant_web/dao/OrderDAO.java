@@ -6,8 +6,8 @@ import org.hibernate.query.Query;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class OrderDao extends GenericDao<Order> {
-    public OrderDao() {
+public class OrderDAO extends GenericDAO<Order> {
+    public OrderDAO() {
         super(Order.class);
     }
 

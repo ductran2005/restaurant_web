@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OrderService {
-    private final OrderDao orderDao = new OrderDao();
-    private final ProductDao productDao = new ProductDao();
-    private final TableDao tableDao = new TableDao();
+    private final OrderDAO orderDao = new OrderDAO();
+    private final ProductDAO productDao = new ProductDAO();
+    private final TableDAO tableDao = new TableDAO();
 
     public Order findById(int id) {
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {

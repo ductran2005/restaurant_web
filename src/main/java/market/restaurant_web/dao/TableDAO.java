@@ -5,8 +5,8 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import java.util.List;
 
-public class TableDao extends GenericDao<DiningTable> {
-    public TableDao() {
+public class TableDAO extends GenericDAO<DiningTable> {
+    public TableDAO() {
         super(DiningTable.class);
     }
 

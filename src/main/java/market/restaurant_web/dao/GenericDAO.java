@@ -10,11 +10,11 @@ import java.util.List;
  * All methods receive a Session parameter for transaction control at service
  * layer.
  */
-public abstract class GenericDao<T> {
+public abstract class GenericDAO<T> {
 
     private final Class<T> entityClass;
 
-    protected GenericDao(Class<T> entityClass) {
+    protected GenericDAO(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
 

@@ -4,8 +4,8 @@ import market.restaurant_web.entity.Role;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 
-public class RoleDao extends GenericDao<Role> {
-    public RoleDao() {
+public class RoleDAO extends GenericDAO<Role> {
+    public RoleDAO() {
         super(Role.class);
     }
 

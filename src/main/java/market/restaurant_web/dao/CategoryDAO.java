@@ -5,8 +5,8 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import java.util.List;
 
-public class CategoryDao extends GenericDao<Category> {
-    public CategoryDao() {
+public class CategoryDAO extends GenericDAO<Category> {
+    public CategoryDAO() {
         super(Category.class);
     }
 

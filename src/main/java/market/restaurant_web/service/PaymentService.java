@@ -18,9 +18,9 @@ import java.util.List;
  * subtotal/discount_amount/total_amount.
  */
 public class PaymentService {
-    private final OrderDao orderDao = new OrderDao();
-    private final PaymentDao paymentDao = new PaymentDao();
-    private final TableDao tableDao = new TableDao();
+    private final OrderDAO orderDao = new OrderDAO();
+    private final PaymentDAO paymentDao = new PaymentDAO();
+    private final TableDAO tableDao = new TableDAO();
 
     /**
      * Checkout: calculate order totals, create payment, mark order PAID.

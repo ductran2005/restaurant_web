@@ -1,8 +1,8 @@
 package market.restaurant_web.service;
 
 import market.restaurant_web.config.HibernateUtil;
-import market.restaurant_web.dao.AreaDao;
-import market.restaurant_web.dao.TableDao;
+import market.restaurant_web.dao.AreaDAO;
+import market.restaurant_web.dao.TableDAO;
 import market.restaurant_web.entity.Area;
 import market.restaurant_web.entity.DiningTable;
 import org.hibernate.Session;
@@ -10,8 +10,8 @@ import org.hibernate.Transaction;
 import java.util.List;
 
 public class TableService {
-    private final AreaDao areaDao = new AreaDao();
-    private final TableDao tableDao = new TableDao();
+    private final AreaDAO areaDao = new AreaDAO();
+    private final TableDAO tableDao = new TableDAO();
 
     public List<Area> findAllAreas() {
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {

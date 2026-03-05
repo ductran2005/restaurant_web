@@ -1,14 +1,14 @@
 package market.restaurant_web.service;
 
 import market.restaurant_web.config.HibernateUtil;
-import market.restaurant_web.dao.CategoryDao;
+import market.restaurant_web.dao.CategoryDAO;
 import market.restaurant_web.entity.Category;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import java.util.List;
 
 public class CategoryService {
-    private final CategoryDao dao = new CategoryDao();
+    private final CategoryDAO dao = new CategoryDAO();
 
     public List<Category> findAll() {
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {
