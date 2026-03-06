@@ -10,6 +10,9 @@
                 <title>Tra cứu đặt bàn — Nhà hàng Hương Việt</title>
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/landing.css">
+                <!-- intl-tel-input styles -->
+                <link rel="stylesheet"
+                    href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css">
                 <style>
                     .lookup-hero {
                         padding: 140px 48px 40px;
@@ -408,7 +411,7 @@
                     </a>
                     <div class="nav-links">
                         <a href="${pageContext.request.contextPath}/menu">Thực đơn</a>
-                        <a href="${pageContext.request.contextPath}/booking/create">Đặt bàn</a>
+                        <a href="${pageContext.request.contextPath}/booking">Đặt bàn</a>
                         <a href="${pageContext.request.contextPath}/booking/status" class="active">Tra cứu</a>
                         <a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a>
                     </div>
@@ -434,8 +437,8 @@
                             class="search-form">
                             <input type="text" name="code" class="form-control"
                                 placeholder="Mã đặt bàn (VD: BK-2026-001)" value="${param.code}">
-                            <input type="tel" name="phone" class="form-control" placeholder="Số điện thoại"
-                                value="${param.phone}">
+                            <input type="tel" id="searchPhone" name="phone" class="form-control"
+                                placeholder="Số điện thoại" value="${param.phone}">
                             <button type="submit" class="btn-search">
                                 <i class="fa-solid fa-magnifying-glass"></i> Tra cứu
                             </button>
@@ -444,6 +447,9 @@
 
                     <c:if test="${not empty error}">
                         <div class="alert-error"><i class="fa-solid fa-circle-exclamation"></i> ${error}</div>
+                    </c:if>
+                    <c:if test="${msg == 'confirmed'}">
+                        <div class="alert-success"><i class="fa-solid fa-circle-check"></i> Đã xác nhận booking.</div>
                     </c:if>
 
                     <c:choose>
@@ -494,8 +500,16 @@
                                                 <i class="fa-solid fa-circle-xmark"></i>
                                                 <div>
                                                     <div class="status-title">Đã hủy</div>
-                                                    <div class="status-desc">Booking đã bị hủy. Vui lòng đặt lại nếu
-                                                        cần.</div>
+                                                    <div class="status-desc">
+                                                        <c:choose>
+                                                            <c:when test="${not empty booking.cancelReason}">
+                                                                Lý do: <strong>${booking.cancelReason}</strong>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                Booking đã bị hủy. Vui lòng đặt lại nếu cần.
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </c:when>
@@ -586,7 +600,7 @@
                                             <i class="fa-solid fa-utensils"></i> Đặt món trước
                                         </a>
                                     </c:if>
-                                    <a href="${pageContext.request.contextPath}/booking/create" class="btn-action">
+                                    <a href="${pageContext.request.contextPath}/booking" class="btn-action">
                                         <i class="fa-solid fa-plus"></i> Đặt bàn mới
                                     </a>
                                 </div>
@@ -627,6 +641,26 @@
                         const links = document.querySelector('.nav-links');
                         links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
                     });
+                    <!-- intl-tel-input script -->
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
+                <script>
+            const searchPhone = document.querySelector('#searchPhone');
+            if (searchPhone) {
+                const iti2 = window.intlTelInput(searchPhone, {
+                initialCountry: 'auto',
+            geoIpLookup: function(callback) {
+                fetch('https://ipapi.co/json')
+                    .then(res => res.json())
+                    .then(data => callback(data.country_code))
+                    .catch(() => callback('us'));
+                    },
+            utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js',
+                });
+            const form2 = document.querySelector('.search-form');
+                form2.addEventListener('submit', () => {
+                searchPhone.value = iti2.getNumber();
+                });
+            }
                 </script>
             </body>
 

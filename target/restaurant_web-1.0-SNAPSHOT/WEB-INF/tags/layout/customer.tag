@@ -23,7 +23,7 @@
                 <a href="${pageContext.request.contextPath}/menu" class="nav-item ${activeMenu == 'menu' ? 'active' : ''}">
                     <i class="fa-solid fa-book-open"></i> Thuc don
                 </a>
-                <a href="${pageContext.request.contextPath}/booking/create" class="nav-item ${activeMenu == 'booking' ? 'active' : ''}">
+                <a href="${pageContext.request.contextPath}/booking" class="nav-item ${activeMenu == 'booking' ? 'active' : ''}">
                     <i class="fa-regular fa-calendar-plus"></i> Dat ban
                 </a>
                 <a href="${pageContext.request.contextPath}/booking/status" class="nav-item ${activeMenu == 'status' ? 'active' : ''}">

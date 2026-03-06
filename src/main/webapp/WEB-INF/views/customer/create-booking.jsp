@@ -12,6 +12,8 @@
                 <title>Đặt bàn — Nhà hàng Hương Việt</title>
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/landing.css">
+                <!-- intl-tel-input styles -->
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css">
                 <style>
                     .booking-hero {
                         padding: 140px 48px 40px;
@@ -308,13 +310,13 @@
                     </a>
                     <div class="nav-links">
                         <a href="${pageContext.request.contextPath}/menu">Thực đơn</a>
-                        <a href="${pageContext.request.contextPath}/booking/create" class="active">Đặt bàn</a>
+                        <a href="${pageContext.request.contextPath}/booking" class="active">Đặt bàn</a>
                         <a href="${pageContext.request.contextPath}/booking/status">Tra cứu</a>
                         <a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a>
                     </div>
                     <div class="nav-actions">
                         <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
-                        <a href="${pageContext.request.contextPath}/booking/create" class="btn-book">
+                        <a href="${pageContext.request.contextPath}/booking" class="btn-book">
                             <i class="fa-solid fa-calendar-check"></i> Đặt bàn
                         </a>
                     </div>
@@ -352,7 +354,7 @@
                                         class="btn-outline-light">
                                         <i class="fa-solid fa-utensils"></i> Đặt món trước
                                     </a>
-                                    <a href="${pageContext.request.contextPath}/booking/create"
+                                    <a href="${pageContext.request.contextPath}/booking"
                                         class="btn-outline-light">
                                         <i class="fa-solid fa-plus"></i> Đặt bàn mới
                                     </a>
@@ -374,7 +376,7 @@
                                     Giờ hoạt động: 10:00 – 22:00 hàng ngày. Đặt trước ít nhất 1 giờ.
                                 </div>
 
-                                <form method="post" action="${pageContext.request.contextPath}/booking/create"
+                                <form method="post" action="${pageContext.request.contextPath}/booking"
                                     id="bookingForm">
                                     <!-- Họ tên + SĐT -->
                                     <div class="form-row">
@@ -382,7 +384,7 @@
                                             <label class="form-label">Họ và tên <span class="required">*</span></label>
                                             <input type="text" name="customerName"
                                                 class="form-control ${not empty errors.customerName ? 'error' : ''}"
-                                                value="${param.customerName}" placeholder="Nguyễn Văn A" required>
+                                                value="${not empty param.customerName ? param.customerName : customerName}" placeholder="Nguyễn Văn A" required>
                                             <c:if test="${not empty errors.customerName}">
                                                 <div class="form-error">${errors.customerName}</div>
                                             </c:if>
@@ -390,9 +392,11 @@
                                         <div class="form-group">
                                             <label class="form-label">Số điện thoại <span
                                                     class="required">*</span></label>
-                                            <input type="tel" name="customerPhone"
+                                            <input type="tel" id="phoneInput" name="customerPhone"
                                                 class="form-control ${not empty errors.customerPhone ? 'error' : ''}"
-                                                value="${param.customerPhone}" placeholder="0901234567" required>
+                                                value="${not empty param.customerPhone ? param.customerPhone : customerPhone}" placeholder="0901234567"
+                                                pattern="\+[1-9][0-9]{7,14}"
+                                                title="Nhập số theo định dạng quốc tế, ví dụ +84901234567" required>
                                             <c:if test="${not empty errors.customerPhone}">
                                                 <div class="form-error">${errors.customerPhone}</div>
                                             </c:if>
@@ -405,7 +409,7 @@
                                             <label class="form-label">Ngày <span class="required">*</span></label>
                                             <input type="date" name="bookingDate"
                                                 class="form-control ${not empty errors.bookingDate ? 'error' : ''}"
-                                                value="${param.bookingDate}" required>
+                                                value="${not empty param.bookingDate ? param.bookingDate : bookingDate}" required>
                                             <c:if test="${not empty errors.bookingDate}">
                                                 <div class="form-error">${errors.bookingDate}</div>
                                             </c:if>
@@ -463,7 +467,7 @@
                             <h4>Khám phá</h4>
                             <ul>
                                 <li><a href="${pageContext.request.contextPath}/menu">Thực đơn</a></li>
-                                <li><a href="${pageContext.request.contextPath}/booking/create">Đặt bàn</a></li>
+                                <li><a href="${pageContext.request.contextPath}/booking">Đặt bàn</a></li>
                                 <li><a href="${pageContext.request.contextPath}/booking/status">Tra cứu booking</a></li>
                             </ul>
                         </div>
@@ -509,7 +513,28 @@
                         dateInput.value = tomorrow.toISOString().split('T')[0];
                         dateInput.min = new Date().toISOString().split('T')[0];
                     }
-                </script>
+                <!-- intl-tel-input script -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
+        <script>
+            const phoneInput = document.querySelector('#phoneInput');
+            if (phoneInput) {
+                const iti = window.intlTelInput(phoneInput, {
+                    initialCountry: 'auto',
+                    geoIpLookup: function(callback) {
+                        fetch('https://ipapi.co/json')
+                            .then(res => res.json())
+                            .then(data => callback(data.country_code))
+                            .catch(() => callback('us'));
+                    },
+                    utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js',
+                });
+                // on submit ensure E.164 value
+                const form = document.getElementById('bookingForm');
+                form.addEventListener('submit', () => {
+                    phoneInput.value = iti.getNumber();
+                });
+            }
+        </script>
             </body>
 
             </html>

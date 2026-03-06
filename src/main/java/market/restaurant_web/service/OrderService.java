@@ -3,6 +3,7 @@ package market.restaurant_web.service;
 import market.restaurant_web.config.HibernateUtil;
 import market.restaurant_web.dao.*;
 import market.restaurant_web.entity.*;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import java.math.BigDecimal;
@@ -27,7 +28,16 @@ public class OrderService {
 
     public List<Order> findActiveOrders() {
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {
-            return orderDao.findActiveOrders(s);
+            List<Order> list = orderDao.findActiveOrders(s);
+            for (Order o : list) {
+                if (o.getOrderDetails() != null) {
+                    Hibernate.initialize(o.getOrderDetails());
+                    for (OrderDetail d : o.getOrderDetails()) {
+                        Hibernate.initialize(d.getProduct());
+                    }
+                }
+            }
+            return list;
         }
     }
 

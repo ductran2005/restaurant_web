@@ -77,9 +77,32 @@ public class BookingService {
         updateStatus(bookingId, "CHECKED_IN");
     }
 
-    /** Cancel a booking */
+    /** Cancel a booking without a reason */
     public void cancel(int bookingId) {
-        updateStatus(bookingId, "CANCELLED");
+        cancel(bookingId, null);
+    }
+
+    /** Cancel a booking with an optional reason */
+    public void cancel(int bookingId, String reason) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            Booking b = bookingDao.findById(s, bookingId);
+            if (b == null)
+                throw new RuntimeException("Booking không tồn tại");
+            b.setStatus("CANCELLED");
+            if (reason != null && !reason.isBlank())
+                b.setCancelReason(reason.trim());
+            b.setUpdatedAt(LocalDateTime.now());
+            bookingDao.update(s, b);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null)
+                tx.rollback();
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            s.close();
+        }
     }
 
     /** Assign a table to a booking */

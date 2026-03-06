@@ -15,7 +15,23 @@ public class CheckoutController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        int orderId = Integer.parseInt(req.getParameter("orderId"));
+        String idStr = req.getParameter("orderId");
+        if (idStr == null || idStr.trim().isEmpty()) {
+            // nothing to do, redirect back with error message
+            req.getSession().setAttribute("flash_msg", "Order ID is required");
+            req.getSession().setAttribute("flash_type", "error");
+            resp.sendRedirect(req.getContextPath() + "/cashier");
+            return;
+        }
+        int orderId;
+        try {
+            orderId = Integer.parseInt(idStr);
+        } catch (NumberFormatException e) {
+            req.getSession().setAttribute("flash_msg", "Invalid order ID");
+            req.getSession().setAttribute("flash_type", "error");
+            resp.sendRedirect(req.getContextPath() + "/cashier");
+            return;
+        }
         req.setAttribute("order", orderService.findById(orderId));
         Payment existingPayment = paymentService.findByOrderId(orderId);
         req.setAttribute("payment", existingPayment);

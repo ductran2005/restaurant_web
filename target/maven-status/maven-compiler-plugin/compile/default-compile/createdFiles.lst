@@ -4,6 +4,7 @@ market\restaurant_web\dao\CategoryDAO.class
 market\restaurant_web\dao\ConfigDao.class
 market\restaurant_web\controller\customer\PublicMenuController.class
 market\restaurant_web\controller\StaticResourceController.class
+market\restaurant_web\controller\admin\ReportsController$ReportRow.class
 market\restaurant_web\controller\admin\UsersController.class
 market\restaurant_web\entity\Booking.class
 market\restaurant_web\entity\InventoryLog.class
@@ -50,6 +51,7 @@ market\restaurant_web\controller\cashier\CheckoutController.class
 market\restaurant_web\entity\Inventory.class
 market\restaurant_web\controller\customer\LandingController.class
 market\restaurant_web\entity\PreOrderItem.class
+market\restaurant_web\controller\admin\ReportsController$TopItem.class
 market\restaurant_web\controller\customer\ContactController.class
 market\restaurant_web\service\PaymentService.class
 market\restaurant_web\dao\RoleDAO.class

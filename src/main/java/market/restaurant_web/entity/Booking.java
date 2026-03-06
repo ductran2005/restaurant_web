@@ -42,6 +42,9 @@ public class Booking {
     @Column(name = "status", nullable = false, length = 20)
     private String status = "PENDING";
 
+    @Column(name = "cancel_reason", length = 500)
+    private String cancelReason;
+
     @ManyToOne
     @JoinColumn(name = "table_id")
     private DiningTable table;
@@ -146,6 +149,14 @@ public class Booking {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
     }
 
     public DiningTable getTable() {

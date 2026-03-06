@@ -118,6 +118,19 @@
 | Link `/pre-order` | **Commented out** | Controller đã xóa |
 | Link `/customer/home` | **Removed** | Controller đã xóa |
 
+### 11. `admin/reports.jsp`
+| Trước | Sau | Lý do |
+|---|---|---|
+| No server-side data | `revenueData`, `totalOrders`, `totalRevenue`, `chart*`, `topItems` attributes populated | Controller now aggregates paid orders by day/month |
+| Links to export files | Still present, controller now handles `/admin/reports/export` | Previously 404 when clicked |
+
+### 12. Backend – reporting
+| Trước | Sau | Lý do |
+|---|---|---|
+| `ReportsController` iterated `Order.orderDetails` on closed session | `PaymentService.findPaidOrdersByDateRange()` now initializes details + products | Prevent `LazyInitializationException` causing 500 error |
+| `OrderEditorController` displayed `activeOrders` whose details were uninitialized | `OrderService.findActiveOrders()` now also eagerly initializes details + product proxies | Avoid 500 error when listing active orders in staff UI |
+| `/cashier/checkout` failed when `orderId` parameter was missing or non-numeric | Added validation and redirects with a flash error message | Prevents NumberFormatException 500 errors |
+
 ---
 
 ## [KHÔNG THỂ DÙNG] - JSP orphaned (controller đã xóa)
@@ -140,10 +153,11 @@
 
 ## Landing page (landing.jsp)
 
-> ⚠️ **GIỮ NGUYÊN** theo yêu cầu. Tuy nhiên lưu ý:
-> - Các link `/booking/create`, `/booking/status`, `/pre-order` trong landing.jsp sẽ trả 404
-> - Đây là links tĩnh trong HTML, không gây lỗi build nhưng user click sẽ thấy 404
-> - Khuyến nghị: thay bằng `/menu` hoặc remove khi có thời gian
+> ⚠️ **GIỮ NGUYÊN** theo yêu cầu. Một số liên kết đã được sửa:
+> - Các link `Đặt bàn` trên landing.jsp (navbar, CTA, promos, float button) giờ trỏ tới `/booking` thay vì `/booking/create`.
+> - Trước đây chúng trả 404 vì controller đặt bàn dùng đường dẫn khác hoặc chưa tồn tại; bây giờ `/booking` sẽ vào `BookingFormController` nếu bảng `bookings` có mặt trong DB.
+> - Các link `/booking/status`, `/pre-order` vẫn tồn tại và có thể gây 404 nếu controller/table tương ứng không có.
+> - Khuyến nghị: kiểm tra DB để đảm bảo có bảng `bookings` nếu muốn tính năng hoạt động.
 
 ---
 

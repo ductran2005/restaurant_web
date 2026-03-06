@@ -245,6 +245,7 @@ CREATE TABLE bookings (
     party_size      INT           NOT NULL CONSTRAINT DF_bookings_party_size DEFAULT (2),
     note            NVARCHAR(500) NULL,
     status          NVARCHAR(20)  NOT NULL CONSTRAINT DF_bookings_status DEFAULT ('PENDING'),
+    cancel_reason   NVARCHAR(500) NULL,
     table_id        INT           NULL,
     user_id         INT           NULL,
     created_at      DATETIME2(0)  NOT NULL CONSTRAINT DF_bookings_created_at DEFAULT (SYSDATETIME()),

@@ -296,13 +296,13 @@
                     </a>
                     <div class="nav-links">
                         <a href="${pageContext.request.contextPath}/menu" class="active">Thực đơn</a>
-                        <a href="${pageContext.request.contextPath}/booking/create">Đặt bàn</a>
+                        <a href="${pageContext.request.contextPath}/booking">Đặt bàn</a>
                         <a href="${pageContext.request.contextPath}/booking/status">Tra cứu</a>
                         <a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a>
                     </div>
                     <div class="nav-actions">
                         <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
-                        <a href="${pageContext.request.contextPath}/booking/create" class="btn-book">
+                        <a href="${pageContext.request.contextPath}/booking" class="btn-book">
                             <i class="fa-solid fa-calendar-check"></i> Đặt bàn
                         </a>
                     </div>
@@ -421,7 +421,7 @@
                     <div class="section-label">Đặt bàn ngay</div>
                     <h2 class="section-title" style="font-family:var(--font-serif)">Đảm bảo bàn của bạn hôm nay</h2>
                     <p>Đặt trước để nhận ưu đãi tốt nhất và không lo hết chỗ vào giờ cao điểm.</p>
-                    <form class="cta-form" action="${pageContext.request.contextPath}/booking/create" method="get">
+                    <form class="cta-form" action="${pageContext.request.contextPath}/booking" method="get">
                         <input type="text" class="cta-input" name="name" placeholder="Họ và tên...">
                         <input type="tel" class="cta-input" name="phone" placeholder="Số điện thoại...">
                         <input type="date" class="cta-input" name="date">
@@ -454,7 +454,7 @@
                             <h4>Khám phá</h4>
                             <ul>
                                 <li><a href="${pageContext.request.contextPath}/menu">Thực đơn</a></li>
-                                <li><a href="${pageContext.request.contextPath}/booking/create">Đặt bàn</a></li>
+                                <li><a href="${pageContext.request.contextPath}/booking">Đặt bàn</a></li>
                                 <li><a href="${pageContext.request.contextPath}/booking/status">Tra cứu booking</a></li>
                                 <li><a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a></li>
                             </ul>
@@ -491,7 +491,7 @@
                 </footer>
 
                 <!-- Float Mobile Book Button -->
-                <a href="${pageContext.request.contextPath}/booking/create" class="float-book">
+                <a href="${pageContext.request.contextPath}/booking" class="float-book">
                     <i class="fa-solid fa-calendar-check"></i> Đặt bàn ngay
                 </a>
 

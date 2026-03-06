@@ -601,7 +601,7 @@
                     </a>
                     <div class="nav-links">
                         <a href="${pageContext.request.contextPath}/menu">Thực đơn</a>
-                        <a href="${pageContext.request.contextPath}/booking/create">Đặt bàn</a>
+                        <a href="${pageContext.request.contextPath}/booking">Đặt bàn</a>
                         <a href="${pageContext.request.contextPath}/booking/status">Tra cứu</a>
                         <a href="${pageContext.request.contextPath}/pre-order" class="active">Đặt món trước</a>
                     </div>
@@ -645,7 +645,7 @@
                                 </form>
                                 <p style="font-size:13px;color:var(--text-muted);margin-top:12px">
                                     <i class="fa-solid fa-info-circle"></i> Bạn cần có mã đặt bàn để đặt món trước.
-                                    <a href="${pageContext.request.contextPath}/booking/create"
+                                    <a href="${pageContext.request.contextPath}/booking"
                                         style="color:var(--primary)">Đặt bàn ngay →</a>
                                 </p>
                             </div>

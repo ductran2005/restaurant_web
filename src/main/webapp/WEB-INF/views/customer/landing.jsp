@@ -25,7 +25,7 @@
             </a>
             <div class="nav-links">
                 <a href="${pageContext.request.contextPath}/menu" class="active">Thực đơn</a>
-                <a href="${pageContext.request.contextPath}/booking/create">Đặt bàn</a>
+                <a href="${pageContext.request.contextPath}/booking">Đặt bàn</a>
                 <a href="${pageContext.request.contextPath}/booking/status">Tra cứu</a>
                 <a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a>
                 <a href="#about">Về chúng tôi</a>
@@ -33,7 +33,7 @@
             </div>
             <div class="nav-actions">
                 <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
-                <a href="${pageContext.request.contextPath}/booking/create" class="btn-book">
+                <a href="${pageContext.request.contextPath}/booking" class="btn-book">
                     <i class="fa-solid fa-calendar-check"></i> Đặt bàn
                 </a>
             </div>
@@ -60,7 +60,7 @@
                     <a href="${pageContext.request.contextPath}/menu" class="btn-primary">
                         <i class="fa-solid fa-book-open"></i> Xem thực đơn
                     </a>
-                    <a href="${pageContext.request.contextPath}/booking/create" class="btn-outline">
+                    <a href="${pageContext.request.contextPath}/booking" class="btn-outline">
                         <i class="fa-regular fa-calendar-plus"></i> Đặt bàn ngay
                     </a>
                 </div>
@@ -397,7 +397,7 @@
                         <span class="promo-tag">🔥 Hot Deal</span>
                         <h3 class="promo-title">Mâm hải sản tươi — Giảm 20% cuối tuần</h3>
                         <p class="promo-desc">Áp dụng thứ 7 & Chủ Nhật từ 17:00 – 21:00. Đặt trước để đảm bảo bàn.</p>
-                        <a href="${pageContext.request.contextPath}/booking/create" class="btn-promo">
+                        <a href="${pageContext.request.contextPath}/booking" class="btn-promo">
                             <i class="fa-solid fa-calendar-check"></i> Đặt bàn ngay
                         </a>
                     </div>
@@ -409,7 +409,7 @@
                         <span class="promo-tag">🎂 Sinh nhật</span>
                         <h3 class="promo-title">Giảm 15% cho bàn tiệc sinh nhật</h3>
                         <p class="promo-desc">Bánh miễn phí + ưu đãi 15% hóa đơn khi đặt tiệc sinh nhật từ 10 người.</p>
-                        <a href="${pageContext.request.contextPath}/booking/create" class="btn-promo">
+                        <a href="${pageContext.request.contextPath}/booking" class="btn-promo">
                             <i class="fa-solid fa-gift"></i> Đặt tiệc
                         </a>
                     </div>
@@ -422,7 +422,7 @@
                         <h3 class="promo-title">Set liên hoan nhóm từ 8 người</h3>
                         <p class="promo-desc">Set riêng cho nhóm bạn, đồng nghiệp — đủ món, đủ vui từ 2.500.000 đ/bàn.
                         </p>
-                        <a href="${pageContext.request.contextPath}/booking/create" class="btn-promo">
+                        <a href="${pageContext.request.contextPath}/booking" class="btn-promo">
                             <i class="fa-solid fa-arrow-right"></i> Xem set menu
                         </a>
                     </div>
@@ -437,10 +437,11 @@
             <div class="section-label">Đặt bàn ngay</div>
             <h2 class="section-title" style="font-family:var(--font-serif)">Đảm bảo bàn của bạn hôm nay</h2>
             <p>Đặt trước để nhận ưu đãi tốt nhất và không lo hết chỗ vào giờ cao điểm.</p>
-            <form class="cta-form" action="${pageContext.request.contextPath}/booking/create" method="get">
-                <input type="text" class="cta-input" name="name" placeholder="Họ và tên...">
-                <input type="tel" class="cta-input" name="phone" placeholder="Số điện thoại...">
-                <input type="date" class="cta-input" name="date">
+            <form class="cta-form" action="${pageContext.request.contextPath}/booking" method="post">
+                <input type="hidden" name="fromLanding" value="true">
+                <input type="text" class="cta-input" name="customerName" placeholder="Họ và tên...">
+                <input type="tel" class="cta-input" name="customerPhone" placeholder="Số điện thoại...">
+                <input type="date" class="cta-input" name="bookingDate">
                 <button type="submit" class="btn-cta">
                     <i class="fa-solid fa-arrow-right"></i> Đặt bàn
                 </button>
@@ -470,7 +471,7 @@
                     <h4>Khám phá</h4>
                     <ul>
                         <li><a href="${pageContext.request.contextPath}/menu">Thực đơn</a></li>
-                        <li><a href="${pageContext.request.contextPath}/booking/create">Đặt bàn</a></li>
+                        <li><a href="${pageContext.request.contextPath}/booking">Đặt bàn</a></li>
                         <li><a href="${pageContext.request.contextPath}/booking/status">Tra cứu booking</a></li>
                         <li><a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a></li>
                         <li><a href="#about">Về chúng tôi</a></li>
@@ -506,7 +507,7 @@
         </footer>
 
         <!-- Float Mobile Book Button -->
-        <a href="${pageContext.request.contextPath}/booking/create" class="float-book">
+        <a href="${pageContext.request.contextPath}/booking" class="float-book">
             <i class="fa-solid fa-calendar-check"></i> Đặt bàn ngay
         </a>
 
