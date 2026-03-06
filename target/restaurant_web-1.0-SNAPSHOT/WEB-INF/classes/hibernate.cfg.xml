@@ -4,25 +4,27 @@
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
     <session-factory>
-        <!-- SQL Server Connection -->
-        <property name="hibernate.connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
-        <property name="hibernate.connection.url">jdbc:sqlserver://localhost:1433;databaseName=Restaurant_Ipos;encrypt=true;trustServerCertificate=true</property>
-        <property name="hibernate.connection.username">sa</property>
-        <property name="hibernate.connection.password">sa</property>
+        <!-- ============================================ -->
+        <!-- Supabase PostgreSQL Connection (Pooler)      -->
+        <!-- ============================================ -->
+        <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+        <property name="hibernate.connection.url">jdbc:postgresql://aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require&amp;prepareThreshold=0</property>
+        <property name="hibernate.connection.username">postgres.bstcdtpgtbvpsitnogzd</property>
+        <property name="hibernate.connection.password">quynhloc2310</property>
 
         <!-- Hibernate Settings -->
-        <property name="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
         <property name="hibernate.show_sql">true</property>
         <property name="hibernate.format_sql">true</property>
-        <!-- VALIDATE: do not modify DB, just verify entities match -->
-        <property name="hibernate.hbm2ddl.auto">validate</property>
+        <!-- UPDATE: tự tạo/cập nhật bảng. Đổi thành 'validate' sau lần chạy đầu -->
+        <property name="hibernate.hbm2ddl.auto">update</property>
 
         <!-- Connection Pool -->
-        <property name="hibernate.c3p0.min_size">5</property>
-        <property name="hibernate.c3p0.max_size">20</property>
+        <property name="hibernate.c3p0.min_size">2</property>
+        <property name="hibernate.c3p0.max_size">10</property>
         <property name="hibernate.c3p0.timeout">300</property>
 
-        <!-- Entity Mappings - only tables that exist in DB -->
+        <!-- Entity Mappings -->
         <mapping class="market.restaurant_web.entity.Role"/>
         <mapping class="market.restaurant_web.entity.User"/>
         <mapping class="market.restaurant_web.entity.Area"/>
@@ -32,7 +34,6 @@
         <mapping class="market.restaurant_web.entity.Order"/>
         <mapping class="market.restaurant_web.entity.OrderDetail"/>
         <mapping class="market.restaurant_web.entity.Payment"/>
-        <!-- Inventory tables removed from new schema -->
         <mapping class="market.restaurant_web.entity.UserSession"/>
         <mapping class="market.restaurant_web.entity.Booking"/>
         <mapping class="market.restaurant_web.entity.PreOrderItem"/>

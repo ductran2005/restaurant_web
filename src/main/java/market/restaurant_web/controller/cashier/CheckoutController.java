@@ -12,12 +12,12 @@ import java.io.IOException;
 public class CheckoutController extends HttpServlet {
     private final OrderService orderService = new OrderService();
     private final PaymentService paymentService = new PaymentService();
+    private final ConfigService configService = new ConfigService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String idStr = req.getParameter("orderId");
         if (idStr == null || idStr.trim().isEmpty()) {
-            // nothing to do, redirect back with error message
             req.getSession().setAttribute("flash_msg", "Order ID is required");
             req.getSession().setAttribute("flash_type", "error");
             resp.sendRedirect(req.getContextPath() + "/cashier");
@@ -35,6 +35,15 @@ public class CheckoutController extends HttpServlet {
         req.setAttribute("order", orderService.findById(orderId));
         Payment existingPayment = paymentService.findByOrderId(orderId);
         req.setAttribute("payment", existingPayment);
+
+        // SePay QR config
+        String sepayEnabled = configService.getValue("SEPAY_ENABLED");
+        req.setAttribute("sepayEnabled", "true".equals(sepayEnabled));
+        req.setAttribute("sepayBankAccount", configService.getValue("SEPAY_BANK_ACCOUNT"));
+        req.setAttribute("sepayBankName", configService.getValue("SEPAY_BANK_NAME"));
+        req.setAttribute("sepayAccountName", configService.getValue("SEPAY_ACCOUNT_NAME"));
+        req.setAttribute("sepayContentPrefix", configService.getValue("SEPAY_CONTENT_PREFIX"));
+
         req.getRequestDispatcher("/WEB-INF/views/cashier/checkout.jsp").forward(req, resp);
     }
 

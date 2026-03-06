@@ -32,14 +32,22 @@ public class OrderDetail {
     private BigDecimal unitPrice;
 
     /**
-     * Computed persisted column in DB: quantity * unit_price
-     * insertable=false, updatable=false because DB manages this.
+     * line_total = quantity * unit_price
+     * Calculated in Java for PostgreSQL compatibility (no computed columns).
      */
-    @Column(name = "line_total", insertable = false, updatable = false, precision = 18, scale = 2)
+    @Column(name = "line_total", precision = 18, scale = 2)
     private BigDecimal lineTotal;
 
     @Column(name = "item_status", nullable = false, length = 20)
     private String itemStatus = "ORDERED";
+
+    @PrePersist
+    @PreUpdate
+    protected void calculateLineTotal() {
+        if (quantity != null && unitPrice != null) {
+            this.lineTotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
+        }
+    }
 
     // Getters & Setters
     public Integer getId() {

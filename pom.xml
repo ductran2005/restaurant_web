@@ -39,12 +39,21 @@
             <version>${hibernate.version}</version>
         </dependency>
 
-        <!-- SQL Server JDBC Driver -->
+        <!-- PostgreSQL JDBC Driver (Supabase) -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.3</version>
+        </dependency>
+
+        <!-- SQL Server JDBC Driver (giữ lại phòng khi cần) -->
+        <!--
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
             <version>12.6.1.jre11</version>
         </dependency>
+        -->
 
         <!-- JSTL for JSP -->
         <dependency>
