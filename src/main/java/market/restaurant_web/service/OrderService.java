@@ -113,7 +113,7 @@ public class OrderService {
             detail.setProduct(product);
             detail.setQuantity(qty);
             detail.setUnitPrice(product.getPrice()); // snapshot price
-            detail.setItemStatus("ORDERED");
+            detail.setItemStatus("PENDING");
             s.persist(detail);
 
             // Update order subtotal
@@ -129,7 +129,7 @@ public class OrderService {
         }
     }
 
-    public void removeItem(int orderDetailId) {
+    public void removeItem(int orderDetailId, String cancelReason) {
         Session s = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = s.beginTransaction();
         try {
@@ -138,7 +138,13 @@ public class OrderService {
                 throw new RuntimeException("Item không tồn tại");
 
             Order order = detail.getOrder();
-            // Instead of removing, cancel the item per DB trigger constraint
+            // If item is ORDERED, it must have a reason. If PENDING, just cancel directly.
+            if ("ORDERED".equals(detail.getItemStatus())) {
+                if (cancelReason == null || cancelReason.trim().isEmpty()) {
+                    throw new RuntimeException("Cần lý do khi xóa món đã được gửi bếp");
+                }
+                detail.setCancelReason(cancelReason.trim());
+            }
             detail.setItemStatus("CANCELLED");
             s.merge(detail);
 
@@ -159,7 +165,7 @@ public class OrderService {
      */
     private void recalculateOrder(Session s, Order order) {
         List<OrderDetail> details = s.createQuery(
-                "FROM OrderDetail WHERE order.id = :oid AND itemStatus = 'ORDERED'", OrderDetail.class)
+                "FROM OrderDetail WHERE order.id = :oid AND itemStatus IN ('PENDING', 'ORDERED')", OrderDetail.class)
                 .setParameter("oid", order.getId()).list();
 
         BigDecimal subtotal = BigDecimal.ZERO;
@@ -177,7 +183,8 @@ public class OrderService {
     public BigDecimal calculateSubtotal(int orderId) {
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {
             List<OrderDetail> items = s.createQuery(
-                    "FROM OrderDetail WHERE order.id = :oid AND itemStatus = 'ORDERED'", OrderDetail.class)
+                    "FROM OrderDetail WHERE order.id = :oid AND itemStatus IN ('PENDING', 'ORDERED')",
+                    OrderDetail.class)
                     .setParameter("oid", orderId).list();
 
             BigDecimal subtotal = BigDecimal.ZERO;
@@ -185,6 +192,57 @@ public class OrderService {
                 subtotal = subtotal.add(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
             }
             return subtotal;
+        }
+    }
+
+    /**
+     * Confirm all PENDING items in an order (send to kitchen).
+     */
+    public void confirmItems(int orderId) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            List<OrderDetail> pendingItems = s.createQuery(
+                    "FROM OrderDetail WHERE order.id = :oid AND itemStatus = 'PENDING'", OrderDetail.class)
+                    .setParameter("oid", orderId).list();
+
+            for (OrderDetail item : pendingItems) {
+                item.setItemStatus("ORDERED");
+                s.merge(item);
+            }
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null)
+                tx.rollback();
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            s.close();
+        }
+    }
+
+    /**
+     * Finish order: OPEN -> SERVED.
+     * Called when staff finishes serving all items and is ready for payment.
+     */
+    public void confirmOrder(int orderId) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            Order order = orderDao.findById(s, orderId);
+            if (order == null)
+                throw new RuntimeException("Order không tồn tại");
+            if (!"OPEN".equals(order.getStatus()))
+                throw new RuntimeException("Chỉ có thể xác nhận order đang OPEN");
+
+            order.setStatus("SERVED");
+            orderDao.update(s, order);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null)
+                tx.rollback();
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            s.close();
         }
     }
 

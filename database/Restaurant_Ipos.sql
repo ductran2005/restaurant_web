@@ -187,7 +187,8 @@ CREATE TABLE order_details (
     quantity         INT           NOT NULL,
     unit_price       DECIMAL(18,2) NOT NULL,
     line_total       AS (CAST(quantity AS DECIMAL(18,2)) * unit_price) PERSISTED,
-    item_status      NVARCHAR(20)  NOT NULL CONSTRAINT DF_order_details_status DEFAULT ('ORDERED'),
+    item_status      NVARCHAR(20)  NOT NULL CONSTRAINT DF_order_details_status DEFAULT ('PENDING'),
+    cancel_reason    NVARCHAR(500) NULL,
 
     CONSTRAINT FK_order_details_orders
         FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
@@ -196,10 +197,10 @@ CREATE TABLE order_details (
 
     CONSTRAINT CK_order_details_qty CHECK (quantity > 0),
     CONSTRAINT CK_order_details_prices CHECK (unit_price >= 0),
-    CONSTRAINT CK_order_details_status CHECK (item_status IN ('ORDERED','CANCELLED'))
+    CONSTRAINT CK_order_details_status CHECK (item_status IN ('PENDING','ORDERED','CANCELLED'))
 );
 
-CREATE UNIQUE INDEX UX_order_details_order_product ON order_details(order_id, product_id);
+-- UNIQUE index removed to allow adding same product multiple times (e.g. separate confirmed/pending batches)
 CREATE INDEX IX_order_details_order_id ON order_details(order_id);
 CREATE INDEX IX_order_details_product_id ON order_details(product_id);
 

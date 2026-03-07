@@ -224,8 +224,8 @@
 
         // Build outgoing bubble
         const userContent = `<div class="message-text"></div>${userData.file.data
-                ? `<img src="data:${userData.file.mime_type};base64,${userData.file.data}" class="attachment" />`
-                : ''
+            ? `<img src="data:${userData.file.mime_type};base64,${userData.file.data}" class="attachment" />`
+            : ''
             }`;
         const outgoing = createMessageElement(userContent, 'user-message');
         outgoing.querySelector('.message-text').textContent = text;

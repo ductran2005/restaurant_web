@@ -11,6 +11,54 @@
             <title>Sơ đồ bàn — Staff Hương Việt</title>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
             <link rel="stylesheet" href="${ctx}/assets/css/admin.css">
+            <style>
+                /* Override t-in_use to blue (CSS had t-serving) */
+                .t-in_use {
+                    border-color: #3b82f6;
+                    background: rgba(59, 130, 246, 0.09);
+                    color: #3b82f6;
+                }
+
+                .table-tile {
+                    cursor: pointer;
+                    position: relative;
+                    transition: transform .18s, box-shadow .18s;
+                }
+
+                .table-tile:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 6px 20px rgba(0, 0, 0, .35);
+                }
+
+                /* Clickable label */
+                .table-tile .tile-action-hint {
+                    font-size: 10px;
+                    margin-top: 6px;
+                    opacity: .7;
+                    font-weight: 400;
+                }
+
+                .legend-dot {
+                    display: inline-block;
+                    width: 9px;
+                    height: 9px;
+                    border-radius: 50%;
+                    margin-right: 5px;
+                }
+
+                .flash-bar {
+                    padding: 12px 16px;
+                    border-radius: 10px;
+                    font-size: 13px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-bottom: 16px;
+                    background: rgba(239, 68, 68, 0.1);
+                    border: 1px solid rgba(239, 68, 68, 0.25);
+                    color: #f87171;
+                }
+            </style>
         </head>
 
         <body>
@@ -23,92 +71,122 @@
                             <button class="burger" onclick="openSidebar()"><i class="fa-solid fa-bars"></i></button>
                             <h1 class="topbar-title"><i class="fa-solid fa-map"></i> Sơ đồ bàn</h1>
                             <div class="topbar-right">
-                                <div style="display:flex;gap:14px;font-size:12px;color:#9e9488;align-items:center">
-                                    <span>
-                                        <span
-                                            style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:4px"></span>
-                                        Trống (AVAILABLE)
-                                    </span>
-                                    <span>
-                                        <span
-                                            style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b82f6;margin-right:4px"></span>
-                                        Đang dùng (IN_USE)
-                                    </span>
+                                <div style="display:flex;gap:18px;font-size:12px;color:#9e9488;align-items:center">
+                                    <span><span class="legend-dot" style="background:#22c55e"></span>Trống</span>
+                                    <span><span class="legend-dot" style="background:#3b82f6"></span>Đang dùng</span>
                                 </div>
+                                <span class="badge-role">${sessionScope.user.role.name}</span>
                             </div>
                         </header>
 
                         <div class="content">
-                            <c:choose>
-                                <c:when test="${empty areas}">
-                                    <div class="empty-state">
-                                        <i class="fa-solid fa-chair"></i>
-                                        <h3>Chưa có khu vực nào</h3>
+
+                            <%-- Flash error (e.g. table already has order) --%>
+                                <c:if test="${not empty sessionScope.flash_msg}">
+                                    <div class="flash-bar">
+                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                        ${sessionScope.flash_msg}
                                     </div>
-                                </c:when>
-                                <c:otherwise>
-                                    <c:forEach var="area" items="${areas}">
-                                        <div class="area-section">
-                                            <div class="area-heading">
-                                                <i class="fa-solid fa-location-dot"></i>
-                                                <c:out value="${area.areaName}" />
-                                            </div>
-                                            <div class="table-grid">
-                                                <c:forEach var="t" items="${area.tables}">
-                                                    <c:set var="statusClass" value="t-available" />
-                                                    <c:if test="${t.status == 'IN_USE'}">
-                                                        <c:set var="statusClass" value="t-in_use" />
-                                                    </c:if>
-                                                    <div class="table-tile ${statusClass}" data-id="${t.id}"
-                                                        data-name="${t.tableName}" data-status="${t.status}"
-                                                        data-cap="${t.capacity}" onclick="openTableDetail(this)">
-                                                        <div class="table-tile-name">
-                                                            <c:out value="${t.tableName}" />
-                                                        </div>
-                                                        <div class="table-tile-cap">
-                                                            <i class="fa-solid fa-user"></i> ${t.capacity} chỗ
-                                                        </div>
-                                                        <div style="margin-top:8px;font-size:11px;font-weight:600">
-                                                            ${t.status}
-                                                        </div>
-                                                    </div>
-                                                </c:forEach>
-                                            </div>
+                                    <c:remove var="flash_msg" scope="session" />
+                                    <c:remove var="flash_type" scope="session" />
+                                </c:if>
+
+                                <c:choose>
+                                    <c:when test="${empty areas}">
+                                        <div class="empty-state">
+                                            <i class="fa-solid fa-chair"></i>
+                                            <h3>Chưa có khu vực nào</h3>
                                         </div>
-                                    </c:forEach>
-                                </c:otherwise>
-                            </c:choose>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <c:forEach var="area" items="${areas}">
+                                            <div class="area-section">
+                                                <div class="area-heading">
+                                                    <i class="fa-solid fa-location-dot"
+                                                        style="color:var(--primary)"></i>
+                                                    <c:out value="${area.areaName}" />
+                                                </div>
+                                                <div class="table-grid">
+                                                    <c:forEach var="t" items="${area.tables}">
+                                                        <%-- Determine CSS class and link target --%>
+                                                            <c:set var="isInUse" value="${t.status == 'IN_USE'}" />
+                                                            <c:set var="openOrderId"
+                                                                value="${openOrderByTable[t.id]}" />
+
+                                                            <c:choose>
+                                                                <c:when test="${isInUse && not empty openOrderId}">
+                                                                    <%-- IN_USE with open order: go to existing order
+                                                                        --%>
+                                                                        <a href="${ctx}/staff/orders?orderId=${openOrderId}"
+                                                                            class="table-tile t-in_use"
+                                                                            title="Bàn đang có order #${openOrderId} — click để xem/chỉnh order">
+                                                                            <div class="table-tile-name">
+                                                                                <c:out value="${t.tableName}" />
+                                                                            </div>
+                                                                            <div class="table-tile-cap">
+                                                                                <i class="fa-solid fa-user"></i>
+                                                                                ${t.capacity} chỗ
+                                                                            </div>
+                                                                            <div
+                                                                                style="margin-top:8px;font-size:11px;font-weight:700;color:#3b82f6">
+                                                                                <i class="fa-solid fa-utensils"></i>
+                                                                                Order #${openOrderId}
+                                                                            </div>
+                                                                            <div class="tile-action-hint">
+                                                                                <i class="fa-solid fa-arrow-right"></i>
+                                                                                Xem order
+                                                                            </div>
+                                                                        </a>
+                                                                </c:when>
+                                                                <c:when test="${isInUse && empty openOrderId}">
+                                                                    <%-- IN_USE but no tracked order (edge case) --%>
+                                                                        <div class="table-tile t-in_use"
+                                                                            title="Bàn đang dùng (không tìm thấy order mở)">
+                                                                            <div class="table-tile-name">
+                                                                                <c:out value="${t.tableName}" />
+                                                                            </div>
+                                                                            <div class="table-tile-cap">
+                                                                                <i class="fa-solid fa-user"></i>
+                                                                                ${t.capacity} chỗ
+                                                                            </div>
+                                                                            <div
+                                                                                style="margin-top:8px;font-size:11px;font-weight:600">
+                                                                                IN_USE
+                                                                            </div>
+                                                                        </div>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <%-- AVAILABLE: click to create new order --%>
+                                                                        <a href="${ctx}/staff/orders?action=create&tableId=${t.id}"
+                                                                            class="table-tile t-available"
+                                                                            title="Bàn trống — click để tạo order mới">
+                                                                            <div class="table-tile-name">
+                                                                                <c:out value="${t.tableName}" />
+                                                                            </div>
+                                                                            <div class="table-tile-cap">
+                                                                                <i class="fa-solid fa-user"></i>
+                                                                                ${t.capacity} chỗ
+                                                                            </div>
+                                                                            <div
+                                                                                style="margin-top:8px;font-size:11px;font-weight:600">
+                                                                                AVAILABLE
+                                                                            </div>
+                                                                            <div class="tile-action-hint">
+                                                                                <i class="fa-solid fa-plus"></i> Tạo
+                                                                                order
+                                                                            </div>
+                                                                        </a>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                    </c:forEach>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </c:otherwise>
+                                </c:choose>
+
                         </div>
                     </div>
-            </div>
-
-            <!-- Table Detail Modal -->
-            <div class="modal-overlay" id="tableModal">
-                <div class="modal">
-                    <div class="modal-header">
-                        <span class="modal-title" id="modalTitle">Chi tiết bàn</span>
-                        <button class="btn btn-ghost btn-icon" onclick="closeTableModal()">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="modalBody" style="color:#9e9488;font-size:14px"></p>
-                        <form method="POST" action="${ctx}/staff" style="margin-top:1.25rem">
-                            <input type="hidden" id="modalTableId" name="tableId">
-                            <input type="hidden" name="action" value="updateStatus">
-                            <div class="form-group">
-                                <label class="form-label">Cập nhật trạng thái</label>
-                                <select name="status" class="form-control" id="modalStatusSelect">
-                                    <option value="AVAILABLE">Trống (AVAILABLE)</option>
-                                    <option value="IN_USE">Đang dùng (IN_USE)</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary" style="width:100%">
-                                <i class="fa-solid fa-check"></i> Cập nhật
-                            </button>
-                        </form>
-                    </div>
-                </div>
             </div>
 
             <script>
@@ -119,20 +197,6 @@
                 function closeSidebar() {
                     document.getElementById('sidebar').classList.remove('open');
                     document.getElementById('sidebarOverlay').classList.remove('active');
-                }
-                function openTableDetail(el) {
-                    var id = el.getAttribute('data-id');
-                    var name = el.getAttribute('data-name');
-                    var status = el.getAttribute('data-status');
-                    var cap = el.getAttribute('data-cap');
-                    document.getElementById('modalTitle').textContent = name;
-                    document.getElementById('modalBody').textContent = 'Sức chứa: ' + cap + ' người | Trạng thái: ' + status;
-                    document.getElementById('modalTableId').value = id;
-                    document.getElementById('modalStatusSelect').value = status;
-                    document.getElementById('tableModal').classList.add('active');
-                }
-                function closeTableModal() {
-                    document.getElementById('tableModal').classList.remove('active');
                 }
             </script>
         </body>

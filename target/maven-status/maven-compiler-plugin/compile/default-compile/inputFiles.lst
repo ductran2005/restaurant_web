@@ -1,6 +1,7 @@
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\dao\UserDAO.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\service\CategoryService.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\entity\Booking.java
+D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\customer\PreOrderCheckoutController.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\admin\ReportsController.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\admin\MenuItemsController.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\staff\TableMapController.java

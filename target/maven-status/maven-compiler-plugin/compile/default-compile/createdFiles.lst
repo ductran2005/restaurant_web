@@ -46,6 +46,7 @@ market\restaurant_web\entity\Category.class
 market\restaurant_web\entity\OrderDetail.class
 market\restaurant_web\servlet\ChatbotServlet.class
 market\restaurant_web\service\OrderService.class
+market\restaurant_web\controller\customer\PreOrderCheckoutController.class
 market\restaurant_web\entity\Permission.class
 market\restaurant_web\controller\admin\TablesAreasController.class
 market\restaurant_web\controller\auth\LoginController.class
