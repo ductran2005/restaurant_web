@@ -454,14 +454,20 @@
                 </div>
 
                 <!-- ── FOOTER ── -->
-                <footer class="footer">
+                <footer class="footer" id="footer">
                     <div class="footer-grid">
                         <div class="footer-brand">
                             <div class="footer-logo">
                                 <div class="footer-logo-icon"><i class="fa-solid fa-utensils"></i></div>
-                                <div class="footer-logo-text">Hương Việt<span>Nhà hàng & Quán nhậu</span></div>
+                                <div class="footer-logo-text">Hương Việt<span>Nhà hàng &amp; Quán nhậu</span></div>
                             </div>
-                            <p class="footer-desc">Điểm hẹn của hương vị Việt Nam đích thực.</p>
+                            <p class="footer-desc">Không chỉ là nhà hàng, Hương Việt còn là phong cách sống — điểm hẹn của những khoảnh khắc đáng nhớ.</p>
+                            <div class="socials">
+                                <a href="#" class="social"><i class="fa-brands fa-facebook-f"></i></a>
+                                <a href="#" class="social"><i class="fa-brands fa-instagram"></i></a>
+                                <a href="#" class="social"><i class="fa-brands fa-tiktok"></i></a>
+                                <a href="#" class="social"><i class="fa-brands fa-youtube"></i></a>
+                            </div>
                         </div>
                         <div class="footer-col">
                             <h4>Khám phá</h4>
@@ -469,18 +475,35 @@
                                 <li><a href="${pageContext.request.contextPath}/menu">Thực đơn</a></li>
                                 <li><a href="${pageContext.request.contextPath}/booking">Đặt bàn</a></li>
                                 <li><a href="${pageContext.request.contextPath}/booking/status">Tra cứu booking</a></li>
+                                <li><a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Về chúng tôi</h4>
+                            <ul>
+                                <li><a href="${pageContext.request.contextPath}/about">Giới thiệu</a></li>
+                                <li><a href="${pageContext.request.contextPath}/contact">Liên hệ</a></li>
                             </ul>
                         </div>
                         <div class="footer-col">
                             <h4>Liên hệ</h4>
                             <div class="footer-contact-item">
+                                <div class="footer-contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+                                <div class="footer-contact-text"><strong>Địa chỉ</strong>123 Nguyễn Huệ, Quận 1, TP.HCM</div>
+                            </div>
+                            <div class="footer-contact-item">
                                 <div class="footer-contact-icon"><i class="fa-solid fa-phone"></i></div>
-                                <div class="footer-contact-text"><strong>Hotline</strong>1900 1234</div>
+                                <div class="footer-contact-text"><strong>Hotline</strong>1900 1234 (8:00 – 23:00)</div>
+                            </div>
+                            <div class="footer-contact-item">
+                                <div class="footer-contact-icon"><i class="fa-regular fa-clock"></i></div>
+                                <div class="footer-contact-text"><strong>Giờ mở cửa</strong>10:00 – 23:00 hàng ngày</div>
                             </div>
                         </div>
                     </div>
                     <div class="footer-bottom">
                         <p>© 2026 Nhà hàng Hương Việt.</p>
+                        <p>Thiết kế bởi <a href="#">Đội ngũ Hương Việt Tech</a></p>
                     </div>
                 </footer>
 
@@ -513,28 +536,29 @@
                         dateInput.value = tomorrow.toISOString().split('T')[0];
                         dateInput.min = new Date().toISOString().split('T')[0];
                     }
+                </script>
                 <!-- intl-tel-input script -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
-        <script>
-            const phoneInput = document.querySelector('#phoneInput');
-            if (phoneInput) {
-                const iti = window.intlTelInput(phoneInput, {
-                    initialCountry: 'auto',
-                    geoIpLookup: function(callback) {
-                        fetch('https://ipapi.co/json')
-                            .then(res => res.json())
-                            .then(data => callback(data.country_code))
-                            .catch(() => callback('us'));
-                    },
-                    utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js',
-                });
-                // on submit ensure E.164 value
-                const form = document.getElementById('bookingForm');
-                form.addEventListener('submit', () => {
-                    phoneInput.value = iti.getNumber();
-                });
-            }
-        </script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
+                <script>
+                    const phoneInput = document.querySelector('#phoneInput');
+                    if (phoneInput) {
+                        const iti = window.intlTelInput(phoneInput, {
+                            initialCountry: 'auto',
+                            geoIpLookup: function(callback) {
+                                fetch('https://ipapi.co/json')
+                                    .then(res => res.json())
+                                    .then(data => callback(data.country_code))
+                                    .catch(() => callback('us'));
+                            },
+                            utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js',
+                        });
+                        // on submit ensure E.164 value
+                        const form = document.getElementById('bookingForm');
+                        form.addEventListener('submit', () => {
+                            phoneInput.value = iti.getNumber();
+                        });
+                    }
+                </script>
             </body>
 
             </html>

@@ -71,10 +71,6 @@
                     <div class="hero-stat-label">Món ăn</div>
                 </div>
                 <div class="hero-stat">
-                    <div class="hero-stat-num">5</div>
-                    <div class="hero-stat-label">Chi nhánh</div>
-                </div>
-                <div class="hero-stat">
                     <div class="hero-stat-num">10k+</div>
                     <div class="hero-stat-label">Khách hàng</div>
                 </div>
@@ -238,14 +234,7 @@
                 <p class="section-subtitle">Hơn 200 món ăn được chế biến từ nguyên liệu tươi ngon mỗi ngày bởi đội bếp
                     có kinh nghiệm hơn 10 năm.</p>
             </div>
-            <div class="menu-tabs" id="menuTabs">
-                <button class="menu-tab active" data-tab="all">Tất cả</button>
-                <button class="menu-tab" data-tab="khaivi">Khai vị</button>
-                <button class="menu-tab" data-tab="monchinh">Món chính</button>
-                <button class="menu-tab" data-tab="haisan">Hải sản</button>
-                <button class="menu-tab" data-tab="lau">Lẩu & Nướng</button>
-                <button class="menu-tab" data-tab="douong">Đồ uống</button>
-            </div>
+
             <div class="menu-grid">
                 <!-- Card 1 -->
                 <div class="menu-card">
@@ -501,7 +490,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>© 2026 Nhà hàng Hương Việt. Mọi quyền được bảo lưu.</p>
+                <p>© 2026 Nhà hàng Hương Việt.</p>
                 <p>Thiết kế bởi <a href="#">Đội ngũ Hương Việt Tech</a></p>
             </div>
         </footer>

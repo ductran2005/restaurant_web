@@ -485,7 +485,7 @@
                         </div>
                     </div>
                     <div class="footer-bottom">
-                        <p>© 2026 Nhà hàng Hương Việt. Mọi quyền được bảo lưu.</p>
+                        <p>© 2026 Nhà hàng Hương Việt.</p>
                         <p>Thiết kế bởi <a href="#">Đội ngũ Hương Việt Tech</a></p>
                     </div>
                 </footer>
