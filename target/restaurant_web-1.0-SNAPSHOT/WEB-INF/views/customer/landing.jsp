@@ -28,8 +28,8 @@
                 <a href="${pageContext.request.contextPath}/booking">Đặt bàn</a>
                 <a href="${pageContext.request.contextPath}/booking/status">Tra cứu</a>
                 <a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a>
-                <a href="#about">Về chúng tôi</a>
-                <a href="#contact">Liên hệ</a>
+                <a href="${pageContext.request.contextPath}/about">Về chúng tôi</a>
+                <a href="${pageContext.request.contextPath}/contact">Liên hệ</a>
             </div>
             <div class="nav-actions">
                 <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
@@ -54,7 +54,7 @@
                 </h1>
                 <p class="hero-desc">
                     Không chỉ là nhà hàng — Hương Việt là điểm hẹn liên hoan, sinh nhật, xả stress, tụ tập bạn bè với
-                    hơn 200 món ngon đặc sắc từ ba miền.
+                    hơn 50 món ngon đặc sắc từ ba miền.
                 </p>
                 <div class="hero-cta">
                     <a href="${pageContext.request.contextPath}/menu" class="btn-primary">
@@ -67,7 +67,7 @@
             </div>
             <div class="hero-stats">
                 <div class="hero-stat">
-                    <div class="hero-stat-num">200+</div>
+                    <div class="hero-stat-num">50+</div>
                     <div class="hero-stat-label">Món ăn</div>
                 </div>
                 <div class="hero-stat">
@@ -231,7 +231,7 @@
                 <div class="section-label">Thực đơn nổi bật</div>
                 <h2 class="section-title">Tinh hoa ẩm thực <em style="font-style:italic;color:var(--primary)">ba
                         miền</em></h2>
-                <p class="section-subtitle">Hơn 200 món ăn được chế biến từ nguyên liệu tươi ngon mỗi ngày bởi đội bếp
+                <p class="section-subtitle">Hơn 50 món ăn được chế biến từ nguyên liệu tươi ngon mỗi ngày bởi đội bếp
                     có kinh nghiệm hơn 10 năm.</p>
             </div>
 
@@ -424,7 +424,7 @@
 ============================================================ -->
         <section class="cta-section" id="contact">
             <div class="section-label">Đặt bàn ngay</div>
-            <h2 class="section-title" style="font-family:var(--font-serif)">Đảm bảo bàn của bạn hôm nay</h2>
+            <h2 class="section-title" style="font-family:var(--font-serif)">Đảm bảo bàn của bạn ngay hôm nay</h2>
             <p>Đặt trước để nhận ưu đãi tốt nhất và không lo hết chỗ vào giờ cao điểm.</p>
             <form class="cta-form" action="${pageContext.request.contextPath}/booking" method="post">
                 <input type="hidden" name="fromLanding" value="true">
@@ -463,7 +463,7 @@
                         <li><a href="${pageContext.request.contextPath}/booking">Đặt bàn</a></li>
                         <li><a href="${pageContext.request.contextPath}/booking/status">Tra cứu booking</a></li>
                         <li><a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a></li>
-                        <li><a href="#about">Về chúng tôi</a></li>
+                        <li><a href="${pageContext.request.contextPath}/about">Về chúng tôi</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
