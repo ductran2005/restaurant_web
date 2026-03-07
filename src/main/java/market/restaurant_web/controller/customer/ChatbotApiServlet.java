@@ -5,6 +5,10 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import market.restaurant_web.config.HibernateUtil;
+import market.restaurant_web.dao.ProductDAO;
+import market.restaurant_web.entity.Product;
+import org.hibernate.Session;
 
 import java.io.*;
 import java.net.URI;
@@ -12,13 +16,15 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.text.NumberFormat;
 import java.time.Duration;
+import java.util.*;
 
 /**
- * ChatbotApiServlet — proxy OpenAI ChatGPT API
+ * ChatbotApiServlet — proxy to Groq API with live DB menu injection
  * Endpoint: POST /chatbot-api
- * Request body (JSON): {"message": "user text"}
- * Response body (JSON): {"reply": "bot text"} | {"error": "..."}
+ * Request: {"message": "user text"}
+ * Response: {"reply": "bot text"} | {"error": "..."}
  */
 @WebServlet("/chatbot-api")
 public class ChatbotApiServlet extends HttpServlet {
@@ -26,33 +32,75 @@ public class ChatbotApiServlet extends HttpServlet {
     // ──────────────────────────────────────────────
     // Groq Configuration (free tier, OpenAI-compatible)
     // ──────────────────────────────────────────────
-    private static final String OPENAI_API_KEY = "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";
-    private static final String OPENAI_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+    private static final String GROQ_API_KEY = "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";
+    private static final String GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
     private static final String MODEL = "llama-3.3-70b-versatile";
 
-    /** System prompt — defines the bot's personality and knowledge */
-    private static final String SYSTEM_PROMPT = "Bạn là trợ lý AI của nhà hàng Hương Việt — một nhà hàng ẩm thực Việt Nam tại TP.HCM.\n"
+    /** Static part of system prompt — restaurant info */
+    private static final String BASE_SYSTEM_PROMPT = "Bạn là trợ lý AI của nhà hàng Hương Việt — nhà hàng ẩm thực Việt Nam tại TP.HCM.\n"
             +
             "Thông tin cơ bản:\n" +
             "- Địa chỉ: 123 Nguyễn Huệ, Quận 1, TP.HCM\n" +
             "- Hotline: 0901 234 567\n" +
             "- Giờ mở cửa: Thứ 2–6: 10:00–22:00 | Thứ 7–CN: 08:00–23:00\n" +
-            "- Thực đơn nổi bật: Phở bò đặc biệt, Bún bò Huế, Cơm tấm sườn bì chả, Gỏi cuốn, Mâm hải sản tươi\n" +
-            "- Giá trung bình: 55.000–320.000 VNĐ/món\n" +
             "- Ưu đãi: Giảm 15% khi đặt trước 2 ngày, combo gia đình 4 người giảm 20%, sinh nhật miễn phí tráng miệng\n"
             +
             "- Có phòng VIP, sảnh tiệc cho nhóm 5–200 người\n" +
             "Hãy trả lời ngắn gọn, thân thiện, bằng tiếng Việt. " +
-            "Chỉ trả lời trong phạm vi liên quan đến nhà hàng (thực đơn, đặt bàn, ưu đãi, địa chỉ, giờ mở cửa). " +
+            "Chỉ trả lời trong phạm vi liên quan đến nhà hàng. " +
             "Nếu câu hỏi không liên quan, hãy lịch sự hướng người dùng về chủ đề nhà hàng.";
 
     private HttpClient httpClient;
+    private final ProductDAO productDAO = new ProductDAO();
 
     @Override
     public void init() {
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(15))
                 .build();
+    }
+
+    // ──────────────────────────────────────────────
+    // Build dynamic system prompt with live DB menu
+    // ──────────────────────────────────────────────
+    private String buildSystemPrompt() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            List<Product> products = productDAO.findAvailable(session);
+            if (products == null || products.isEmpty()) {
+                return BASE_SYSTEM_PROMPT;
+            }
+
+            // Group by category
+            Map<String, List<Product>> byCategory = new LinkedHashMap<>();
+            for (Product p : products) {
+                String cat = p.getCategory() != null ? p.getCategory().getCategoryName() : "Khác";
+                byCategory.computeIfAbsent(cat, k -> new ArrayList<>()).add(p);
+            }
+
+            // Build menu text
+            NumberFormat fmt = NumberFormat.getIntegerInstance(new Locale("vi", "VN"));
+            StringBuilder menu = new StringBuilder("\nThực đơn hiện tại (chỉ các món đang phục vụ):\n");
+            for (Map.Entry<String, List<Product>> entry : byCategory.entrySet()) {
+                menu.append("== ").append(entry.getKey()).append(" ==\n");
+                for (Product p : entry.getValue()) {
+                    menu.append("• ").append(p.getProductName());
+                    if (p.getPrice() != null) {
+                        menu.append(": ").append(fmt.format(p.getPrice())).append(" VNĐ");
+                    }
+                    if (p.getDescription() != null && !p.getDescription().isBlank()) {
+                        menu.append(" — ").append(p.getDescription().trim());
+                    }
+                    menu.append("\n");
+                }
+            }
+
+            return BASE_SYSTEM_PROMPT + menu;
+
+        } catch (Exception e) {
+            // DB unavailable — fall back to static prompt
+            getServletContext().log("ChatbotApiServlet: DB unavailable, using static prompt", e);
+            return BASE_SYSTEM_PROMPT;
+        }
     }
 
     @Override
@@ -62,7 +110,7 @@ public class ChatbotApiServlet extends HttpServlet {
         resp.setContentType("application/json;charset=UTF-8");
         resp.setHeader("Access-Control-Allow-Origin", "*");
 
-        // ── 1. Read user message from request body ──
+        // ── 1. Read request body ──
         String body;
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(req.getInputStream(), StandardCharsets.UTF_8))) {
@@ -73,7 +121,6 @@ public class ChatbotApiServlet extends HttpServlet {
             body = sb.toString();
         }
 
-        // Quick‐and‐dirty JSON parse (no library needed for this simple shape)
         String userMessage = extractJsonString(body, "message");
         if (userMessage == null || userMessage.isBlank()) {
             resp.setStatus(400);
@@ -81,23 +128,26 @@ public class ChatbotApiServlet extends HttpServlet {
             return;
         }
 
-        // ── 2. Build OpenAI request payload ──
+        // ── 2. Build system prompt with live menu ──
+        String systemPrompt = buildSystemPrompt();
+
+        // ── 3. Build Groq API payload ──
         String payload = "{"
                 + "\"model\":\"" + MODEL + "\","
                 + "\"messages\":["
-                + "{\"role\":\"system\",\"content\":" + jsonString(SYSTEM_PROMPT) + "},"
+                + "{\"role\":\"system\",\"content\":" + jsonString(systemPrompt) + "},"
                 + "{\"role\":\"user\",\"content\":" + jsonString(userMessage) + "}"
                 + "],"
                 + "\"max_tokens\":512,"
                 + "\"temperature\":0.7"
                 + "}";
 
-        // ── 3. Call OpenAI API ──
+        // ── 4. Call Groq API ──
         HttpRequest httpReq = HttpRequest.newBuilder()
-                .uri(URI.create(OPENAI_API_URL))
+                .uri(URI.create(GROQ_API_URL))
                 .timeout(Duration.ofSeconds(30))
                 .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + OPENAI_API_KEY)
+                .header("Authorization", "Bearer " + GROQ_API_KEY)
                 .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8))
                 .build();
 
@@ -111,24 +161,21 @@ public class ChatbotApiServlet extends HttpServlet {
             return;
         } catch (Exception e) {
             resp.setStatus(502);
-            resp.getWriter().write("{\"error\":\"Cannot reach OpenAI: " + escapeJson(e.getMessage()) + "\"}");
+            resp.getWriter().write("{\"error\":\"Cannot reach Groq: " + escapeJson(e.getMessage()) + "\"}");
             return;
         }
 
-        String responseBody = httpResp.body();
-
-        // ── 4. Extract reply text from OpenAI response ──
+        // ── 5. Parse and return reply ──
         if (httpResp.statusCode() != 200) {
             resp.setStatus(httpResp.statusCode());
-            resp.getWriter().write("{\"error\":\"OpenAI error " + httpResp.statusCode() + "\"}");
+            resp.getWriter().write("{\"error\":\"Groq error " + httpResp.statusCode() + "\"}");
             return;
         }
 
-        // Parse: choices[0].message.content
-        String reply = extractChoiceContent(responseBody);
+        String reply = extractChoiceContent(httpResp.body());
         if (reply == null) {
             resp.setStatus(500);
-            resp.getWriter().write("{\"error\":\"Could not parse OpenAI response\"}");
+            resp.getWriter().write("{\"error\":\"Could not parse Groq response\"}");
             return;
         }
 
@@ -145,11 +192,9 @@ public class ChatbotApiServlet extends HttpServlet {
     }
 
     // ──────────────────────────────────────────────
-    // Helpers — micro JSON parser / builder
-    // (avoids adding extra dependencies)
+    // Micro JSON helpers (no extra dependencies)
     // ──────────────────────────────────────────────
 
-    /** Convert a Java string to a JSON string literal (with escaping). */
     private static String jsonString(String s) {
         if (s == null)
             return "null";
@@ -159,18 +204,13 @@ public class ChatbotApiServlet extends HttpServlet {
     private static String escapeJson(String s) {
         if (s == null)
             return "";
-        return s
-                .replace("\\", "\\\\")
+        return s.replace("\\", "\\\\")
                 .replace("\"", "\\\"")
                 .replace("\n", "\\n")
                 .replace("\r", "\\r")
                 .replace("\t", "\\t");
     }
 
-    /**
-     * Extract a simple top‐level string value from JSON, e.g.
-     * {"message":"hello"} -> "hello"
-     */
     private static String extractJsonString(String json, String key) {
         if (json == null)
             return null;
@@ -223,21 +263,15 @@ public class ChatbotApiServlet extends HttpServlet {
         return sb.toString();
     }
 
-    /**
-     * Extract choices[0].message.content from OpenAI response.
-     * Finds the first "content" key after "choices".
-     */
     private static String extractChoiceContent(String json) {
         if (json == null)
             return null;
         int choicesIdx = json.indexOf("\"choices\"");
         if (choicesIdx < 0)
             return null;
-        // Find first "content" after "choices"
         int contentIdx = json.indexOf("\"content\"", choicesIdx);
         if (contentIdx < 0)
             return null;
-        // Now extract the string value
         return extractJsonString(json.substring(contentIdx), "content");
     }
 }
