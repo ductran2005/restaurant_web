@@ -574,16 +574,16 @@
                                     </c:if>
 
                                     <!-- Pre-order Items (nếu có) -->
-                                    <c:if test="${not empty booking.preOrderItems}">
+                                    <c:if test="${not empty booking.preOrderItems && booking.preOrderItems.size() > 0}">
                                         <div class="preorder-section">
                                             <h4><i class="fa-solid fa-utensils" style="color:var(--primary)"></i> Món đã
-                                                đặt trước</h4>
+                                                đặt trước (Size: ${booking.preOrderItems.size()})</h4>
                                             <c:forEach var="item" items="${booking.preOrderItems}">
                                                 <div class="preorder-item">
-                                                    <span class="item-name">${item.menuItemName}</span>
+                                                    <span class="item-name">${item.product.productName}</span>
                                                     <span class="item-qty">×${item.quantity}</span>
                                                     <span class="item-price">
-                                                        <fmt:formatNumber value="${item.price * item.quantity}"
+                                                        <fmt:formatNumber value="${item.product.price * item.quantity}"
                                                             pattern="#,###" />đ
                                                     </span>
                                                 </div>
