@@ -21,6 +21,7 @@ D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\con
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\auth\AccessDeniedController.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\entity\Inventory.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\entity\AuditLog.java
+D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\customer\ChatbotApiServlet.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\entity\Category.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\entity\Payment.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\util\PasswordUtil.java
@@ -39,6 +40,7 @@ D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\ser
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\service\PaymentService.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\admin\DashboardController.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\config\HibernateUtil.java
+D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\servlet\ChatbotServlet.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\entity\PreOrderItem.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\entity\InventoryLog.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\entity\Role.java

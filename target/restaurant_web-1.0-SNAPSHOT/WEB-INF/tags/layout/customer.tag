@@ -57,5 +57,6 @@
     <footer class="l-customer-footer" style="display:none;">
         <p>123 Nguyễn Huệ, Quận 1, TP.HCM | Hotline: <span class="font-bold">1900 1234</span></p>
     </footer>
-</body>
+
+    <jsp:include page="/chatbot.jsp" /></body>
 </html>

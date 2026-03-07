@@ -28,6 +28,7 @@
                 <a href="${pageContext.request.contextPath}/booking">Đặt bàn</a>
                 <a href="${pageContext.request.contextPath}/booking/status">Tra cứu</a>
                 <a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a>
+                <a href="${pageContext.request.contextPath}/chatbot.html">Chatbot</a>
                 <a href="#about">Về chúng tôi</a>
                 <a href="#contact">Liên hệ</a>
             </div>
@@ -544,6 +545,9 @@
                     document.querySelector('.nav-links').style.display === 'flex' ? 'none' : 'flex';
             });
         </script>
+
+    <!-- chatbot widget include -->
+    <jsp:include page="/chatbot.jsp" />
 
     </body>
 
