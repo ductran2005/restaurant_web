@@ -13,7 +13,8 @@
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/landing.css">
                 <!-- intl-tel-input styles -->
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css">
+                <link rel="stylesheet"
+                    href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css">
                 <style>
                     .booking-hero {
                         padding: 140px 48px 40px;
@@ -104,6 +105,30 @@
                         font-family: inherit;
                         outline: none;
                         transition: all .25s;
+                    }
+
+                    /* intl-tel-input dark theme override */
+                    .iti {
+                        width: 100%;
+                    }
+
+                    .iti--separate-dial-code .iti__selected-flag,
+                    .iti__country-list {
+                        background: #1a1814;
+                        border-color: var(--border);
+                    }
+
+                    .iti__country-list li {
+                        color: var(--text);
+                    }
+
+                    .iti__country-list .iti__country.iti__highlight,
+                    .iti__country-list .iti__country:hover {
+                        background: rgba(232, 160, 32, .12);
+                    }
+
+                    .iti__selected-dial-code {
+                        color: var(--text-muted);
                     }
 
                     .form-control::placeholder {
@@ -313,8 +338,6 @@
                         <a href="${pageContext.request.contextPath}/booking" class="active">Đặt bàn</a>
                         <a href="${pageContext.request.contextPath}/booking/status">Tra cứu</a>
                         <a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a>
-                        <a href="${pageContext.request.contextPath}/about">Về chúng tôi</a>
-                        <a href="${pageContext.request.contextPath}/contact">Liên hệ</a>
                     </div>
                     <div class="nav-actions">
                         <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
@@ -356,8 +379,7 @@
                                         class="btn-outline-light">
                                         <i class="fa-solid fa-utensils"></i> Đặt món trước
                                     </a>
-                                    <a href="${pageContext.request.contextPath}/booking"
-                                        class="btn-outline-light">
+                                    <a href="${pageContext.request.contextPath}/booking" class="btn-outline-light">
                                         <i class="fa-solid fa-plus"></i> Đặt bàn mới
                                     </a>
                                 </div>
@@ -386,7 +408,8 @@
                                             <label class="form-label">Họ và tên <span class="required">*</span></label>
                                             <input type="text" name="customerName"
                                                 class="form-control ${not empty errors.customerName ? 'error' : ''}"
-                                                value="${not empty param.customerName ? param.customerName : customerName}" placeholder="Nguyễn Văn A" required>
+                                                value="${not empty param.customerName ? param.customerName : customerName}"
+                                                placeholder="Nguyễn Văn A" required>
                                             <c:if test="${not empty errors.customerName}">
                                                 <div class="form-error">${errors.customerName}</div>
                                             </c:if>
@@ -396,9 +419,8 @@
                                                     class="required">*</span></label>
                                             <input type="tel" id="phoneInput" name="customerPhone"
                                                 class="form-control ${not empty errors.customerPhone ? 'error' : ''}"
-                                                value="${not empty param.customerPhone ? param.customerPhone : customerPhone}" placeholder="0901234567"
-                                                pattern="\+[1-9][0-9]{7,14}"
-                                                title="Nhập số theo định dạng quốc tế, ví dụ +84901234567" required>
+                                                value="${not empty param.customerPhone ? param.customerPhone : customerPhone}"
+                                                placeholder="0901234567" required>
                                             <c:if test="${not empty errors.customerPhone}">
                                                 <div class="form-error">${errors.customerPhone}</div>
                                             </c:if>
@@ -411,7 +433,8 @@
                                             <label class="form-label">Ngày <span class="required">*</span></label>
                                             <input type="date" name="bookingDate"
                                                 class="form-control ${not empty errors.bookingDate ? 'error' : ''}"
-                                                value="${not empty param.bookingDate ? param.bookingDate : bookingDate}" required>
+                                                value="${not empty param.bookingDate ? param.bookingDate : bookingDate}"
+                                                required>
                                             <c:if test="${not empty errors.bookingDate}">
                                                 <div class="form-error">${errors.bookingDate}</div>
                                             </c:if>
@@ -456,20 +479,14 @@
                 </div>
 
                 <!-- ── FOOTER ── -->
-                <footer class="footer" id="footer">
+                <footer class="footer">
                     <div class="footer-grid">
                         <div class="footer-brand">
                             <div class="footer-logo">
                                 <div class="footer-logo-icon"><i class="fa-solid fa-utensils"></i></div>
-                                <div class="footer-logo-text">Hương Việt<span>Nhà hàng &amp; Quán nhậu</span></div>
+                                <div class="footer-logo-text">Hương Việt<span>Nhà hàng & Quán nhậu</span></div>
                             </div>
-                            <p class="footer-desc">Không chỉ là nhà hàng, Hương Việt còn là phong cách sống — điểm hẹn của những khoảnh khắc đáng nhớ.</p>
-                            <div class="socials">
-                                <a href="#" class="social"><i class="fa-brands fa-facebook-f"></i></a>
-                                <a href="#" class="social"><i class="fa-brands fa-instagram"></i></a>
-                                <a href="#" class="social"><i class="fa-brands fa-tiktok"></i></a>
-                                <a href="#" class="social"><i class="fa-brands fa-youtube"></i></a>
-                            </div>
+                            <p class="footer-desc">Điểm hẹn của hương vị Việt Nam đích thực.</p>
                         </div>
                         <div class="footer-col">
                             <h4>Khám phá</h4>
@@ -477,35 +494,18 @@
                                 <li><a href="${pageContext.request.contextPath}/menu">Thực đơn</a></li>
                                 <li><a href="${pageContext.request.contextPath}/booking">Đặt bàn</a></li>
                                 <li><a href="${pageContext.request.contextPath}/booking/status">Tra cứu booking</a></li>
-                                <li><a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a></li>
-                            </ul>
-                        </div>
-                        <div class="footer-col">
-                            <h4>Về chúng tôi</h4>
-                            <ul>
-                                <li><a href="${pageContext.request.contextPath}/about">Giới thiệu</a></li>
-                                <li><a href="${pageContext.request.contextPath}/contact">Liên hệ</a></li>
                             </ul>
                         </div>
                         <div class="footer-col">
                             <h4>Liên hệ</h4>
                             <div class="footer-contact-item">
-                                <div class="footer-contact-icon"><i class="fa-solid fa-location-dot"></i></div>
-                                <div class="footer-contact-text"><strong>Địa chỉ</strong>123 Nguyễn Huệ, Quận 1, TP.HCM</div>
-                            </div>
-                            <div class="footer-contact-item">
                                 <div class="footer-contact-icon"><i class="fa-solid fa-phone"></i></div>
-                                <div class="footer-contact-text"><strong>Hotline</strong>1900 1234 (8:00 – 23:00)</div>
-                            </div>
-                            <div class="footer-contact-item">
-                                <div class="footer-contact-icon"><i class="fa-regular fa-clock"></i></div>
-                                <div class="footer-contact-text"><strong>Giờ mở cửa</strong>10:00 – 23:00 hàng ngày</div>
+                                <div class="footer-contact-text"><strong>Hotline</strong>1900 1234</div>
                             </div>
                         </div>
                     </div>
                     <div class="footer-bottom">
                         <p>© 2026 Nhà hàng Hương Việt.</p>
-                        <p>Thiết kế bởi <a href="#">Đội ngũ Hương Việt Tech</a></p>
                     </div>
                 </footer>
 
@@ -539,28 +539,28 @@
                         dateInput.min = new Date().toISOString().split('T')[0];
                     }
                 </script>
-                <!-- intl-tel-input script -->
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
+                <script
+                    src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
                 <script>
                     const phoneInput = document.querySelector('#phoneInput');
                     if (phoneInput) {
                         const iti = window.intlTelInput(phoneInput, {
-                            initialCountry: 'auto',
-                            geoIpLookup: function(callback) {
-                                fetch('https://ipapi.co/json')
-                                    .then(res => res.json())
-                                    .then(data => callback(data.country_code))
-                                    .catch(() => callback('us'));
-                            },
+                            initialCountry: 'vn',
+                            separateDialCode: true,
                             utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js',
                         });
-                        // on submit ensure E.164 value
-                        const form = document.getElementById('bookingForm');
-                        form.addEventListener('submit', () => {
+                        document.getElementById('bookingForm').addEventListener('submit', function () {
+                            // If user typed local VN number (0xxx...), keep as-is
+                            // Otherwise send full international number
+                            const raw = phoneInput.value.trim();
+                            if (raw.startsWith('0')) return;
                             phoneInput.value = iti.getNumber();
                         });
                     }
                 </script>
+
+                <!-- chatbot widget include -->
+                <jsp:include page="/chatbot.jsp" />
             </body>
 
             </html>
