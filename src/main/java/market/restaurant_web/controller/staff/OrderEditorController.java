@@ -23,11 +23,14 @@ public class OrderEditorController extends HttpServlet {
             User staff = (User) req.getSession().getAttribute("user");
             try {
                 int tableId = Integer.parseInt(req.getParameter("tableId"));
-                var order = orderService.createOrder(tableId, staff.getId());
-                resp.sendRedirect(req.getContextPath() + "/staff/orders?orderId=" + order.getId());
+                var existing = orderService.getOpenOrderByTable(tableId);
+                if (existing != null) {
+                    resp.sendRedirect(req.getContextPath() + "/staff/orders?orderId=" + existing.getId());
+                } else {
+                    var order = orderService.createOrder(tableId, staff.getId());
+                    resp.sendRedirect(req.getContextPath() + "/staff/orders?orderId=" + order.getId());
+                }
             } catch (RuntimeException e) {
-                // Table already has an open order — extract order id from message or just
-                // redirect
                 req.getSession().setAttribute("flash_msg", e.getMessage());
                 req.getSession().setAttribute("flash_type", "error");
                 resp.sendRedirect(req.getContextPath() + "/staff");
@@ -53,8 +56,13 @@ public class OrderEditorController extends HttpServlet {
         try {
             if ("create".equals(action)) {
                 int tableId = Integer.parseInt(req.getParameter("tableId"));
-                var order = orderService.createOrder(tableId, staff.getId());
-                resp.sendRedirect(req.getContextPath() + "/staff/orders?orderId=" + order.getId());
+                var existing = orderService.getOpenOrderByTable(tableId);
+                if (existing != null) {
+                    resp.sendRedirect(req.getContextPath() + "/staff/orders?orderId=" + existing.getId());
+                } else {
+                    var order = orderService.createOrder(tableId, staff.getId());
+                    resp.sendRedirect(req.getContextPath() + "/staff/orders?orderId=" + order.getId());
+                }
                 return;
             } else if ("addItem".equals(action)) {
                 int orderId = Integer.parseInt(req.getParameter("orderId"));
@@ -74,13 +82,6 @@ public class OrderEditorController extends HttpServlet {
                 int orderId = Integer.parseInt(req.getParameter("orderId"));
                 orderService.confirmItems(orderId);
                 req.getSession().setAttribute("flash_msg", "Đã gửi thông tin món vào bếp!");
-                req.getSession().setAttribute("flash_type", "success");
-                resp.sendRedirect(req.getContextPath() + "/staff/orders?orderId=" + orderId);
-                return;
-            } else if ("confirm".equals(action)) {
-                int orderId = Integer.parseInt(req.getParameter("orderId"));
-                orderService.confirmOrder(orderId);
-                req.getSession().setAttribute("flash_msg", "Đã chốt đơn hàng! Đang chờ thanh toán.");
                 req.getSession().setAttribute("flash_type", "success");
                 resp.sendRedirect(req.getContextPath() + "/staff/orders?orderId=" + orderId);
                 return;

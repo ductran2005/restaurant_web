@@ -6,7 +6,7 @@
     <session-factory>
         <!-- SQL Server Connection -->
         <property name="hibernate.connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
-        <property name="hibernate.connection.url">jdbc:sqlserver://localhost:1433;databaseName=Restaurant_Ipos;encrypt=true;trustServerCertificate=true</property>
+        <property name="hibernate.connection.url">jdbc:sqlserver://localhost:1433;databaseName=Restaurant_Ipos;encrypt=true;trustServerCertificate=true;sendStringParametersAsUnicode=true;characterEncoding=UTF-8</property>
         <property name="hibernate.connection.username">sa</property>
         <property name="hibernate.connection.password">sa</property>
 

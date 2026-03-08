@@ -356,54 +356,44 @@
                                                                     <c:if test="${order.status == 'OPEN'}">
                                                                         <div
                                                                             style="padding:0 20px 16px;display:flex;flex-direction:column;gap:10px">
-                                                                            <%-- Check if there are any PENDING items
-                                                                                --%>
-                                                                                <c:set var="hasPending" value="false" />
-                                                                                <c:forEach var="item"
-                                                                                    items="${order.orderDetails}">
-                                                                                    <c:if
-                                                                                        test="${item.itemStatus == 'PENDING'}">
-                                                                                        <c:set var="hasPending"
-                                                                                            value="true" />
-                                                                                    </c:if>
-                                                                                </c:forEach>
+                                                                            <c:set var="hasPending" value="false" />
+                                                                            <c:forEach var="item"
+                                                                                items="${order.orderDetails}">
+                                                                                <c:if
+                                                                                    test="${item.itemStatus == 'PENDING'}">
+                                                                                    <c:set var="hasPending"
+                                                                                        value="true" />
+                                                                                </c:if>
+                                                                            </c:forEach>
 
-                                                                                <form method="post"
-                                                                                    action="${ctx}/staff/orders"
-                                                                                    style="margin:0">
-                                                                                    <input type="hidden" name="action"
-                                                                                        value="confirmItems">
-                                                                                    <input type="hidden" name="orderId"
-                                                                                        value="${order.id}">
-                                                                                    <button type="submit"
-                                                                                        class="btn btn-primary"
-                                                                                        style="width:100%;justify-content:center;background:#f59e0b;border-color:#f59e0b"
-                                                                                        ${!hasPending ? 'disabled' : ''
-                                                                                        }>
-                                                                                        <i
-                                                                                            class="fa-solid fa-utensils"></i>
-                                                                                        Xác nhận gửi bếp
-                                                                                    </button>
-                                                                                </form>
+                                                                            <form method="post"
+                                                                                action="${ctx}/staff/orders"
+                                                                                style="margin:0">
+                                                                                <input type="hidden" name="action"
+                                                                                    value="confirmItems">
+                                                                                <input type="hidden" name="orderId"
+                                                                                    value="${order.id}">
+                                                                                <button type="submit"
+                                                                                    class="btn btn-warning"
+                                                                                    style="width:100%;justify-content:center"
+                                                                                    ${!hasPending ? 'disabled' : '' }>
+                                                                                    <i class="fa-solid fa-utensils"></i>
+                                                                                    Xác nhận gửi bếp
+                                                                                </button>
+                                                                            </form>
 
-                                                                                <form method="post"
-                                                                                    action="${ctx}/staff/orders"
-                                                                                    style="margin:0">
-                                                                                    <input type="hidden" name="action"
-                                                                                        value="confirm">
-                                                                                    <input type="hidden" name="orderId"
-                                                                                        value="${order.id}">
-                                                                                    <button type="submit"
-                                                                                        class="btn btn-success"
-                                                                                        style="width:100%;justify-content:center"
-                                                                                        onclick="return confirm('Chốt đơn và chờ thanh toán?')">
-                                                                                        <i
-                                                                                            class="fa-solid fa-check-double"></i>
-                                                                                        Chốt đơn (Thanh toán)
-                                                                                    </button>
-                                                                                </form>
+                                                                            <div
+                                                                                style="text-align:center;border:1px dashed var(--border);border-radius:10px;padding:12px;margin-top:5px">
+                                                                                <p
+                                                                                    style="font-size:11px;color:#6b7280;margin:0">
+                                                                                    <i class="fa-solid fa-receipt"></i>
+                                                                                    Vui lòng yêu cầu thanh toán tại
+                                                                                    <strong>Sơ đồ bàn</strong>.
+                                                                                </p>
+                                                                            </div>
                                                                         </div>
                                                                     </c:if>
+
                                                                     <c:if test="${order.status == 'SERVED'}">
                                                                         <div style="padding:0 20px 16px">
                                                                             <div
@@ -420,6 +410,7 @@
                                                                             </div>
                                                                         </div>
                                                                     </c:if>
+
                                                                     <c:if test="${order.status == 'PAID'}">
                                                                         <div style="padding:0 20px 16px">
                                                                             <div class="alert alert-success"

@@ -1,5 +1,6 @@
 package market.restaurant_web.controller.cashier;
 
+import market.restaurant_web.entity.Order;
 import market.restaurant_web.entity.Payment;
 import market.restaurant_web.entity.User;
 import market.restaurant_web.service.*;
@@ -32,7 +33,15 @@ public class CheckoutController extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/cashier");
             return;
         }
-        req.setAttribute("order", orderService.findById(orderId));
+        Order order = orderService.findById(orderId);
+        if (order == null || !"SERVED".equals(order.getStatus())) {
+            req.getSession().setAttribute("flash_msg",
+                    "Đơn hàng phải được Staff yêu cầu thanh toán (SERVED) mới có thể xử lý.");
+            req.getSession().setAttribute("flash_type", "error");
+            resp.sendRedirect(req.getContextPath() + "/cashier");
+            return;
+        }
+        req.setAttribute("order", order);
         Payment existingPayment = paymentService.findByOrderId(orderId);
         req.setAttribute("payment", existingPayment);
         req.getRequestDispatcher("/WEB-INF/views/cashier/checkout.jsp").forward(req, resp);

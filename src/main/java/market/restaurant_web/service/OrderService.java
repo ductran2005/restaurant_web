@@ -72,10 +72,6 @@ public class OrderService {
             order.setOrderDetails(new ArrayList<>());
             orderDao.save(s, order);
 
-            // Update table status
-            table.setStatus("IN_USE");
-            tableDao.update(s, table);
-
             tx.commit();
             return order;
         } catch (Exception e) {
@@ -175,6 +171,22 @@ public class OrderService {
         order.setSubtotal(subtotal);
         order.setTotalAmount(subtotal.subtract(order.getDiscountAmount()));
         s.merge(order);
+
+        // Update table status: if no items, table should be EMPTY (unless reserved)
+        DiningTable table = order.getTable();
+        if (table != null && "OPEN".equals(order.getStatus())) {
+            if (details.isEmpty()) {
+                if (table.getStatus() == TableStatus.OCCUPIED) {
+                    table.setStatus(TableStatus.EMPTY);
+                    s.merge(table);
+                }
+            } else {
+                if (table.getStatus() != TableStatus.OCCUPIED) {
+                    table.setStatus(TableStatus.OCCUPIED);
+                    s.merge(table);
+                }
+            }
+        }
     }
 
     /**
@@ -236,6 +248,14 @@ public class OrderService {
 
             order.setStatus("SERVED");
             orderDao.update(s, order);
+
+            // Also update table status to WAITING_PAYMENT
+            DiningTable table = order.getTable();
+            if (table != null) {
+                table.setStatus(TableStatus.WAITING_PAYMENT);
+                s.merge(table);
+            }
+
             tx.commit();
         } catch (Exception e) {
             if (tx != null)
@@ -243,6 +263,12 @@ public class OrderService {
             throw new RuntimeException(e.getMessage(), e);
         } finally {
             s.close();
+        }
+    }
+
+    public Order getOpenOrderByTable(int tableId) {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            return orderDao.findOpenByTable(s, tableId);
         }
     }
 

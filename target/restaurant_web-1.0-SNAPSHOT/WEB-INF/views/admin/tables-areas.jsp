@@ -62,13 +62,14 @@
                                     </div>
                                     <div class="table-grid">
                                         <c:forEach var="t" items="${area.tables}">
-                                            <div class="table-tile t-${t.status.toLowerCase()}"
-                                                onclick="editTable(${t.id},'${t.tableName}',${t.capacity},'${t.status}',${area.id})">
+                                            <c:set var="tStatus" value="${t.status}" />
+                                            <div class="table-tile t-${tStatus.name().toLowerCase()}"
+                                                onclick="editTable(${t.id},'${t.tableName}',${t.capacity},'${tStatus}',${area.id})">
                                                 <div class="table-tile-name">${t.tableName}</div>
                                                 <div class="table-tile-cap"><i class="fa-solid fa-user"></i>
                                                     ${t.capacity} chỗ</div>
                                                 <span class="badge"
-                                                    style="margin-top:6px;font-size:10px">${t.status}</span>
+                                                    style="margin-top:6px;font-size:10px">${tStatus}</span>
                                             </div>
                                         </c:forEach>
                                     </div>
@@ -140,8 +141,12 @@
                                     <div class="form-group" id="tStatusGroup" style="display:none">
                                         <label class="form-label">Trạng thái</label>
                                         <select name="status" id="tStatus" class="form-control">
-                                            <option value="AVAILABLE">AVAILABLE</option>
-                                            <option value="IN_USE">IN_USE</option>
+                                            <option value="EMPTY">EMPTY (Trống)</option>
+                                            <option value="RESERVED">RESERVED (Đã đặt)</option>
+                                            <option value="OCCUPIED">OCCUPIED (Đang dùng)</option>
+                                            <option value="WAITING_PAYMENT">WAITING_PAYMENT (Đang chờ TT)</option>
+                                            <option value="DIRTY">DIRTY (Bẩn)</option>
+                                            <option value="DISABLED">DISABLED (Khóa)</option>
                                         </select>
                                     </div>
                                 </div>
