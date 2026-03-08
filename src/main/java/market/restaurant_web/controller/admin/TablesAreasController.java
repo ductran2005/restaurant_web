@@ -59,8 +59,19 @@ public class TablesAreasController extends HttpServlet {
             table.setCode(tableCode);
             table.setArea(tableService.findAreaById(Integer.parseInt(req.getParameter("areaId"))));
             table.setSeats(ValidationUtil.parseInt(req.getParameter("seats"), 4));
-            String status = req.getParameter("status");
-            table.setStatus(status != null ? status : "AVAILABLE");
+            String statusStr = req.getParameter("status");
+            TableStatus status = TableStatus.EMPTY;
+            if (statusStr != null) {
+                try {
+                    status = TableStatus.valueOf(statusStr);
+                } catch (IllegalArgumentException e) {
+                    if ("AVAILABLE".equals(statusStr))
+                        status = TableStatus.EMPTY;
+                    else if ("IN_USE".equals(statusStr))
+                        status = TableStatus.OCCUPIED;
+                }
+            }
+            table.setStatus(status);
             tableService.saveTable(table);
         }
 

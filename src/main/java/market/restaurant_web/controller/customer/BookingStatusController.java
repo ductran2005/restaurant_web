@@ -28,14 +28,14 @@ public class BookingStatusController extends HttpServlet {
             req.setAttribute("booking", booking);
             req.setAttribute("searched", true);
         } else if (phone != null && !phone.isEmpty()) {
-            // validate phone format before querying
             req.setAttribute("searched", true);
-            if (!market.restaurant_web.util.ValidationUtil.isValidInternationalPhone(phone)) {
-                req.setAttribute("error", "Số điện thoại không hợp lệ (ví dụ +84901234567)");
+            String phoneTrimmed = phone.trim().replaceAll("[^+0-9]", "");
+            if (phoneTrimmed.isEmpty()) {
+                req.setAttribute("error", "Số điện thoại không hợp lệ");
             } else {
-                List<Booking> bookings = bookingService.findByPhone(phone);
+                List<Booking> bookings = bookingService.findByPhone(phoneTrimmed);
                 req.setAttribute("bookings", bookings);
-                req.setAttribute("phone", phone);
+                req.setAttribute("phone", phoneTrimmed);
             }
         }
 

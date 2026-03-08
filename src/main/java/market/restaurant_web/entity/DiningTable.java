@@ -1,12 +1,9 @@
 package market.restaurant_web.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Maps to DB table: tables (table_id, area_id, table_name, capacity, status)
- * Status values: AVAILABLE, IN_USE
- */
 @Entity
 @Table(name = "tables")
 public class DiningTable {
@@ -25,11 +22,31 @@ public class DiningTable {
     @Column(name = "capacity", nullable = false)
     private Integer capacity;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status = "AVAILABLE";
+    private TableStatus status = TableStatus.EMPTY;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "table")
     private List<Order> orders;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+        if (status == null)
+            status = TableStatus.EMPTY;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
     // Getters & Setters
     public Integer getId() {
@@ -56,7 +73,16 @@ public class DiningTable {
         this.tableName = tableName;
     }
 
-    /** Alias for backward compat - controllers used getCode()/setCode() */
+    /** Alias for prompt's tableNumber requirement */
+    public String getTableNumber() {
+        return tableName;
+    }
+
+    public void setTableNumber(String tableNumber) {
+        this.tableName = tableNumber;
+    }
+
+    /** Alias for backward compat */
     public String getCode() {
         return tableName;
     }
@@ -73,7 +99,7 @@ public class DiningTable {
         this.capacity = capacity;
     }
 
-    /** Alias for backward compat - controllers used getSeats()/setSeats() */
+    /** Alias for backward compat */
     public Integer getSeats() {
         return capacity;
     }
@@ -82,12 +108,25 @@ public class DiningTable {
         this.capacity = seats;
     }
 
-    public String getStatus() {
+    public TableStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TableStatus status) {
         this.status = status;
+    }
+
+    /** For backward compatibility where code expects String status */
+    public String getStatusStr() {
+        return status.name();
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
     public List<Order> getOrders() {

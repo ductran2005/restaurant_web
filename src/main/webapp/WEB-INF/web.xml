@@ -6,6 +6,11 @@
 
     <display-name>Restaurant Hương Việt</display-name>
 
+    <!-- Listeners -->
+    <listener>
+        <listener-class>market.restaurant_web.scheduler.BookingScheduler</listener-class>
+    </listener>
+
     <!-- Session Config -->
     <session-config>
         <session-timeout>30</session-timeout>

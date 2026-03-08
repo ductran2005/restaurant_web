@@ -79,10 +79,10 @@ public class PaymentService {
             payment.setPaymentStatus("SUCCESS");
             s.persist(payment);
 
-            // Update table status back to AVAILABLE
+            // Update table status back to DIRTY (as per requirements)
             if (order.getTable() != null) {
                 DiningTable table = order.getTable();
-                table.setStatus("AVAILABLE");
+                table.setStatus(TableStatus.DIRTY);
                 tableDao.update(s, table);
             }
 
@@ -170,7 +170,7 @@ public class PaymentService {
             // Update table status
             if (order.getTable() != null) {
                 DiningTable table = order.getTable();
-                table.setStatus("AVAILABLE");
+                table.setStatus(TableStatus.AVAILABLE);
                 tableDao.update(s, table);
             }
 

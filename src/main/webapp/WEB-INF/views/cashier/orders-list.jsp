@@ -105,8 +105,7 @@
                                                             </td>
                                                             <td style="color:var(--text-muted)">${o.openedAt}</td>
                                                             <td>
-                                                                <c:if
-                                                                    test="${o.status == 'OPEN' || o.status == 'SERVED'}">
+                                                                <c:if test="${o.status == 'SERVED'}">
                                                                     <a href="${ctx}/cashier/checkout?orderId=${o.id}"
                                                                         class="btn btn-primary btn-sm"><i
                                                                             class="fa-solid fa-cash-register"></i> Thanh

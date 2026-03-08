@@ -568,6 +568,26 @@ button {
     color: var(--text)
 }
 
+.btn-success {
+    background: var(--success);
+    color: #fff
+}
+
+.btn-success:hover:not(:disabled) {
+    background: #16a34a;
+    color: #fff
+}
+
+.btn-warning {
+    background: var(--warning);
+    color: #000
+}
+
+.btn-warning:hover:not(:disabled) {
+    background: #d97706;
+    color: #000
+}
+
 .btn-danger {
     background: rgba(239, 68, 68, 0.12);
     color: #ef4444;

@@ -85,7 +85,7 @@ public class BookingFormController extends HttpServlet {
             if (ValidationUtil.isBlank(phone)) {
                 errors.put("customerPhone", "Vui lòng nhập số điện thoại");
             } else if (!ValidationUtil.isValidInternationalPhone(phone)) {
-                errors.put("customerPhone", "Số điện thoại không hợp lệ (ví dụ +84901234567)");
+                errors.put("customerPhone", "Số điện thoại không hợp lệ (VD: 0901234567 hoặc +84901234567)");
             }
             if (ValidationUtil.isBlank(dateStr)) {
                 errors.put("bookingDate", "Vui lòng chọn ngày");
