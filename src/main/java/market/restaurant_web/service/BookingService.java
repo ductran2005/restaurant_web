@@ -416,16 +416,17 @@ public class BookingService {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime targetTime = now.plusMinutes(minutesBefore);
             
-            return s.createQuery(
-                "FROM Booking WHERE status = 'CONFIRMED' " +
-                "AND table IS NOT NULL " +
-                "AND bookingDate = :date " +
-                "AND bookingTime <= :time " +
-                "AND bookingTime > :currentTime",
+            // Use native SQL to avoid TIME vs DATETIME comparison issues
+            return s.createNativeQuery(
+                "SELECT * FROM bookings WHERE status = 'CONFIRMED' " +
+                "AND table_id IS NOT NULL " +
+                "AND booking_date = :date " +
+                "AND CAST(CONCAT(CAST(booking_date AS VARCHAR), ' ', CAST(booking_time AS VARCHAR)) AS DATETIME2) <= :targetDateTime " +
+                "AND CAST(CONCAT(CAST(booking_date AS VARCHAR), ' ', CAST(booking_time AS VARCHAR)) AS DATETIME2) > :currentDateTime",
                 Booking.class)
                 .setParameter("date", targetTime.toLocalDate())
-                .setParameter("time", targetTime.toLocalTime())
-                .setParameter("currentTime", now.toLocalTime())
+                .setParameter("targetDateTime", targetTime)
+                .setParameter("currentDateTime", now)
                 .list();
         }
     }
@@ -436,13 +437,12 @@ public class BookingService {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime targetTime = now.minusMinutes(minutesAfter);
             
-            return s.createQuery(
-                "FROM Booking WHERE status IN ('CONFIRMED', 'CHECKED_IN') " +
-                "AND bookingDate = :date " +
-                "AND bookingTime < :time",
+            // Use native SQL to avoid TIME vs DATETIME comparison issues
+            return s.createNativeQuery(
+                "SELECT * FROM bookings WHERE status IN ('CONFIRMED', 'CHECKED_IN') " +
+                "AND CAST(CONCAT(CAST(booking_date AS VARCHAR), ' ', CAST(booking_time AS VARCHAR)) AS DATETIME2) < :targetDateTime",
                 Booking.class)
-                .setParameter("date", targetTime.toLocalDate())
-                .setParameter("time", targetTime.toLocalTime())
+                .setParameter("targetDateTime", targetTime)
                 .list();
         }
     }
@@ -450,6 +450,10 @@ public class BookingService {
     /** 
      * Auto-cancel bookings that are late (customer didn't show up after specified minutes)
      * Only cancels CONFIRMED bookings (not CHECKED_IN)
+     * Special handling for bookings with pre-orders:
+     * - Regular bookings: cancelled after 20 minutes
+     * - Pre-order bookings: cancelled after 40 minutes (more grace time)
+     * - Deposits are forfeited when auto-cancelled
      */
     public void autoCancelLateBookings(int minutesAfter) {
         Session s = HibernateUtil.getSessionFactory().openSession();
@@ -460,6 +464,7 @@ public class BookingService {
             System.out.println("=== Auto-cancel late bookings check ===");
             System.out.println("Current time: " + now);
             System.out.println("Looking for CONFIRMED bookings late by more than " + minutesAfter + " minutes");
+            System.out.println("(Pre-order bookings get 40 minutes grace time)");
             
             // Get all CONFIRMED bookings
             List<Booking> allBookings = s.createQuery(
@@ -471,22 +476,30 @@ public class BookingService {
             // Debug: Show all bookings with their times
             for (Booking b : allBookings) {
                 LocalDateTime bookingDateTime = LocalDateTime.of(b.getBookingDate(), b.getBookingTime());
-                LocalDateTime cancelTime = bookingDateTime.plusMinutes(minutesAfter);
+                boolean hasPreOrder = b.getPreOrderItems() != null && !b.getPreOrderItems().isEmpty();
+                int graceMinutes = hasPreOrder ? 40 : minutesAfter;
+                LocalDateTime cancelTime = bookingDateTime.plusMinutes(graceMinutes);
                 long minutesLate = java.time.Duration.between(bookingDateTime, now).toMinutes();
                 boolean shouldCancel = now.isAfter(cancelTime);
                 
                 System.out.println("  - " + b.getBookingCode() + 
                     ": booking=" + bookingDateTime + 
+                    ", has_preorder=" + hasPreOrder +
+                    ", grace=" + graceMinutes + "min" +
                     ", cancel_after=" + cancelTime +
                     ", late=" + minutesLate + "min" +
                     ", should_cancel=" + shouldCancel);
             }
             
-            // Filter bookings that are late (booking time + minutesAfter < now)
+            // Filter bookings that are late
+            // Regular bookings: late after minutesAfter (20 mins)
+            // Pre-order bookings: late after 40 mins
             List<Booking> lateBookings = allBookings.stream()
                 .filter(b -> {
                     LocalDateTime bookingDateTime = LocalDateTime.of(b.getBookingDate(), b.getBookingTime());
-                    LocalDateTime cancelTime = bookingDateTime.plusMinutes(minutesAfter);
+                    boolean hasPreOrder = b.getPreOrderItems() != null && !b.getPreOrderItems().isEmpty();
+                    int graceMinutes = hasPreOrder ? 40 : minutesAfter;
+                    LocalDateTime cancelTime = bookingDateTime.plusMinutes(graceMinutes);
                     return now.isAfter(cancelTime);
                 })
                 .toList();
@@ -497,6 +510,14 @@ public class BookingService {
                 try {
                     LocalDateTime bookingDateTime = LocalDateTime.of(b.getBookingDate(), b.getBookingTime());
                     long minutesLate = java.time.Duration.between(bookingDateTime, now).toMinutes();
+                    boolean hasPreOrder = b.getPreOrderItems() != null && !b.getPreOrderItems().isEmpty();
+                    
+                    // Handle deposit forfeiture for pre-order bookings
+                    if (hasPreOrder && "PAID".equals(b.getDepositStatus())) {
+                        b.setDepositStatus("FORFEITED");
+                        System.out.println("Deposit forfeited for pre-order booking " + b.getBookingCode() + 
+                            " (amount: " + b.getDepositAmount() + ")");
+                    }
                     
                     // Free the table if assigned
                     if (b.getTable() != null) {
@@ -506,14 +527,18 @@ public class BookingService {
                         System.out.println("Freed table " + t.getTableName() + " from booking " + b.getBookingCode());
                     }
                     
-                    // Cancel booking
+                    // Cancel booking with appropriate reason
                     b.setStatus("CANCELLED");
-                    b.setCancelReason("Tự động hủy: Khách không đến sau " + minutesLate + " phút");
+                    String reason = hasPreOrder 
+                        ? "Tự động hủy: Khách có pre-order không đến sau " + minutesLate + " phút (cọc bị tịch thu)"
+                        : "Tự động hủy: Khách không đến sau " + minutesLate + " phút";
+                    b.setCancelReason(reason);
                     b.setUpdatedAt(LocalDateTime.now());
                     bookingDao.update(s, b);
                     
                     System.out.println("✓ Auto-cancelled booking " + b.getBookingCode() + 
-                        " (late by " + minutesLate + " minutes)");
+                        " (late by " + minutesLate + " minutes" + 
+                        (hasPreOrder ? ", has pre-order" : "") + ")");
                         
                 } catch (Exception e) {
                     System.err.println("Failed to auto-cancel booking " + b.getBookingCode() + 
