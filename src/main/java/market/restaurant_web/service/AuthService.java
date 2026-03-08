@@ -1,15 +1,13 @@
 package market.restaurant_web.service;
 
 import market.restaurant_web.config.HibernateUtil;
-import market.restaurant_web.dao.*;
-import market.restaurant_web.entity.*;
+import market.restaurant_web.dao.UserDAO;
+import market.restaurant_web.entity.User;
 import market.restaurant_web.util.PasswordUtil;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 public class AuthService {
     private final UserDAO userDao = new UserDAO();
-    private final RoleDAO roleDao = new RoleDAO();
 
     /**
      * Login by username + password.
@@ -31,42 +29,6 @@ public class AuthService {
             if (!PasswordUtil.verify(password, user.getPasswordHash()))
                 return null;
             return user;
-        }
-    }
-
-    /**
-     * Register a new staff/user.
-     * DB no longer has permissions/role_permissions tables,
-     * so no permission codes loading here.
-     */
-    public User register(String username, String fullName, String password, String roleName) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
-
-            // Check username unique
-            if (userDao.findByUsername(session, username) != null) {
-                throw new RuntimeException("Tên đăng nhập đã được sử dụng");
-            }
-
-            Role role = roleDao.findByName(session, roleName != null ? roleName : "STAFF");
-            User user = new User();
-            user.setUsername(username);
-            user.setFullName(fullName);
-            user.setPasswordHash(PasswordUtil.hash(password));
-            user.setRole(role);
-            user.setStatus("ACTIVE");
-            userDao.save(session, user);
-
-            tx.commit();
-            return user;
-        } catch (Exception e) {
-            if (tx != null)
-                tx.rollback();
-            throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            session.close();
         }
     }
 

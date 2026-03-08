@@ -1,8 +1,5 @@
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\service\PreOrderService.java
-C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\service\TableManagementService.java
-C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\util\DbMigration.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\dao\UserDAO.java
-C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\TestConnection.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\admin\MenuItemsController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\dto\TableResponseDTO.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\entity\UserSession.java
@@ -14,10 +11,7 @@ C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\entity\PreOrderItem.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\exception\BusinessException.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\dao\AreaDAO.java
-C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\staff\ViewSchedulerLogController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\entity\DiningTable.java
-C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\service\impl\TableManagementServiceImpl.java
-C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\auth\ForgotPasswordController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\cashier\SepayWebhookController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\entity\Order.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\dao\GenericDAO.java
@@ -30,13 +24,10 @@ C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\entity\User.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\service\PermissionService.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\customer\PreOrderPageController.java
-C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\staff\DebugBookingController.java
-C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\dao\RestaurantTableDAO.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\customer\PreOrderController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\service\ProductService.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\entity\Category.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\service\CategoryService.java
-C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\auth\RegisterController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\customer\PreOrderCheckoutController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\dao\ProductDAO.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\admin\DashboardController.java
@@ -48,11 +39,9 @@ C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\entity\AuditLog.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\service\BookingService.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\staff\BookingController.java
-C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\staff\TestAutoAssignController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\entity\Role.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\filter\EncodingFilter.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\staff\OrderEditorController.java
-C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\staff\TestAutoCancelController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\admin\ReportsController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\dao\PermissionDao.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\admin\TablesAreasController.java
@@ -87,8 +76,6 @@ C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\service\AuthService.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\admin\RbacController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\auth\LoginController.java
-C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\entity\RestaurantTable.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\dao\RoleDAO.java
-C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\servlet\ChatbotServlet.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\customer\BookingStatusController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\service\TableService.java

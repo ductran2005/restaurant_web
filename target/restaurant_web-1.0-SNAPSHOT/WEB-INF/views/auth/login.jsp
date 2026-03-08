@@ -178,68 +178,6 @@
                         border-color: rgba(255, 255, 255, 0.2)
                     }
 
-                    .auth-links {
-                        display: flex;
-                        justify-content: space-between;
-                        margin-top: 1.5rem;
-                        font-size: 13px
-                    }
-
-                    .auth-links a {
-                        color: #e8a020
-                    }
-
-                    .demo-section {
-                        margin-top: 1.75rem;
-                        padding-top: 1.5rem;
-                        border-top: 1px solid rgba(255, 255, 255, 0.08)
-                    }
-
-                    .demo-title {
-                        font-size: 11px;
-                        font-weight: 600;
-                        letter-spacing: .08em;
-                        text-transform: uppercase;
-                        color: #9e9488;
-                        margin-bottom: 12px;
-                        text-align: center
-                    }
-
-                    .demo-grid {
-                        display: grid;
-                        grid-template-columns: 1fr 1fr;
-                        gap: 8px
-                    }
-
-                    .demo-btn {
-                        padding: 10px 12px;
-                        border-radius: 8px;
-                        border: 1px solid rgba(232, 160, 32, 0.2);
-                        background: rgba(232, 160, 32, 0.06);
-                        cursor: pointer;
-                        transition: all .2s;
-                        text-align: left
-                    }
-
-                    .demo-btn:hover {
-                        border-color: #e8a020;
-                        background: rgba(232, 160, 32, 0.12)
-                    }
-
-                    .demo-btn-role {
-                        font-size: 10px;
-                        font-weight: 700;
-                        letter-spacing: .06em;
-                        text-transform: uppercase;
-                        color: #e8a020;
-                        margin-bottom: 2px
-                    }
-
-                    .demo-btn-cred {
-                        font-size: 11px;
-                        color: #9e9488
-                    }
-
                     .alert-error {
                         background: rgba(212, 24, 61, 0.12);
                         border: 1px solid rgba(212, 24, 61, 0.3);
@@ -271,12 +209,7 @@
                         <div class="alert-error"><i class="fa-solid fa-lock"></i> Tài khoản đã bị khóa. Liên hệ Admin.
                         </div>
                     </c:if>
-                    <c:if test="${param.registered == 'true'}">
-                        <div
-                            style="background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.3);color:#4ade80;padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px">
-                            <i class="fa-solid fa-circle-check"></i> Đăng ký thành công! Vui lòng đăng nhập.
-                        </div>
-                    </c:if>
+
 
                     <form method="POST" action="${ctx}/login">
                         <div class="form-group">
@@ -303,35 +236,11 @@
                         Google
                     </button>
 
-                    <div class="auth-links">
-                        <a href="${ctx}/forgot-password">Quên mật khẩu?</a>
-                        <a href="${ctx}/register">Đăng ký tài khoản mới</a>
-                    </div>
 
-                    <div class="demo-section">
-                        <div class="demo-title"><i class="fa-solid fa-flask"></i> Tài khoản demo (click để điền)</div>
-                        <div class="demo-grid">
-                            <button class="demo-btn" onclick="fill('admin','admin123')">
-                                <div class="demo-btn-role">🟣 Admin</div>
-                                <div class="demo-btn-cred">admin / admin123</div>
-                            </button>
-                            <button class="demo-btn" onclick="fill('staff1','staff123')">
-                                <div class="demo-btn-role">🔵 Staff</div>
-                                <div class="demo-btn-cred">staff1 / staff123</div>
-                            </button>
-                            <button class="demo-btn" onclick="fill('cashier1','cashier123')">
-                                <div class="demo-btn-role">🟢 Cashier</div>
-                                <div class="demo-btn-cred">cashier1 / cashier123</div>
-                            </button>
-                            <button class="demo-btn" onclick="fill('customer1','customer123')">
-                                <div class="demo-btn-role">🟡 Khách hàng</div>
-                                <div class="demo-btn-cred">customer1 / customer123</div>
-                            </button>
-                        </div>
-                    </div>
+
+
                 </div>
                 <script>
-                    function fill(u, p) { document.getElementById('username').value = u; document.getElementById('password').value = p }
                     function togglePw() { const i = document.getElementById('password'), ic = document.getElementById('pwIcon'); i.type = i.type === 'password' ? 'text' : 'password'; ic.className = i.type === 'password' ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash' }
                 </script>
             </body>

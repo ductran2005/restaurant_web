@@ -20,10 +20,11 @@ public class AuthFilter implements Filter {
 
     private static final Set<String> PUBLIC_PAGES = Set.of(
             "", "/", "/index.jsp",
-            "/login", "/register", "/forgot-password",
+            "/login",
             "/access-denied",
             "/menu", "/public-menu",
             "/about", "/contact",
+            "/chatbot-api",
             "/booking", "/booking/status", "/booking/pre-order");
 
     @Override

@@ -123,4 +123,40 @@ public class UserService {
             s.close();
         }
     }
+
+    /**
+     * Update user profile: fullName, email, phone, roleId, and optionally password.
+     */
+    public void update(int userId, String fullName, String email, String phone, int roleId, String newPassword) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            User u = userDao.findById(s, userId);
+            if (u == null) {
+                throw new RuntimeException("Người dùng không tồn tại");
+            }
+            u.setFullName(fullName);
+            u.setEmail(email);
+            u.setPhone(phone);
+
+            Role role = roleDao.findById(s, roleId);
+            if (role != null) {
+                u.setRole(role);
+            }
+
+            // Only update password if a new one is provided
+            if (newPassword != null && !newPassword.isBlank()) {
+                u.setPasswordHash(PasswordUtil.hash(newPassword));
+            }
+
+            userDao.update(s, u);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null)
+                tx.rollback();
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            s.close();
+        }
+    }
 }

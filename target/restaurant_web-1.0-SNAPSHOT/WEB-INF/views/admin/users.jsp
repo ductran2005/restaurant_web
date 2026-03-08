@@ -46,7 +46,7 @@
                                             <h2>Danh sách người dùng</h2>
                                             <p>Quản lý tài khoản nhân viên và khách hàng</p>
                                         </div>
-                                        <button class="btn btn-primary" onclick="openModal('createModal')">
+                                        <button class="btn btn-primary" onclick="openCreateModal()">
                                             <i class="fa-solid fa-plus"></i> Thêm người dùng
                                         </button>
                                     </div>
@@ -206,7 +206,7 @@
                                         </select>
                                     </div>
                                     <div class="form-group" id="passwordGroup">
-                                        <label class="form-label">Mật khẩu <span
+                                        <label class="form-label" id="pwLabel">Mật khẩu <span
                                                 style="color:var(--destructive)">*</span></label>
                                         <input type="password" name="password" id="passwordField" class="form-control">
                                     </div>
@@ -254,6 +254,19 @@
                         function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').classList.add('active'); }
                         function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
 
+                        function openCreateModal() {
+                            document.getElementById('modalTitle').textContent = 'Thêm người dùng';
+                            document.getElementById('submitBtn').textContent = 'Thêm mới';
+                            document.getElementById('userForm').reset();
+                            document.getElementById('userId').value = '';
+                            document.getElementById('userForm').action = '${ctx}/admin/users/save';
+                            document.getElementById('usernameField').readOnly = false;
+                            document.getElementById('passwordGroup').style.display = '';
+                            document.getElementById('passwordField').required = true;
+                            document.getElementById('pwLabel').innerHTML = 'Mật khẩu <span style="color:var(--destructive)">*</span>';
+                            openModal('createModal');
+                        }
+
                         function editUser(id) {
                             const row = document.querySelector('tr[data-id="' + id + '"]');
                             document.getElementById('modalTitle').textContent = 'Sửa người dùng';
@@ -267,7 +280,12 @@
                                 document.getElementById('roleField').value = row.dataset.role || '';
                             }
                             document.getElementById('userForm').action = '${ctx}/admin/users/update';
-                            document.getElementById('passwordGroup').style.display = 'none';
+                            document.getElementById('usernameField').readOnly = true;
+                            // Show password field but make it optional
+                            document.getElementById('passwordGroup').style.display = '';
+                            document.getElementById('passwordField').required = false;
+                            document.getElementById('passwordField').value = '';
+                            document.getElementById('pwLabel').innerHTML = 'Mật khẩu mới <span style="color:var(--text-muted)">(để trống nếu không đổi)</span>';
                             openModal('createModal');
                         }
 
