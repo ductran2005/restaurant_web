@@ -604,6 +604,8 @@
                         <a href="${pageContext.request.contextPath}/booking">Đặt bàn</a>
                         <a href="${pageContext.request.contextPath}/booking/status">Tra cứu</a>
                         <a href="${pageContext.request.contextPath}/pre-order" class="active">Đặt món trước</a>
+                        <a href="${pageContext.request.contextPath}/about">Về chúng tôi</a>
+                        <a href="${pageContext.request.contextPath}/contact">Liên hệ</a>
                     </div>
                     <div class="nav-actions">
                         <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
@@ -699,7 +701,7 @@
                                         <c:forEach var="item" items="${menuItems}">
                                             <div class="menu-item ${item.status != 'AVAILABLE' ? 'menu-item-soldout' : ''}"
                                                 data-name="${item.productName}" data-cat="${item.category.categoryName}"
-                                                data-id="${item.id}">
+                                                data-id="${item.id}" data-price="${item.price}">
                                                 <div class="menu-item-info">
                                                     <div class="menu-item-name">${item.productName}</div>
                                                     <div class="menu-item-cat">${item.category.categoryName}</div>
@@ -708,16 +710,10 @@
                                                     <fmt:formatNumber value="${item.price}" pattern="#,###" />đ
                                                 </div>
                                                 <c:if test="${item.status == 'AVAILABLE'}">
-                                                    <form method="post"
-                                                        action="${pageContext.request.contextPath}/pre-order"
-                                                        style="display:inline">
-                                                        <input type="hidden" name="action" value="add">
-                                                        <input type="hidden" name="bookingCode"
-                                                            value="${booking.bookingCode}">
-                                                        <input type="hidden" name="productId" value="${item.id}">
-                                                        <button type="submit" class="btn-add-item" title="Thêm"><i
-                                                                class="fa-solid fa-plus"></i></button>
-                                                    </form>
+                                                    <button type="button" class="btn-add-item" title="Thêm"
+                                                        onclick="addToCart('${item.id}', '${item.productName}', ${item.price}, '${item.category.categoryName}')">
+                                                        <i class="fa-solid fa-plus"></i>
+                                                    </button>
                                                 </c:if>
                                             </div>
                                         </c:forEach>
@@ -733,89 +729,28 @@
                                     <div class="cart-header">
                                         <h3><i class="fa-solid fa-cart-shopping" style="color:var(--primary)"></i> Món
                                             đã chọn
-                                            <c:if test="${not empty preOrderItems}">
-                                                <span class="cart-count">${preOrderItems.size()}</span>
-                                            </c:if>
+                                            <span class="cart-count" id="cartCount" style="display:none">0</span>
                                         </h3>
                                     </div>
-                                    <div class="cart-body">
-                                        <c:choose>
-                                            <c:when test="${empty preOrderItems}">
-                                                <div class="cart-empty">
-                                                    <i class="fa-solid fa-cart-shopping"></i>
-                                                    Chưa có món nào.<br>Chọn món từ danh sách bên trái.
-                                                </div>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <c:forEach var="poi" items="${preOrderItems}">
-                                                    <div class="cart-item">
-                                                        <div class="cart-item-info">
-                                                            <div class="cart-item-name">${poi.product.productName}</div>
-                                                            <div class="cart-item-price">
-                                                                <fmt:formatNumber value="${poi.product.price}"
-                                                                    pattern="#,###" />đ
-                                                            </div>
-                                                        </div>
-                                                        <div class="qty-controls">
-                                                            <form method="post"
-                                                                action="${pageContext.request.contextPath}/pre-order"
-                                                                style="display:inline">
-                                                                <input type="hidden" name="action" value="updateQty">
-                                                                <input type="hidden" name="bookingCode"
-                                                                    value="${booking.bookingCode}">
-                                                                <input type="hidden" name="itemId" value="${poi.id}">
-                                                                <input type="hidden" name="delta" value="-1">
-                                                                <button type="submit" class="qty-btn">−</button>
-                                                            </form>
-                                                            <span class="qty-val">${poi.quantity}</span>
-                                                            <form method="post"
-                                                                action="${pageContext.request.contextPath}/pre-order"
-                                                                style="display:inline">
-                                                                <input type="hidden" name="action" value="updateQty">
-                                                                <input type="hidden" name="bookingCode"
-                                                                    value="${booking.bookingCode}">
-                                                                <input type="hidden" name="itemId" value="${poi.id}">
-                                                                <input type="hidden" name="delta" value="1">
-                                                                <button type="submit" class="qty-btn">+</button>
-                                                            </form>
-                                                        </div>
-                                                        <form method="post"
-                                                            action="${pageContext.request.contextPath}/pre-order"
-                                                            style="display:inline">
-                                                            <input type="hidden" name="action" value="remove">
-                                                            <input type="hidden" name="bookingCode"
-                                                                value="${booking.bookingCode}">
-                                                            <input type="hidden" name="itemId" value="${poi.id}">
-                                                            <button type="submit" class="btn-remove" title="Xóa"><i
-                                                                    class="fa-solid fa-trash"></i></button>
-                                                        </form>
-                                                    </div>
-                                                </c:forEach>
-                                            </c:otherwise>
-                                        </c:choose>
+                                    <div class="cart-body" id="cartBody">
+                                        <div class="cart-empty" id="cartEmpty">
+                                            <i class="fa-solid fa-cart-shopping"></i>
+                                            Chưa có món nào.<br>Chọn món từ danh sách bên trái.
+                                        </div>
                                     </div>
                                     <div class="cart-footer">
                                         <div class="cart-total-row">
                                             <span class="cart-total-label">Tạm tính</span>
-                                            <span class="cart-total-value">
-                                                <fmt:formatNumber value="${cartTotal != null ? cartTotal : 0}"
-                                                    pattern="#,###" />đ
-                                            </span>
+                                            <span class="cart-total-value" id="cartTotal">0đ</span>
                                         </div>
                                         <div class="cart-note">
-                                            <textarea name="preorderNote"
-                                                placeholder="Ghi chú (dị ứng, yêu cầu đặc biệt...)"
-                                                form="confirmForm">${preorderNote}</textarea>
+                                            <textarea id="preorderNote"
+                                                placeholder="Ghi chú (dị ứng, yêu cầu đặc biệt...)"></textarea>
                                         </div>
-                                        <form method="post" action="${pageContext.request.contextPath}/pre-order"
-                                            id="confirmForm">
-                                            <input type="hidden" name="action" value="confirm">
-                                            <input type="hidden" name="bookingCode" value="${booking.bookingCode}">
-                                            <button type="submit" class="btn-confirm-preorder" ${empty preOrderItems
-                                                ? 'disabled' : '' }>
-                                                <i class="fa-solid fa-check"></i> Xác nhận đặt món
-                                            </button>
-                                        </form>
+                                        <button type="button" class="btn-confirm-preorder" id="btnConfirm" disabled
+                                            onclick="confirmPreOrder()">
+                                            <i class="fa-solid fa-check"></i> Xác nhận đặt món
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -824,17 +759,56 @@
                 </div>
 
                 <!-- FOOTER -->
-                <footer class="footer">
+                <footer class="footer" id="footer">
                     <div class="footer-grid">
                         <div class="footer-brand">
                             <div class="footer-logo">
                                 <div class="footer-logo-icon"><i class="fa-solid fa-utensils"></i></div>
-                                <div class="footer-logo-text">Hương Việt<span>Nhà hàng & Quán nhậu</span></div>
+                                <div class="footer-logo-text">Hương Việt<span>Nhà hàng &amp; Quán nhậu</span></div>
+                            </div>
+                            <p class="footer-desc">Không chỉ là nhà hàng, Hương Việt còn là phong cách sống — điểm hẹn của những khoảnh khắc đáng nhớ.</p>
+                            <div class="socials">
+                                <a href="#" class="social"><i class="fa-brands fa-facebook-f"></i></a>
+                                <a href="#" class="social"><i class="fa-brands fa-instagram"></i></a>
+                                <a href="#" class="social"><i class="fa-brands fa-tiktok"></i></a>
+                                <a href="#" class="social"><i class="fa-brands fa-youtube"></i></a>
+                            </div>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Khám phá</h4>
+                            <ul>
+                                <li><a href="${pageContext.request.contextPath}/menu">Thực đơn</a></li>
+                                <li><a href="${pageContext.request.contextPath}/booking">Đặt bàn</a></li>
+                                <li><a href="${pageContext.request.contextPath}/booking/status">Tra cứu booking</a></li>
+                                <li><a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Về chúng tôi</h4>
+                            <ul>
+                                <li><a href="${pageContext.request.contextPath}/about">Giới thiệu</a></li>
+                                <li><a href="${pageContext.request.contextPath}/contact">Liên hệ</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Liên hệ</h4>
+                            <div class="footer-contact-item">
+                                <div class="footer-contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+                                <div class="footer-contact-text"><strong>Địa chỉ</strong>123 Nguyễn Huệ, Quận 1, TP.HCM</div>
+                            </div>
+                            <div class="footer-contact-item">
+                                <div class="footer-contact-icon"><i class="fa-solid fa-phone"></i></div>
+                                <div class="footer-contact-text"><strong>Hotline</strong>1900 1234 (8:00 – 23:00)</div>
+                            </div>
+                            <div class="footer-contact-item">
+                                <div class="footer-contact-icon"><i class="fa-regular fa-clock"></i></div>
+                                <div class="footer-contact-text"><strong>Giờ mở cửa</strong>10:00 – 23:00 hàng ngày</div>
                             </div>
                         </div>
                     </div>
                     <div class="footer-bottom">
                         <p>© 2026 Nhà hàng Hương Việt.</p>
+                        <p>Thiết kế bởi <a href="#">Đội ngũ Hương Việt Tech</a></p>
                     </div>
                 </footer>
 
@@ -859,6 +833,124 @@
                         document.querySelectorAll('.menu-item').forEach(el => {
                             el.style.display = (!cat || el.dataset.cat === cat) ? '' : 'none';
                         });
+                    }
+
+                    /* ========== CART ========== */
+                    const cart = []; // { id, name, price, category, qty }
+
+                    function addToCart(id, name, price, category) {
+                        const existing = cart.find(i => i.id === id);
+                        if (existing) {
+                            existing.qty++;
+                        } else {
+                            cart.push({ id, name, price: Number(price), category, qty: 1 });
+                        }
+                        renderCart();
+                        // Brief highlight effect on added item
+                        const row = document.querySelector('.cart-item[data-cart-id="' + id + '"]');
+                        if (row) {
+                            row.style.background = 'rgba(232,160,32,.12)';
+                            setTimeout(() => row.style.background = '', 400);
+                        }
+                    }
+
+                    function changeQty(id, delta) {
+                        const item = cart.find(i => i.id === id);
+                        if (!item) return;
+                        item.qty += delta;
+                        if (item.qty <= 0) {
+                            cart.splice(cart.indexOf(item), 1);
+                        }
+                        renderCart();
+                    }
+
+                    function removeFromCart(id) {
+                        const idx = cart.findIndex(i => i.id === id);
+                        if (idx !== -1) cart.splice(idx, 1);
+                        renderCart();
+                    }
+
+                    function formatVND(n) {
+                        return n.toLocaleString('vi-VN') + 'đ';
+                    }
+
+                    function renderCart() {
+                        const body = document.getElementById('cartBody');
+                        const countEl = document.getElementById('cartCount');
+                        const totalEl = document.getElementById('cartTotal');
+                        const btnConfirm = document.getElementById('btnConfirm');
+                        const emptyEl = document.getElementById('cartEmpty');
+
+                        if (cart.length === 0) {
+                            // Show empty state
+                            body.innerHTML = '';
+                            body.appendChild(emptyEl);
+                            emptyEl.style.display = '';
+                            countEl.style.display = 'none';
+                            totalEl.textContent = '0đ';
+                            btnConfirm.disabled = true;
+                            return;
+                        }
+
+                        countEl.textContent = cart.length;
+                        countEl.style.display = '';
+                        btnConfirm.disabled = false;
+
+                        let total = 0;
+                        let html = '';
+                        cart.forEach(item => {
+                            const sub = item.price * item.qty;
+                            total += sub;
+                            html += '<div class="cart-item" data-cart-id="' + item.id + '">'
+                                + '  <div class="cart-item-info">'
+                                + '    <div class="cart-item-name">' + item.name + '</div>'
+                                + '    <div class="cart-item-price">' + formatVND(item.price) + '</div>'
+                                + '  </div>'
+                                + '  <div class="qty-controls">'
+                                + '    <button type="button" class="qty-btn" onclick="changeQty(\'' + item.id + '\', -1)">\u2212</button>'
+                                + '    <span class="qty-val">' + item.qty + '</span>'
+                                + '    <button type="button" class="qty-btn" onclick="changeQty(\'' + item.id + '\', 1)">+</button>'
+                                + '  </div>'
+                                + '  <button type="button" class="btn-remove" title="Xóa" onclick="removeFromCart(\'' + item.id + '\')">'
+                                + '    <i class="fa-solid fa-trash"></i>'
+                                + '  </button>'
+                                + '</div>';
+                        });
+                        body.innerHTML = html;
+                        totalEl.textContent = formatVND(total);
+                    }
+
+                    function confirmPreOrder() {
+                        if (cart.length === 0) return;
+                        const bookingCode = '${booking != null ? booking.bookingCode : ""}';
+                        const note = document.getElementById('preorderNote').value;
+
+                        // Build a hidden form and submit
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '${pageContext.request.contextPath}/pre-order';
+                        form.style.display = 'none';
+
+                        function addField(name, value) {
+                            const inp = document.createElement('input');
+                            inp.type = 'hidden';
+                            inp.name = name;
+                            inp.value = value;
+                            form.appendChild(inp);
+                        }
+
+                        addField('action', 'confirm');
+                        addField('bookingCode', bookingCode);
+                        addField('note', note);
+                        addField('itemCount', cart.length);
+
+                        cart.forEach((item, i) => {
+                            addField('productId_' + i, item.id);
+                            addField('quantity_' + i, item.qty);
+                        });
+
+                        document.body.appendChild(form);
+                        form.submit();
                     }
                 </script>
             </body>

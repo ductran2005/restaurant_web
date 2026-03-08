@@ -8,7 +8,7 @@
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <meta name="description"
-                    content="Thực đơn nhà hàng Hương Việt — Hơn 200 món ăn đặc sắc ba miền, hải sản tươi sống, lẩu nướng và đồ uống.">
+                    content="Thực đơn nhà hàng Hương Việt — Hơn 50 món ăn đặc sắc ba miền, hải sản tươi sống, lẩu nướng và đồ uống.">
                 <title>Thực đơn — Nhà hàng Hương Việt</title>
                 <link rel="preconnect" href="https://fonts.googleapis.com">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -299,6 +299,8 @@
                         <a href="${pageContext.request.contextPath}/booking">Đặt bàn</a>
                         <a href="${pageContext.request.contextPath}/booking/status">Tra cứu</a>
                         <a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a>
+                        <a href="${pageContext.request.contextPath}/about">Về chúng tôi</a>
+                        <a href="${pageContext.request.contextPath}/contact">Liên hệ</a>
                     </div>
                     <div class="nav-actions">
                         <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
@@ -317,7 +319,7 @@
                 <section class="menu-page-hero">
                     <div class="section-label"><i class="fa-solid fa-utensils"></i> Thực đơn nhà hàng</div>
                     <h1>Khám phá hương vị <em>đậm đà</em></h1>
-                    <p>Hơn 200 món ăn được chế biến từ nguyên liệu tươi ngon mỗi ngày — từ khai vị, hải sản, lẩu nướng
+                    <p>Hơn 50 món ăn được chế biến từ nguyên liệu tươi ngon mỗi ngày — từ khai vị, hải sản, lẩu nướng
                         đến đồ uống đặc biệt.</p>
 
                     <!-- Search -->
@@ -419,7 +421,7 @@
 ============================================================ -->
                 <section class="cta-section" id="contact">
                     <div class="section-label">Đặt bàn ngay</div>
-                    <h2 class="section-title" style="font-family:var(--font-serif)">Đảm bảo bàn của bạn hôm nay</h2>
+                    <h2 class="section-title" style="font-family:var(--font-serif)">Đảm bảo bàn của bạn ngay hôm nay</h2>
                     <p>Đặt trước để nhận ưu đãi tốt nhất và không lo hết chỗ vào giờ cao điểm.</p>
                     <form class="cta-form" action="${pageContext.request.contextPath}/booking" method="get">
                         <input type="text" class="cta-input" name="name" placeholder="Họ và tên...">
@@ -485,7 +487,7 @@
                         </div>
                     </div>
                     <div class="footer-bottom">
-                        <p>© 2026 Nhà hàng Hương Việt. Mọi quyền được bảo lưu.</p>
+                        <p>© 2026 Nhà hàng Hương Việt.</p>
                         <p>Thiết kế bởi <a href="#">Đội ngũ Hương Việt Tech</a></p>
                     </div>
                 </footer>

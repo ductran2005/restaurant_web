@@ -414,6 +414,8 @@
                         <a href="${pageContext.request.contextPath}/booking">Đặt bàn</a>
                         <a href="${pageContext.request.contextPath}/booking/status" class="active">Tra cứu</a>
                         <a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a>
+                        <a href="${pageContext.request.contextPath}/about">Về chúng tôi</a>
+                        <a href="${pageContext.request.contextPath}/contact">Liên hệ</a>
                     </div>
                     <div class="nav-actions">
                         <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
@@ -574,16 +576,16 @@
                                     </c:if>
 
                                     <!-- Pre-order Items (nếu có) -->
-                                    <c:if test="${not empty booking.preOrderItems}">
+                                    <c:if test="${not empty booking.preOrderItems && booking.preOrderItems.size() > 0}">
                                         <div class="preorder-section">
                                             <h4><i class="fa-solid fa-utensils" style="color:var(--primary)"></i> Món đã
-                                                đặt trước</h4>
+                                                đặt trước (Size: ${booking.preOrderItems.size()})</h4>
                                             <c:forEach var="item" items="${booking.preOrderItems}">
                                                 <div class="preorder-item">
-                                                    <span class="item-name">${item.menuItemName}</span>
+                                                    <span class="item-name">${item.product.productName}</span>
                                                     <span class="item-qty">×${item.quantity}</span>
                                                     <span class="item-price">
-                                                        <fmt:formatNumber value="${item.price * item.quantity}"
+                                                        <fmt:formatNumber value="${item.product.price * item.quantity}"
                                                             pattern="#,###" />đ
                                                     </span>
                                                 </div>
@@ -619,18 +621,56 @@
                 </div>
 
                 <!-- ── FOOTER ── -->
-                <footer class="footer">
+                <footer class="footer" id="footer">
                     <div class="footer-grid">
                         <div class="footer-brand">
                             <div class="footer-logo">
                                 <div class="footer-logo-icon"><i class="fa-solid fa-utensils"></i></div>
-                                <div class="footer-logo-text">Hương Việt<span>Nhà hàng & Quán nhậu</span></div>
+                                <div class="footer-logo-text">Hương Việt<span>Nhà hàng &amp; Quán nhậu</span></div>
                             </div>
-                            <p class="footer-desc">Điểm hẹn của hương vị Việt Nam đích thực.</p>
+                            <p class="footer-desc">Không chỉ là nhà hàng, Hương Việt còn là phong cách sống — điểm hẹn của những khoảnh khắc đáng nhớ.</p>
+                            <div class="socials">
+                                <a href="#" class="social"><i class="fa-brands fa-facebook-f"></i></a>
+                                <a href="#" class="social"><i class="fa-brands fa-instagram"></i></a>
+                                <a href="#" class="social"><i class="fa-brands fa-tiktok"></i></a>
+                                <a href="#" class="social"><i class="fa-brands fa-youtube"></i></a>
+                            </div>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Khám phá</h4>
+                            <ul>
+                                <li><a href="${pageContext.request.contextPath}/menu">Thực đơn</a></li>
+                                <li><a href="${pageContext.request.contextPath}/booking">Đặt bàn</a></li>
+                                <li><a href="${pageContext.request.contextPath}/booking/status">Tra cứu booking</a></li>
+                                <li><a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Về chúng tôi</h4>
+                            <ul>
+                                <li><a href="${pageContext.request.contextPath}/about">Giới thiệu</a></li>
+                                <li><a href="${pageContext.request.contextPath}/contact">Liên hệ</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Liên hệ</h4>
+                            <div class="footer-contact-item">
+                                <div class="footer-contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+                                <div class="footer-contact-text"><strong>Địa chỉ</strong>123 Nguyễn Huệ, Quận 1, TP.HCM</div>
+                            </div>
+                            <div class="footer-contact-item">
+                                <div class="footer-contact-icon"><i class="fa-solid fa-phone"></i></div>
+                                <div class="footer-contact-text"><strong>Hotline</strong>1900 1234 (8:00 – 23:00)</div>
+                            </div>
+                            <div class="footer-contact-item">
+                                <div class="footer-contact-icon"><i class="fa-regular fa-clock"></i></div>
+                                <div class="footer-contact-text"><strong>Giờ mở cửa</strong>10:00 – 23:00 hàng ngày</div>
+                            </div>
                         </div>
                     </div>
                     <div class="footer-bottom">
                         <p>© 2026 Nhà hàng Hương Việt.</p>
+                        <p>Thiết kế bởi <a href="#">Đội ngũ Hương Việt Tech</a></p>
                     </div>
                 </footer>
 
@@ -641,26 +681,27 @@
                         const links = document.querySelector('.nav-links');
                         links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
                     });
-                    <!-- intl-tel-input script -->
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
+                </script>
+                <!-- intl-tel-input script -->
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
                 <script>
-            const searchPhone = document.querySelector('#searchPhone');
-            if (searchPhone) {
-                const iti2 = window.intlTelInput(searchPhone, {
-                initialCountry: 'auto',
-            geoIpLookup: function(callback) {
-                fetch('https://ipapi.co/json')
-                    .then(res => res.json())
-                    .then(data => callback(data.country_code))
-                    .catch(() => callback('us'));
-                    },
-            utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js',
-                });
-            const form2 = document.querySelector('.search-form');
-                form2.addEventListener('submit', () => {
-                searchPhone.value = iti2.getNumber();
-                });
-            }
+                    const searchPhone = document.querySelector('#searchPhone');
+                    if (searchPhone) {
+                        const iti2 = window.intlTelInput(searchPhone, {
+                            initialCountry: 'auto',
+                            geoIpLookup: function(callback) {
+                                fetch('https://ipapi.co/json')
+                                    .then(res => res.json())
+                                    .then(data => callback(data.country_code))
+                                    .catch(() => callback('us'));
+                            },
+                            utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js',
+                        });
+                        const form2 = document.querySelector('.search-form');
+                        form2.addEventListener('submit', () => {
+                            searchPhone.value = iti2.getNumber();
+                        });
+                    }
                 </script>
             </body>
 
