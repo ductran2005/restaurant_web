@@ -953,6 +953,10 @@
                         form.submit();
                     }
                 </script>
+
+                <!-- chatbot widget include -->
+                <jsp:include page="/chatbot.jsp" />
+
             </body>
 
             </html>

@@ -65,21 +65,35 @@
 
                     .search-form {
                         display: flex;
-                        gap: 12px;
-                        flex-wrap: wrap;
+                        flex-direction: column;
+                        gap: 0;
+                    }
+
+                    .form-field {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 6px;
+                    }
+
+                    .form-field label {
+                        font-size: 13px;
+                        font-weight: 600;
+                        color: var(--text-muted);
+                        letter-spacing: .03em;
                     }
 
                     .search-form .form-control {
-                        flex: 1;
-                        min-width: 180px;
+                        width: 100%;
                         background: rgba(255, 255, 255, 0.05);
                         border: 1px solid var(--border);
                         border-radius: 10px;
-                        padding: 12px 14px;
+                        padding: 13px 16px;
                         color: var(--text);
-                        font-size: 14px;
+                        font-size: 15px;
                         font-family: inherit;
                         outline: none;
+                        box-sizing: border-box;
+                        transition: border-color .2s, box-shadow .2s;
                     }
 
                     .search-form .form-control::placeholder {
@@ -91,19 +105,41 @@
                         box-shadow: 0 0 0 3px rgba(232, 160, 32, 0.1);
                     }
 
+                    /* Divider "hoặc" */
+                    .or-divider {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        margin: 20px 0;
+                        color: var(--text-muted);
+                        font-size: 13px;
+                    }
+
+                    .or-divider::before,
+                    .or-divider::after {
+                        content: '';
+                        flex: 1;
+                        height: 1px;
+                        background: var(--border);
+                    }
+
                     .btn-search {
-                        padding: 12px 24px;
+                        margin-top: 24px;
+                        width: 100%;
+                        padding: 14px;
                         background: var(--primary);
                         color: #000;
                         border: none;
                         border-radius: 10px;
                         font-weight: 700;
-                        font-size: 14px;
+                        font-size: 15px;
                         font-family: inherit;
                         cursor: pointer;
                         display: flex;
                         align-items: center;
-                        gap: 6px;
+                        justify-content: center;
+                        gap: 8px;
+                        transition: background .2s;
                     }
 
                     .btn-search:hover {
@@ -388,15 +424,35 @@
                         .lookup-section {
                             padding: 0 16px 60px;
                         }
+                    }
 
-                        .search-form {
-                            flex-direction: column;
-                        }
+                    /* intl-tel-input dark theme */
+                    .iti {
+                        width: 100%;
+                    }
 
-                        .btn-search {
-                            width: 100%;
-                            justify-content: center;
-                        }
+                    .iti--separate-dial-code .iti__selected-flag,
+                    .iti__country-list {
+                        background: #1a1814;
+                        border-color: rgba(255, 255, 255, .1);
+                    }
+
+                    .iti__country-list {
+                        max-height: 220px;
+                    }
+
+                    .iti__country-list .iti__country-name,
+                    .iti__dial-code {
+                        color: #f0ebe3;
+                    }
+
+                    .iti__country-list .iti__country.iti__highlight,
+                    .iti__country-list .iti__country:hover {
+                        background: rgba(232, 160, 32, .15);
+                    }
+
+                    .iti__selected-dial-code {
+                        color: #9e9488;
                     }
                 </style>
             </head>
@@ -437,10 +493,20 @@
                     <div class="search-card">
                         <form method="get" action="${pageContext.request.contextPath}/booking/status"
                             class="search-form">
-                            <input type="text" name="code" class="form-control"
-                                placeholder="Mã đặt bàn (VD: BK-2026-001)" value="${param.code}">
-                            <input type="tel" id="searchPhone" name="phone" class="form-control"
-                                placeholder="Số điện thoại" value="${param.phone}">
+                            <div class="form-field">
+                                <label for="searchCode">Mã booking</label>
+                                <input type="text" id="searchCode" name="code" class="form-control"
+                                    placeholder="BK-2026-001" value="${param.code}">
+                            </div>
+
+                            <div class="or-divider">hoặc</div>
+
+                            <div class="form-field">
+                                <label for="searchPhone">Số điện thoại</label>
+                                <input type="tel" id="searchPhone" name="phone" class="form-control"
+                                    placeholder="0901234567" value="${param.phone}">
+                            </div>
+
                             <button type="submit" class="btn-search">
                                 <i class="fa-solid fa-magnifying-glass"></i> Tra cứu
                             </button>
@@ -455,169 +521,238 @@
                     </c:if>
 
                     <c:choose>
-                        <c:when test="${not empty booking}">
-                            <!-- RESULT -->
-                            <div class="result-card">
-                                <div class="result-header">
-                                    <h3><i class="fa-solid fa-ticket" style="color:var(--primary)"></i>
-                                        ${booking.bookingCode}</h3>
-                                    <span
-                                        class="badge-status badge-${booking.status.toLowerCase()}">${booking.status}</span>
-                                </div>
-                                <div class="result-body">
-                                    <!-- Status Banner -->
-                                    <c:choose>
-                                        <c:when test="${booking.status == 'PENDING'}">
-                                            <div class="status-banner s-pending">
-                                                <i class="fa-solid fa-clock"></i>
-                                                <div>
-                                                    <div class="status-title">Đang chờ xác nhận</div>
-                                                    <div class="status-desc">Nhà hàng sẽ xác nhận booking của bạn sớm
-                                                        nhất có thể.</div>
-                                                </div>
-                                            </div>
-                                        </c:when>
-                                        <c:when test="${booking.status == 'CONFIRMED'}">
-                                            <div class="status-banner s-confirmed">
-                                                <i class="fa-solid fa-circle-check"></i>
-                                                <div>
-                                                    <div class="status-title">Đã xác nhận</div>
-                                                    <div class="status-desc">Booking đã được xác nhận. Vui lòng đến đúng
-                                                        giờ!</div>
-                                                </div>
-                                            </div>
-                                        </c:when>
-                                        <c:when test="${booking.status == 'CHECKED_IN'}">
-                                            <div class="status-banner s-checked_in">
-                                                <i class="fa-solid fa-right-to-bracket"></i>
-                                                <div>
-                                                    <div class="status-title">Đã check-in</div>
-                                                    <div class="status-desc">Chào mừng bạn! Chúc bạn có bữa tối vui vẻ.
+                        <%-- Search by code: single booking result --%>
+                            <c:when test="${not empty booking}">
+                                <!-- RESULT -->
+                                <div class="result-card">
+                                    <div class="result-header">
+                                        <h3><i class="fa-solid fa-ticket" style="color:var(--primary)"></i>
+                                            ${booking.bookingCode}</h3>
+                                        <span
+                                            class="badge-status badge-${booking.status.toLowerCase()}">${booking.status}</span>
+                                    </div>
+                                    <div class="result-body">
+                                        <!-- Status Banner -->
+                                        <c:choose>
+                                            <c:when test="${booking.status == 'PENDING'}">
+                                                <div class="status-banner s-pending">
+                                                    <i class="fa-solid fa-clock"></i>
+                                                    <div>
+                                                        <div class="status-title">Đang chờ xác nhận</div>
+                                                        <div class="status-desc">Nhà hàng sẽ xác nhận booking của bạn
+                                                            sớm
+                                                            nhất có thể.</div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </c:when>
-                                        <c:when test="${booking.status == 'CANCELLED'}">
-                                            <div class="status-banner s-cancelled">
-                                                <i class="fa-solid fa-circle-xmark"></i>
-                                                <div>
-                                                    <div class="status-title">Đã hủy</div>
-                                                    <div class="status-desc">
-                                                        <c:choose>
-                                                            <c:when test="${not empty booking.cancelReason}">
-                                                                Lý do: <strong>${booking.cancelReason}</strong>
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                Booking đã bị hủy. Vui lòng đặt lại nếu cần.
-                                                            </c:otherwise>
-                                                        </c:choose>
+                                            </c:when>
+                                            <c:when test="${booking.status == 'CONFIRMED'}">
+                                                <div class="status-banner s-confirmed">
+                                                    <i class="fa-solid fa-circle-check"></i>
+                                                    <div>
+                                                        <div class="status-title">Đã xác nhận</div>
+                                                        <div class="status-desc">Booking đã được xác nhận. Vui lòng đến
+                                                            đúng giờ!</div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </c:when>
-                                        <c:when test="${booking.status == 'COMPLETED'}">
-                                            <div class="status-banner s-completed">
-                                                <i class="fa-solid fa-flag-checkered"></i>
-                                                <div>
-                                                    <div class="status-title">Hoàn thành</div>
-                                                    <div class="status-desc">Cảm ơn bạn đã sử dụng dịch vụ! Hẹn gặp lại.
+                                            </c:when>
+                                            <c:when test="${booking.status == 'CHECKED_IN'}">
+                                                <div class="status-banner s-checked_in">
+                                                    <i class="fa-solid fa-right-to-bracket"></i>
+                                                    <div>
+                                                        <div class="status-title">Đã check-in</div>
+                                                        <div class="status-desc">Chào mừng bạn! Chúc bạn có bữa tối vui
+                                                            vẻ.</div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </c:when>
-                                        <c:when test="${booking.status == 'NO_SHOW'}">
-                                            <div class="status-banner s-no_show">
-                                                <i class="fa-solid fa-user-xmark"></i>
-                                                <div>
-                                                    <div class="status-title">Không đến</div>
-                                                    <div class="status-desc">Bạn đã không đến theo lịch hẹn.</div>
+                                            </c:when>
+                                            <c:when test="${booking.status == 'CANCELLED'}">
+                                                <div class="status-banner s-cancelled">
+                                                    <i class="fa-solid fa-circle-xmark"></i>
+                                                    <div>
+                                                        <div class="status-title">Đã hủy</div>
+                                                        <div class="status-desc">
+                                                            <c:choose>
+                                                                <c:when test="${not empty booking.cancelReason}">
+                                                                    Lý do: <strong>${booking.cancelReason}</strong>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    Booking đã bị hủy. Vui lòng đặt lại nếu cần.
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </c:when>
-                                    </c:choose>
+                                            </c:when>
+                                            <c:when test="${booking.status == 'COMPLETED'}">
+                                                <div class="status-banner s-completed">
+                                                    <i class="fa-solid fa-flag-checkered"></i>
+                                                    <div>
+                                                        <div class="status-title">Hoàn thành</div>
+                                                        <div class="status-desc">Cảm ơn bạn đã sử dụng dịch vụ! Hẹn gặp
+                                                            lại.</div>
+                                                    </div>
+                                                </div>
+                                            </c:when>
+                                            <c:when test="${booking.status == 'NO_SHOW'}">
+                                                <div class="status-banner s-no_show">
+                                                    <i class="fa-solid fa-user-xmark"></i>
+                                                    <div>
+                                                        <div class="status-title">Không đến</div>
+                                                        <div class="status-desc">Bạn đã không đến theo lịch hẹn.</div>
+                                                    </div>
+                                                </div>
+                                            </c:when>
+                                        </c:choose>
 
-                                    <!-- Booking Info -->
-                                    <div class="info-grid">
-                                        <div class="info-item">
-                                            <div class="info-label"><i class="fa-solid fa-user"></i> Khách hàng</div>
-                                            <div class="info-value">${booking.customerName}</div>
-                                        </div>
-                                        <div class="info-item">
-                                            <div class="info-label"><i class="fa-solid fa-phone"></i> Điện thoại</div>
-                                            <div class="info-value">${booking.customerPhone}</div>
-                                        </div>
-                                        <div class="info-item">
-                                            <div class="info-label"><i class="fa-solid fa-calendar"></i> Ngày</div>
-                                            <div class="info-value">${booking.bookingDate}</div>
-                                        </div>
-                                        <div class="info-item">
-                                            <div class="info-label"><i class="fa-solid fa-clock"></i> Giờ</div>
-                                            <div class="info-value">${booking.bookingTime}</div>
-                                        </div>
-                                        <div class="info-item">
-                                            <div class="info-label"><i class="fa-solid fa-users"></i> Số khách</div>
-                                            <div class="info-value">${booking.partySize} người</div>
-                                        </div>
-                                        <c:if test="${not empty booking.tableName}">
+                                        <!-- Booking Info -->
+                                        <div class="info-grid">
                                             <div class="info-item">
-                                                <div class="info-label"><i class="fa-solid fa-chair"></i> Bàn</div>
-                                                <div class="info-value">${booking.tableName}</div>
+                                                <div class="info-label"><i class="fa-solid fa-user"></i> Khách hàng
+                                                </div>
+                                                <div class="info-value">${booking.customerName}</div>
+                                            </div>
+                                            <div class="info-item">
+                                                <div class="info-label"><i class="fa-solid fa-phone"></i> Điện thoại
+                                                </div>
+                                                <div class="info-value">${booking.customerPhone}</div>
+                                            </div>
+                                            <div class="info-item">
+                                                <div class="info-label"><i class="fa-solid fa-calendar"></i> Ngày</div>
+                                                <div class="info-value">${booking.bookingDate}</div>
+                                            </div>
+                                            <div class="info-item">
+                                                <div class="info-label"><i class="fa-solid fa-clock"></i> Giờ</div>
+                                                <div class="info-value">${booking.bookingTime}</div>
+                                            </div>
+                                            <div class="info-item">
+                                                <div class="info-label"><i class="fa-solid fa-users"></i> Số khách</div>
+                                                <div class="info-value">${booking.partySize} người</div>
+                                            </div>
+                                            <c:if test="${not empty booking.tableName}">
+                                                <div class="info-item">
+                                                    <div class="info-label"><i class="fa-solid fa-chair"></i> Bàn</div>
+                                                    <div class="info-value">${booking.tableName}</div>
+                                                </div>
+                                            </c:if>
+                                        </div>
+
+                                        <c:if test="${not empty booking.note}">
+                                            <div class="info-item" style="margin-bottom:20px">
+                                                <div class="info-label"><i class="fa-solid fa-sticky-note"></i> Ghi chú
+                                                </div>
+                                                <div class="info-value" style="font-size:14px;font-weight:400">
+                                                    ${booking.note}</div>
+                                            </div>
+                                        </c:if>
+
+                                        <!-- Pre-order Items -->
+                                        <c:if test="${not empty booking.preOrderItems}">
+                                            <div class="preorder-section">
+                                                <h4><i class="fa-solid fa-utensils" style="color:var(--primary)"></i>
+                                                    Món đã đặt trước</h4>
+                                                <c:forEach var="item" items="${booking.preOrderItems}">
+                                                    <div class="preorder-item">
+                                                        <span class="item-name">${item.product.productName}</span>
+                                                        <span class="item-qty">×${item.quantity}</span>
+                                                        <span class="item-price">
+                                                            <fmt:formatNumber
+                                                                value="${item.product.price * item.quantity}"
+                                                                pattern="#,###" />đ
+                                                        </span>
+                                                    </div>
+                                                </c:forEach>
                                             </div>
                                         </c:if>
                                     </div>
 
-                                    <c:if test="${not empty booking.note}">
-                                        <div class="info-item" style="margin-bottom:20px">
-                                            <div class="info-label"><i class="fa-solid fa-sticky-note"></i> Ghi chú
-                                            </div>
-                                            <div class="info-value" style="font-size:14px;font-weight:400">
-                                                ${booking.note}</div>
-                                        </div>
-                                    </c:if>
-
-                                    <!-- Pre-order Items (nếu có) -->
-                                    <c:if test="${not empty booking.preOrderItems && booking.preOrderItems.size() > 0}">
-                                        <div class="preorder-section">
-                                            <h4><i class="fa-solid fa-utensils" style="color:var(--primary)"></i> Món đã
-                                                đặt trước (Size: ${booking.preOrderItems.size()})</h4>
-                                            <c:forEach var="item" items="${booking.preOrderItems}">
-                                                <div class="preorder-item">
-                                                    <span class="item-name">${item.product.productName}</span>
-                                                    <span class="item-qty">×${item.quantity}</span>
-                                                    <span class="item-price">
-                                                        <fmt:formatNumber value="${item.product.price * item.quantity}"
-                                                            pattern="#,###" />đ
-                                                    </span>
-                                                </div>
-                                            </c:forEach>
-                                        </div>
-                                    </c:if>
-                                </div>
-
-                                <!-- Actions -->
-                                <div class="result-actions">
-                                    <c:if test="${booking.status == 'CONFIRMED' || booking.status == 'PENDING'}">
-                                        <a href="${pageContext.request.contextPath}/pre-order?code=${booking.bookingCode}"
-                                            class="btn-action primary">
-                                            <i class="fa-solid fa-utensils"></i> Đặt món trước
+                                    <!-- Actions -->
+                                    <div class="result-actions">
+                                        <c:if test="${booking.status == 'CONFIRMED' || booking.status == 'PENDING'}">
+                                            <a href="${pageContext.request.contextPath}/pre-order?code=${booking.bookingCode}"
+                                                class="btn-action primary">
+                                                <i class="fa-solid fa-utensils"></i> Đặt món trước
+                                            </a>
+                                        </c:if>
+                                        <a href="${pageContext.request.contextPath}/booking" class="btn-action">
+                                            <i class="fa-solid fa-plus"></i> Đặt bàn mới
                                         </a>
-                                    </c:if>
-                                    <a href="${pageContext.request.contextPath}/booking" class="btn-action">
-                                        <i class="fa-solid fa-plus"></i> Đặt bàn mới
-                                    </a>
+                                    </div>
                                 </div>
-                            </div>
-                        </c:when>
-                        <c:when test="${searched && empty booking}">
-                            <div class="result-card">
-                                <div class="lookup-empty">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                    <h3>Không tìm thấy booking</h3>
-                                    <p>Vui lòng kiểm tra lại mã đặt bàn và số điện thoại.</p>
-                                </div>
-                            </div>
-                        </c:when>
+                            </c:when>
+
+                            <%-- Search by phone: list of bookings --%>
+                                <c:when test="${not empty bookings}">
+                                    <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px">
+                                        Tìm thấy <strong style="color:var(--text)">${bookings.size()}</strong> booking
+                                        với số điện thoại <strong style="color:var(--primary)">${phone}</strong>
+                                    </div>
+                                    <c:forEach var="b" items="${bookings}">
+                                        <div class="result-card" style="margin-bottom:16px">
+                                            <div class="result-header">
+                                                <h3><i class="fa-solid fa-ticket" style="color:var(--primary)"></i>
+                                                    ${b.bookingCode}</h3>
+                                                <span
+                                                    class="badge-status badge-${b.status.toLowerCase()}">${b.status}</span>
+                                            </div>
+                                            <div class="result-body">
+                                                <div class="info-grid">
+                                                    <div class="info-item">
+                                                        <div class="info-label"><i class="fa-solid fa-user"></i> Khách
+                                                            hàng</div>
+                                                        <div class="info-value">${b.customerName}</div>
+                                                    </div>
+                                                    <div class="info-item">
+                                                        <div class="info-label"><i class="fa-solid fa-calendar"></i>
+                                                            Ngày</div>
+                                                        <div class="info-value">${b.bookingDate}</div>
+                                                    </div>
+                                                    <div class="info-item">
+                                                        <div class="info-label"><i class="fa-solid fa-clock"></i> Giờ
+                                                        </div>
+                                                        <div class="info-value">${b.bookingTime}</div>
+                                                    </div>
+                                                    <div class="info-item">
+                                                        <div class="info-label"><i class="fa-solid fa-users"></i> Số
+                                                            khách</div>
+                                                        <div class="info-value">${b.partySize} người</div>
+                                                    </div>
+                                                </div>
+                                                <c:if test="${b.status == 'CANCELLED' && not empty b.cancelReason}">
+                                                    <div
+                                                        style="font-size:13px;color:#f87171;padding:8px 12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;margin-bottom:12px">
+                                                        <i class="fa-solid fa-circle-xmark"></i> <strong>Lý do
+                                                            hủy:</strong> ${b.cancelReason}
+                                                    </div>
+                                                </c:if>
+                                            </div>
+                                            <div class="result-actions">
+                                                <a href="${pageContext.request.contextPath}/booking/status?code=${b.bookingCode}"
+                                                    class="btn-action primary">
+                                                    <i class="fa-solid fa-eye"></i> Xem chi tiết
+                                                </a>
+                                                <c:if test="${b.status == 'CONFIRMED' || b.status == 'PENDING'}">
+                                                    <a href="${pageContext.request.contextPath}/pre-order?code=${b.bookingCode}"
+                                                        class="btn-action">
+                                                        <i class="fa-solid fa-utensils"></i> Đặt món trước
+                                                    </a>
+                                                </c:if>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </c:when>
+
+                                <%-- Not found --%>
+                                    <c:when test="${searched && empty booking && empty bookings}">
+                                        <div class="result-card">
+                                            <div class="lookup-empty">
+                                                <i class="fa-solid fa-magnifying-glass"></i>
+                                                <h3>Không tìm thấy booking</h3>
+                                                <p>Vui lòng kiểm tra lại mã đặt bàn hoặc số điện thoại.</p>
+                                            </div>
+                                        </div>
+                                    </c:when>
                     </c:choose>
+
                 </div>
 
                 <!-- ── FOOTER ── -->
@@ -682,27 +817,28 @@
                         links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
                     });
                 </script>
-                <!-- intl-tel-input script -->
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
+                <script
+                    src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
                 <script>
                     const searchPhone = document.querySelector('#searchPhone');
                     if (searchPhone) {
                         const iti2 = window.intlTelInput(searchPhone, {
-                            initialCountry: 'auto',
-                            geoIpLookup: function(callback) {
-                                fetch('https://ipapi.co/json')
-                                    .then(res => res.json())
-                                    .then(data => callback(data.country_code))
-                                    .catch(() => callback('us'));
-                            },
+                            initialCountry: 'vn',
+                            separateDialCode: true,
                             utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js',
                         });
                         const form2 = document.querySelector('.search-form');
-                        form2.addEventListener('submit', () => {
+                        form2.addEventListener('submit', function () {
+                            const raw = searchPhone.value.trim();
+                            // Keep local VN format (0xxx) as-is, server handles both
+                            if (!raw.startsWith('+')) return;
                             searchPhone.value = iti2.getNumber();
                         });
                     }
                 </script>
+
+                <!-- chatbot widget include -->
+                <jsp:include page="/chatbot.jsp" />
             </body>
 
             </html>

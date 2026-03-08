@@ -17,11 +17,15 @@ public class TestConnection {
 
             System.out.println("Kết nối SQL thành công!");
 
-            // chạy thử query
-            Object result = session.createNativeQuery("SELECT DB_NAME()").getSingleResult();
+            // chạy thử query - PostgreSQL syntax
+            Object result = session.createNativeQuery("SELECT current_database()", String.class).getSingleResult();
             System.out.println("Database đang kết nối: " + result);
 
-            // giữ connection 30s để SQL Server thấy
+            // Kiểm tra version
+            Object version = session.createNativeQuery("SELECT version()", String.class).getSingleResult();
+            System.out.println("PostgreSQL version: " + version);
+
+            // giữ connection 30s để kiểm tra
             Thread.sleep(30000);
 
             session.close();

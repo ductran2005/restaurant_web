@@ -13,7 +13,8 @@
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/landing.css">
                 <!-- intl-tel-input styles -->
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css">
+                <link rel="stylesheet"
+                    href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css">
                 <style>
                     .booking-hero {
                         padding: 140px 48px 40px;
@@ -104,6 +105,30 @@
                         font-family: inherit;
                         outline: none;
                         transition: all .25s;
+                    }
+
+                    /* intl-tel-input dark theme override */
+                    .iti {
+                        width: 100%;
+                    }
+
+                    .iti--separate-dial-code .iti__selected-flag,
+                    .iti__country-list {
+                        background: #1a1814;
+                        border-color: var(--border);
+                    }
+
+                    .iti__country-list li {
+                        color: var(--text);
+                    }
+
+                    .iti__country-list .iti__country.iti__highlight,
+                    .iti__country-list .iti__country:hover {
+                        background: rgba(232, 160, 32, .12);
+                    }
+
+                    .iti__selected-dial-code {
+                        color: var(--text-muted);
                     }
 
                     .form-control::placeholder {
@@ -356,8 +381,7 @@
                                         class="btn-outline-light">
                                         <i class="fa-solid fa-utensils"></i> Đặt món trước
                                     </a>
-                                    <a href="${pageContext.request.contextPath}/booking"
-                                        class="btn-outline-light">
+                                    <a href="${pageContext.request.contextPath}/booking" class="btn-outline-light">
                                         <i class="fa-solid fa-plus"></i> Đặt bàn mới
                                     </a>
                                 </div>
@@ -386,7 +410,8 @@
                                             <label class="form-label">Họ và tên <span class="required">*</span></label>
                                             <input type="text" name="customerName"
                                                 class="form-control ${not empty errors.customerName ? 'error' : ''}"
-                                                value="${not empty param.customerName ? param.customerName : customerName}" placeholder="Nguyễn Văn A" required>
+                                                value="${not empty param.customerName ? param.customerName : customerName}"
+                                                placeholder="Nguyễn Văn A" required>
                                             <c:if test="${not empty errors.customerName}">
                                                 <div class="form-error">${errors.customerName}</div>
                                             </c:if>
@@ -396,9 +421,8 @@
                                                     class="required">*</span></label>
                                             <input type="tel" id="phoneInput" name="customerPhone"
                                                 class="form-control ${not empty errors.customerPhone ? 'error' : ''}"
-                                                value="${not empty param.customerPhone ? param.customerPhone : customerPhone}" placeholder="0901234567"
-                                                pattern="\+[1-9][0-9]{7,14}"
-                                                title="Nhập số theo định dạng quốc tế, ví dụ +84901234567" required>
+                                                value="${not empty param.customerPhone ? param.customerPhone : customerPhone}"
+                                                placeholder="0901234567" required>
                                             <c:if test="${not empty errors.customerPhone}">
                                                 <div class="form-error">${errors.customerPhone}</div>
                                             </c:if>
@@ -411,7 +435,8 @@
                                             <label class="form-label">Ngày <span class="required">*</span></label>
                                             <input type="date" name="bookingDate"
                                                 class="form-control ${not empty errors.bookingDate ? 'error' : ''}"
-                                                value="${not empty param.bookingDate ? param.bookingDate : bookingDate}" required>
+                                                value="${not empty param.bookingDate ? param.bookingDate : bookingDate}"
+                                                required>
                                             <c:if test="${not empty errors.bookingDate}">
                                                 <div class="form-error">${errors.bookingDate}</div>
                                             </c:if>
@@ -539,28 +564,28 @@
                         dateInput.min = new Date().toISOString().split('T')[0];
                     }
                 </script>
-                <!-- intl-tel-input script -->
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
+                <script
+                    src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
                 <script>
                     const phoneInput = document.querySelector('#phoneInput');
                     if (phoneInput) {
                         const iti = window.intlTelInput(phoneInput, {
-                            initialCountry: 'auto',
-                            geoIpLookup: function(callback) {
-                                fetch('https://ipapi.co/json')
-                                    .then(res => res.json())
-                                    .then(data => callback(data.country_code))
-                                    .catch(() => callback('us'));
-                            },
+                            initialCountry: 'vn',
+                            separateDialCode: true,
                             utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js',
                         });
-                        // on submit ensure E.164 value
-                        const form = document.getElementById('bookingForm');
-                        form.addEventListener('submit', () => {
+                        document.getElementById('bookingForm').addEventListener('submit', function () {
+                            // If user typed local VN number (0xxx...), keep as-is
+                            // Otherwise send full international number
+                            const raw = phoneInput.value.trim();
+                            if (raw.startsWith('0')) return;
                             phoneInput.value = iti.getNumber();
                         });
                     }
                 </script>
+
+                <!-- chatbot widget include -->
+                <jsp:include page="/chatbot.jsp" />
             </body>
 
             </html>

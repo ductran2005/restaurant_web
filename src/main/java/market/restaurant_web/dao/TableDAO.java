@@ -1,6 +1,7 @@
 package market.restaurant_web.dao;
 
 import market.restaurant_web.entity.DiningTable;
+import market.restaurant_web.entity.TableStatus;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import java.util.List;
@@ -18,7 +19,7 @@ public class TableDAO extends GenericDAO<DiningTable> {
         return q.list();
     }
 
-    public List<DiningTable> findByStatus(Session session, String status) {
+    public List<DiningTable> findByStatus(Session session, TableStatus status) {
         Query<DiningTable> q = session.createQuery(
                 "FROM DiningTable WHERE status = :s ORDER BY tableName", DiningTable.class);
         q.setParameter("s", status);
@@ -26,7 +27,7 @@ public class TableDAO extends GenericDAO<DiningTable> {
     }
 
     public List<DiningTable> findAvailable(Session session) {
-        return findByStatus(session, "AVAILABLE");
+        return findByStatus(session, TableStatus.EMPTY);
     }
 
     public List<DiningTable> findAll(Session session) {

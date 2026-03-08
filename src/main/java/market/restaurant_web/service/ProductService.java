@@ -22,6 +22,11 @@ public class ProductService {
         }
     }
 
+    /** Alias for findAvailable() */
+    public List<Product> findAvailableProducts() {
+        return findAvailable();
+    }
+
     public Product findById(int id) {
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {
             return dao.findById(s, id);

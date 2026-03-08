@@ -57,8 +57,24 @@ public class BookingDao extends GenericDAO<Booking> {
     }
 
     public List<Booking> findByPhone(Session s, String phone) {
-        return s.createQuery("FROM Booking WHERE customerPhone = :phone ORDER BY bookingDate DESC", Booking.class)
-                .setParameter("phone", phone)
+        // Normalize: if user enters 0901234567, also try +84901234567 (strip leading 0,
+        // add +84)
+        String alt = null;
+        if (phone.startsWith("0") && phone.length() >= 10) {
+            alt = "+84" + phone.substring(1);
+        } else if (phone.startsWith("+84")) {
+            alt = "0" + phone.substring(3);
+        }
+        if (alt != null) {
+            return s.createQuery(
+                    "FROM Booking WHERE customerPhone = :phone OR customerPhone = :alt ORDER BY bookingDate DESC",
+                    Booking.class)
+                    .setParameter("phone", phone)
+                    .setParameter("alt", alt)
+                    .list();
+        }
+        return s.createQuery("FROM Booking WHERE customerPhone LIKE :phone ORDER BY bookingDate DESC", Booking.class)
+                .setParameter("phone", "%" + phone + "%")
                 .list();
     }
 
