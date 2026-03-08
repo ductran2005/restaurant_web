@@ -417,12 +417,13 @@ public class BookingService {
             LocalDateTime targetTime = now.plusMinutes(minutesBefore);
             
             // Use native SQL to avoid TIME vs DATETIME comparison issues
+            // PostgreSQL syntax: CAST(booking_date || ' ' || booking_time AS TIMESTAMP)
             return s.createNativeQuery(
                 "SELECT * FROM bookings WHERE status = 'CONFIRMED' " +
                 "AND table_id IS NOT NULL " +
                 "AND booking_date = :date " +
-                "AND CAST(CONCAT(CAST(booking_date AS VARCHAR), ' ', CAST(booking_time AS VARCHAR)) AS DATETIME2) <= :targetDateTime " +
-                "AND CAST(CONCAT(CAST(booking_date AS VARCHAR), ' ', CAST(booking_time AS VARCHAR)) AS DATETIME2) > :currentDateTime",
+                "AND CAST(booking_date || ' ' || booking_time AS TIMESTAMP) <= :targetDateTime " +
+                "AND CAST(booking_date || ' ' || booking_time AS TIMESTAMP) > :currentDateTime",
                 Booking.class)
                 .setParameter("date", targetTime.toLocalDate())
                 .setParameter("targetDateTime", targetTime)
@@ -438,9 +439,10 @@ public class BookingService {
             LocalDateTime targetTime = now.minusMinutes(minutesAfter);
             
             // Use native SQL to avoid TIME vs DATETIME comparison issues
+            // PostgreSQL syntax: CAST(booking_date || ' ' || booking_time AS TIMESTAMP)
             return s.createNativeQuery(
                 "SELECT * FROM bookings WHERE status IN ('CONFIRMED', 'CHECKED_IN') " +
-                "AND CAST(CONCAT(CAST(booking_date AS VARCHAR), ' ', CAST(booking_time AS VARCHAR)) AS DATETIME2) < :targetDateTime",
+                "AND CAST(booking_date || ' ' || booking_time AS TIMESTAMP) < :targetDateTime",
                 Booking.class)
                 .setParameter("targetDateTime", targetTime)
                 .list();
