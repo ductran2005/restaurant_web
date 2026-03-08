@@ -5,6 +5,7 @@ D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\con
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\admin\ReportsController.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\admin\MenuItemsController.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\api\TableApiController.java
+D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\staff\TestAutoCancelController.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\staff\TableMapController.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\dao\AreaDAO.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\auth\LogoutController.java
@@ -13,6 +14,7 @@ D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\con
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\dao\PaymentDAO.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\entity\SystemConfig.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\auth\LoginController.java
+D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\staff\ViewSchedulerLogController.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\dao\TableDAO.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\service\TableManagementService.java
 D:\FPT\Spring2026\PRJ\wrb\restaurant_web\src\main\java\market\restaurant_web\controller\cashier\CheckoutController.java

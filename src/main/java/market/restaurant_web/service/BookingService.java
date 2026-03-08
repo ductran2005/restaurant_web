@@ -457,10 +457,30 @@ public class BookingService {
         try {
             LocalDateTime now = LocalDateTime.now();
             
-            // Get all CONFIRMED bookings without table
+            System.out.println("=== Auto-cancel late bookings check ===");
+            System.out.println("Current time: " + now);
+            System.out.println("Looking for CONFIRMED bookings late by more than " + minutesAfter + " minutes");
+            
+            // Get all CONFIRMED bookings
             List<Booking> allBookings = s.createQuery(
                 "FROM Booking WHERE status = 'CONFIRMED'",
                 Booking.class).list();
+            
+            System.out.println("Found " + allBookings.size() + " CONFIRMED bookings total");
+            
+            // Debug: Show all bookings with their times
+            for (Booking b : allBookings) {
+                LocalDateTime bookingDateTime = LocalDateTime.of(b.getBookingDate(), b.getBookingTime());
+                LocalDateTime cancelTime = bookingDateTime.plusMinutes(minutesAfter);
+                long minutesLate = java.time.Duration.between(bookingDateTime, now).toMinutes();
+                boolean shouldCancel = now.isAfter(cancelTime);
+                
+                System.out.println("  - " + b.getBookingCode() + 
+                    ": booking=" + bookingDateTime + 
+                    ", cancel_after=" + cancelTime +
+                    ", late=" + minutesLate + "min" +
+                    ", should_cancel=" + shouldCancel);
+            }
             
             // Filter bookings that are late (booking time + minutesAfter < now)
             List<Booking> lateBookings = allBookings.stream()
@@ -471,8 +491,6 @@ public class BookingService {
                 })
                 .toList();
             
-            System.out.println("=== Auto-cancel late bookings check ===");
-            System.out.println("Current time: " + now);
             System.out.println("Found " + lateBookings.size() + " late bookings to cancel");
             
             for (Booking b : lateBookings) {
@@ -500,6 +518,7 @@ public class BookingService {
                 } catch (Exception e) {
                     System.err.println("Failed to auto-cancel booking " + b.getBookingCode() + 
                         ": " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
             

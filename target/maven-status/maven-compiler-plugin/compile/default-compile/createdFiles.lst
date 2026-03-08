@@ -42,6 +42,7 @@ market\restaurant_web\dao\AreaDAO.class
 market\restaurant_web\controller\staff\BookingController.class
 market\restaurant_web\controller\customer\ChatbotApiServlet.class
 market\restaurant_web\entity\RestaurantTable.class
+market\restaurant_web\controller\staff\TestAutoCancelController.class
 market\restaurant_web\service\ConfigService.class
 market\restaurant_web\entity\User.class
 market\restaurant_web\dto\TableResponseDTO.class
