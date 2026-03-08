@@ -76,12 +76,14 @@ CREATE TABLE tables (
     area_id      INT          NOT NULL,
     table_name   NVARCHAR(50) NOT NULL,
     capacity     INT          NOT NULL,
-    status       NVARCHAR(20) NOT NULL CONSTRAINT DF_tables_status DEFAULT ('AVAILABLE'),
+    status       NVARCHAR(20) NOT NULL CONSTRAINT DF_tables_status DEFAULT ('EMPTY'),
+    created_at   DATETIME2(0) NULL,
+    updated_at   DATETIME2(0) NULL,
 
     CONSTRAINT FK_tables_areas FOREIGN KEY (area_id) REFERENCES areas(area_id),
     CONSTRAINT UQ_tables_table_name UNIQUE (table_name),
     CONSTRAINT CK_tables_capacity CHECK (capacity > 0),
-    CONSTRAINT CK_tables_status CHECK (status IN ('AVAILABLE','IN_USE'))
+    CONSTRAINT CK_tables_status CHECK (status IN ('EMPTY','RESERVED','OCCUPIED','WAITING_PAYMENT','DIRTY','DISABLED','AVAILABLE','IN_USE'))
 );
 CREATE INDEX IX_tables_area_status ON tables(area_id, status);
 
@@ -401,13 +403,13 @@ DECLARE @VIP INT=(SELECT area_id FROM areas WHERE area_name=N'VIP');
 
 -- tables
 INSERT INTO tables(area_id, table_name, capacity, status) VALUES
-(@A1,'T01',4,'AVAILABLE'),
-(@A1,'T02',4,'AVAILABLE'),
-(@A1,'T03',6,'AVAILABLE'),
-(@A2,'T04',4,'AVAILABLE'),
-(@A2,'T05',8,'AVAILABLE'),
-(@VIP,'V01',10,'AVAILABLE'),
-(@VIP,'V02',12,'AVAILABLE');
+(@A1,'T01',4,'EMPTY'),
+(@A1,'T02',4,'EMPTY'),
+(@A1,'T03',6,'EMPTY'),
+(@A2,'T04',4,'EMPTY'),
+(@A2,'T05',8,'EMPTY'),
+(@VIP,'V01',10,'EMPTY'),
+(@VIP,'V02',12,'EMPTY');
 
 DECLARE @T01 INT=(SELECT table_id FROM tables WHERE table_name='T01');
 DECLARE @T02 INT=(SELECT table_id FROM tables WHERE table_name='T02');
