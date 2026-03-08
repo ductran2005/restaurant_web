@@ -14,40 +14,108 @@
                 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
                 <link rel="stylesheet" href="${ctx}/assets/css/admin.css">
                 <style>
+                    /* Report Layout Styles */
+                    .filter-bar {
+                        display: flex;
+                        align-items: center;
+                        gap: 20px;
+                        background: var(--surface2);
+                        padding: 12px 20px;
+                        border-radius: 12px;
+                        margin-bottom: 24px;
+                        flex-wrap: wrap;
+                        border: 1px solid var(--border);
+                    }
+
                     .tab-bar {
                         display: flex;
-                        gap: 4px;
-                        background: var(--surface2);
-                        border-radius: 10px;
+                        gap: 6px;
+                        background: rgba(255, 255, 255, 0.05);
                         padding: 4px;
-                        margin-bottom: 20px;
-                        width: fit-content
+                        border-radius: 8px;
                     }
 
                     .tab-btn {
-                        padding: 8px 18px;
-                        border-radius: 8px;
+                        padding: 8px 20px;
+                        border-radius: 6px;
                         border: none;
                         background: none;
                         color: var(--text-muted);
                         font-size: 13px;
                         font-weight: 600;
                         cursor: pointer;
+                        transition: all .2s;
                         font-family: inherit;
-                        transition: all .2s
                     }
 
                     .tab-btn.active {
                         background: var(--primary);
-                        color: #000
+                        color: #000;
+                    }
+
+                    .filter-group {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        color: var(--text-muted);
+                        font-size: 13px;
+                    }
+
+                    .chart-container {
+                        background: var(--surface);
+                        border: 1px solid var(--border);
+                        border-radius: 16px;
+                        padding: 24px;
+                        margin-bottom: 24px;
+                    }
+
+                    .report-table-container {
+                        background: var(--surface);
+                        border: 1px solid var(--border);
+                        border-radius: 16px;
+                        overflow: hidden;
                     }
 
                     .tab-content {
-                        display: none
+                        display: none;
                     }
 
                     .tab-content.active {
-                        display: block
+                        display: block;
+                    }
+
+                    .admin-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                    }
+
+                    .admin-table th {
+                        text-align: left;
+                        padding: 16px 24px;
+                        background: var(--surface2);
+                        color: var(--text-muted);
+                        font-size: 11px;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        font-weight: 700;
+                    }
+
+                    .admin-table td {
+                        padding: 16px 24px;
+                        border-top: 1px solid var(--border);
+                        font-size: 14px;
+                        color: var(--text);
+                    }
+
+                    .admin-table tr:hover td {
+                        background: rgba(255, 255, 255, 0.02);
+                    }
+
+                    .total-row td {
+                        background: var(--surface2);
+                        font-weight: 700;
+                        color: var(--primary) !important;
+                        border-top: 2px solid var(--border);
                     }
                 </style>
             </head>
@@ -76,40 +144,64 @@
                                                 class="fa-solid fa-download"></i> XLSX</a>
                                     </div>
                                 </div>
-                                <form method="get" action="${ctx}/admin/reports"
-                                    style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-                                    <select name="period" class="form-control" style="width:150px">
-                                        <option value="day" ${param.period !='month' ? 'selected' : '' }>Theo ngày
-                                        </option>
-                                        <option value="month" ${param.period=='month' ? 'selected' : '' }>Theo tháng
-                                        </option>
-                                    </select>
-                                    <input type="date" name="from" class="form-control" style="width:150px"
-                                        value="${param.from}">
-                                    <span style="color:var(--text-muted)">đến</span>
-                                    <input type="date" name="to" class="form-control" style="width:150px"
-                                        value="${param.to}">
-                                    <button type="submit" class="btn btn-ghost"><i class="fa-solid fa-filter"></i>
-                                        Lọc</button>
-                                </form>
-                                <div class="tab-bar">
-                                    <button class="tab-btn active" onclick="switchTab('revenue',this)">Doanh
-                                        thu</button>
-                                    <button class="tab-btn" onclick="switchTab('topitems',this)">Top món bán
-                                        chạy</button>
-                                </div>
-                                <div class="tab-content active" id="tab-revenue">
-                                    <div class="charts-grid" style="margin-bottom:24px">
-                                        <div class="chart-card">
-                                            <div class="chart-title"><i class="fa-solid fa-chart-bar"></i> Doanh thu
-                                            </div><canvas id="revenueChart" height="220"></canvas>
-                                        </div>
-                                        <div class="chart-card">
-                                            <div class="chart-title"><i class="fa-solid fa-chart-line"></i> Số đơn</div>
-                                            <canvas id="ordersChart" height="220"></canvas>
-                                        </div>
+                                <div class="filter-bar">
+                                    <div class="tab-bar">
+                                        <button class="tab-btn active" onclick="switchTab('revenue',this)">Doanh
+                                            thu</button>
+                                        <button class="tab-btn" onclick="switchTab('topitems',this)">Top món bán
+                                            chạy</button>
                                     </div>
-                                    <div class="table-card">
+
+                                    <div style="width:1px; height:24px; background:var(--border); margin:0 10px"></div>
+
+                                    <form method="get" action="${ctx}/admin/reports"
+                                        style="display:flex; align-items:center; gap:15px; flex:1">
+                                        <div class="filter-group">
+                                            <span>Theo</span>
+                                            <select name="period" class="form-control"
+                                                style="width:110px; background:rgba(255,255,255,0.05); border-color:transparent">
+                                                <option value="day" ${param.period !='month' ? 'selected' : '' }>ngày
+                                                </option>
+                                                <option value="month" ${param.period=='month' ? 'selected' : '' }>tháng
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                        <div class="filter-group">
+                                            <input type="date" name="from" class="form-control"
+                                                style="width:130px; background:rgba(255,255,255,0.05); border-color:transparent"
+                                                value="${param.from}">
+                                            <span>đến</span>
+                                            <input type="date" name="to" class="form-control"
+                                                style="width:130px; background:rgba(255,255,255,0.05); border-color:transparent"
+                                                value="${param.to}">
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary" style="padding:8px 15px">
+                                            <i class="fa-solid fa-filter" style="margin-right:5px"></i> Lọc
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div class="tab-content active" id="tab-revenue">
+                                    <div class="chart-container">
+                                        <div
+                                            style="display:flex; justify-content:space-between; margin-bottom:20px; align-items:center">
+                                            <h3 style="font-size:15px; font-weight:600; color:var(--text-muted)">BIỂU ĐỒ
+                                                DOANH THU</h3>
+                                            <div id="chartLegend" style="display:flex; gap:15px; font-size:12px">
+                                                <span style="display:flex; align-items:center; gap:5px"><i
+                                                        class="fa-solid fa-square" style="color:var(--primary)"></i>
+                                                    Doanh thu</span>
+                                                <span style="display:flex; align-items:center; gap:5px"><i
+                                                        class="fa-solid fa-square" style="color:#3b82f6"></i> Số
+                                                    đơn</span>
+                                            </div>
+                                        </div>
+                                        <canvas id="revenueCombinedChart" height="100"></canvas>
+                                    </div>
+
+                                    <div class="report-table-container">
                                         <table class="admin-table">
                                             <thead>
                                                 <tr>
@@ -129,10 +221,10 @@
                                                     </tr>
                                                 </c:forEach>
                                                 <c:if test="${not empty revenueData}">
-                                                    <tr style="background:var(--surface2)">
-                                                        <td style="font-weight:700">Tổng</td>
-                                                        <td style="text-align:right;font-weight:700">${totalOrders}</td>
-                                                        <td style="text-align:right;font-weight:700">
+                                                    <tr class="total-row">
+                                                        <td>TỔNG CỘNG</td>
+                                                        <td style="text-align:right">${totalOrders}</td>
+                                                        <td style="text-align:right">
                                                             <fmt:formatNumber value="${totalRevenue}" pattern="#,###" />
                                                             đ
                                                         </td>
@@ -148,7 +240,7 @@
                                     </div>
                                 </div>
                                 <div class="tab-content" id="tab-topitems">
-                                    <div class="table-card">
+                                    <div class="report-table-container">
                                         <table class="admin-table">
                                             <thead>
                                                 <tr>
@@ -188,8 +280,59 @@
                     function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').classList.add('active') }
                     function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('active') }
                     function switchTab(n, b) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active')); document.getElementById('tab-' + n).classList.add('active'); b.classList.add('active') }
-                    const cl = ${ not empty chartLabels?chartLabels:'[]'}, cr = ${ not empty chartRevenue?chartRevenue:'[]'}, co = ${ not empty chartOrders?chartOrders:'[]'};
-                    if (cl.length) { new Chart(document.getElementById('revenueChart'), { type: 'bar', data: { labels: cl, datasets: [{ label: 'Doanh thu', data: cr, backgroundColor: 'rgba(232,160,32,.7)', borderRadius: 6 }] }, options: { plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#9e9488' } }, y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#9e9488' } } } } }); new Chart(document.getElementById('ordersChart'), { type: 'line', data: { labels: cl, datasets: [{ label: 'Orders', data: co, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,.1)', fill: true, tension: .4, pointRadius: 4 }] }, options: { plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#9e9488' } }, y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#9e9488' } } } } }) }
+                    const cl = JSON.parse('${not empty chartLabels ? chartLabels : "[]"}'),
+                        cr = JSON.parse('${not empty chartRevenue ? chartRevenue : "[]"}'),
+                        co = JSON.parse('${not empty chartOrders ? chartOrders : "[]"}');
+
+                    if (cl.length) {
+                        new Chart(document.getElementById('revenueCombinedChart'), {
+                            type: 'bar',
+                            data: {
+                                labels: cl,
+                                datasets: [
+                                    {
+                                        label: 'Doanh thu (vnđ)',
+                                        data: cr,
+                                        backgroundColor: 'rgba(232,160,32,0.8)',
+                                        borderRadius: 4,
+                                        yAxisID: 'y'
+                                    },
+                                    {
+                                        label: 'Số đơn',
+                                        data: co,
+                                        type: 'line',
+                                        borderColor: '#3b82f6',
+                                        backgroundColor: '#3b82f6',
+                                        borderWidth: 2,
+                                        fill: false,
+                                        tension: 0.3,
+                                        pointRadius: 3,
+                                        yAxisID: 'y1'
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    x: {
+                                        grid: { display: false },
+                                        ticks: { color: '#9e9488', font: { size: 10 } }
+                                    },
+                                    y: {
+                                        position: 'left',
+                                        grid: { color: 'rgba(255,255,255,0.05)' },
+                                        ticks: { color: '#9e9488', font: { size: 10 } }
+                                    },
+                                    y1: {
+                                        position: 'right',
+                                        grid: { display: false },
+                                        ticks: { color: '#3b82f6', font: { size: 10 } }
+                                    }
+                                }
+                            }
+                        });
+                    }
                 </script>
             </body>
 

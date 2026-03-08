@@ -93,7 +93,9 @@
                                                     </thead>
                                                     <tbody>
                                                         <c:forEach var="u" items="${users}">
-                                                            <tr>
+                                                            <tr data-id="${u.id}" data-fullname="${u.fullName}"
+                                                                data-username="${u.username}" data-email="${u.email}"
+                                                                data-phone="${u.phone}" data-role="${u.role.id}">
                                                                 <td style="font-weight:600">${u.fullName}</td>
                                                                 <td style="color:var(--text-muted)">${u.username}</td>
                                                                 <td style="color:var(--text-muted)">${u.email}</td>
@@ -253,9 +255,17 @@
                         function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
 
                         function editUser(id) {
+                            const row = document.querySelector('tr[data-id="' + id + '"]');
                             document.getElementById('modalTitle').textContent = 'Sửa người dùng';
                             document.getElementById('submitBtn').textContent = 'Cập nhật';
                             document.getElementById('userId').value = id;
+                            if (row) {
+                                document.getElementById('fullName').value = row.dataset.fullname || '';
+                                document.getElementById('usernameField').value = row.dataset.username || '';
+                                document.getElementById('emailField').value = row.dataset.email || '';
+                                document.getElementById('phoneField').value = row.dataset.phone || '';
+                                document.getElementById('roleField').value = row.dataset.role || '';
+                            }
                             document.getElementById('userForm').action = '${ctx}/admin/users/update';
                             document.getElementById('passwordGroup').style.display = 'none';
                             openModal('createModal');

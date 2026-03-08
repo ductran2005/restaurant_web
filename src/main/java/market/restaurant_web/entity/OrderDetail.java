@@ -39,7 +39,10 @@ public class OrderDetail {
     private BigDecimal lineTotal;
 
     @Column(name = "item_status", nullable = false, length = 20)
-    private String itemStatus = "ORDERED";
+    private String itemStatus = "PENDING";
+
+    @Column(name = "cancel_reason", length = 500)
+    private String cancelReason;
 
     @PrePersist
     @PreUpdate
@@ -100,5 +103,13 @@ public class OrderDetail {
 
     public void setItemStatus(String itemStatus) {
         this.itemStatus = itemStatus;
+    }
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
     }
 }

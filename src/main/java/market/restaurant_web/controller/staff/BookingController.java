@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 
 @WebServlet({ "/staff/bookings", "/staff/bookings/confirm", "/staff/bookings/cancel", "/staff/bookings/checkin",
-        "/staff/bookings/assign-table" })
+        "/staff/bookings/assign-table", "/staff/bookings/auto-assign", "/staff/bookings/no-show", 
+        "/staff/bookings/seat", "/staff/bookings/complete", "/staff/bookings/trigger-auto-assign",
+        "/staff/bookings/trigger-auto-cancel" })
 public class BookingController extends HttpServlet {
     private final BookingService bookingService = new BookingService();
     private final TableService tableService = new TableService();
@@ -22,7 +24,7 @@ public class BookingController extends HttpServlet {
         LocalDate date = (dateStr != null && !dateStr.isEmpty()) ? LocalDate.parse(dateStr) : null;
 
         req.setAttribute("bookings", bookingService.search(keyword, status, date));
-        req.setAttribute("tables", tableService.findAvailableTables());
+        req.setAttribute("availableTables", tableService.findAvailableTables());
         req.setAttribute("keyword", keyword);
         req.setAttribute("selectedStatus", status);
         req.setAttribute("selectedDate", dateStr);
@@ -51,6 +53,18 @@ public class BookingController extends HttpServlet {
                 action = "checkin";
             else if (path.endsWith("/assign-table"))
                 action = "assignTable";
+            else if (path.endsWith("/auto-assign"))
+                action = "autoAssign";
+            else if (path.endsWith("/no-show"))
+                action = "noShow";
+            else if (path.endsWith("/seat"))
+                action = "seat";
+            else if (path.endsWith("/complete"))
+                action = "complete";
+            else if (path.endsWith("/trigger-auto-assign"))
+                action = "triggerAutoAssign";
+            else if (path.endsWith("/trigger-auto-cancel"))
+                action = "autoCancelLate";
         }
 
         try {
@@ -69,6 +83,26 @@ public class BookingController extends HttpServlet {
                         Integer.parseInt(req.getParameter("bookingId")),
                         Integer.parseInt(req.getParameter("tableId")));
                 flash(req, "Gán bàn thành công!", "success");
+            } else if ("autoAssign".equals(action)) {
+                bookingService.autoAssignTable(Integer.parseInt(req.getParameter("bookingId")));
+                flash(req, "Tự động gán bàn thành công!", "success");
+            } else if ("noShow".equals(action)) {
+                bookingService.markNoShow(Integer.parseInt(req.getParameter("bookingId")));
+                flash(req, "Đã đánh dấu NO_SHOW!", "warning");
+            } else if ("seat".equals(action)) {
+                bookingService.seatCustomer(Integer.parseInt(req.getParameter("bookingId")));
+                flash(req, "Khách đã ngồi vào bàn!", "success");
+            } else if ("complete".equals(action)) {
+                bookingService.complete(Integer.parseInt(req.getParameter("bookingId")));
+                flash(req, "Hoàn thành booking!", "success");
+            } else if ("triggerAutoAssign".equals(action)) {
+                // Trigger auto-assign for all upcoming bookings (for testing)
+                bookingService.autoAssignTablesForUpcomingBookings(60);
+                flash(req, "Đã chạy auto-assign cho tất cả booking trong 60 phút tới!", "info");
+            } else if ("autoCancelLate".equals(action)) {
+                // Trigger auto-cancel for late bookings (for testing)
+                bookingService.autoCancelLateBookings(20);
+                flash(req, "Đã chạy auto-cancel! Kiểm tra log và database để xem kết quả.", "info");
             }
         } catch (RuntimeException e) {
             flash(req, e.getMessage(), "error");

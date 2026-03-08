@@ -1,85 +1,131 @@
 package market.restaurant_web.controller.customer;
 
-import market.restaurant_web.entity.Booking;
-import market.restaurant_web.entity.PreOrderItem;
-import market.restaurant_web.entity.Product;
 import market.restaurant_web.service.BookingService;
-import market.restaurant_web.service.CategoryService;
+import market.restaurant_web.service.PreOrderService;
 import market.restaurant_web.service.ProductService;
+import market.restaurant_web.entity.Booking;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 
-@WebServlet("/pre-order")
+/**
+ * Controller for customer pre-order management
+ * Allows customers to add/update/remove items from their booking pre-order
+ */
+@WebServlet({
+    "/customer/preorder/add",
+    "/customer/preorder/update", 
+    "/customer/preorder/remove",
+    "/customer/preorder/pay-deposit"
+})
 public class PreOrderController extends HttpServlet {
+    private final PreOrderService preOrderService = new PreOrderService();
     private final BookingService bookingService = new BookingService();
     private final ProductService productService = new ProductService();
-    private final CategoryService categoryService = new CategoryService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // Show success message after redirect
-        if ("1".equals(req.getParameter("success"))) {
-            req.setAttribute("successMsg", "Đặt món trước thành công! Món ăn sẽ được chuẩn bị khi bạn đến.");
+        String bookingCode = req.getParameter("bookingCode");
+        
+        if (bookingCode == null || bookingCode.isEmpty()) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing booking code");
+            return;
         }
-        String code = req.getParameter("code");
-        if (code != null && !code.isEmpty()) {
-            Booking booking = bookingService.findByCode(code);
-            if (booking != null) {
-                req.setAttribute("booking", booking);
-                req.setAttribute("menuItems", productService.findAvailable());
-                req.setAttribute("categories", categoryService.findActive());
-            } else {
-                req.setAttribute("error", "Không tìm thấy đặt bàn với mã: " + code);
-            }
+        
+        Booking booking = bookingService.findByCode(bookingCode);
+        if (booking == null) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Booking not found");
+            return;
         }
-        req.getRequestDispatcher("/WEB-INF/views/customer/pre-order.jsp").forward(req, resp);
+        
+        req.setAttribute("booking", booking);
+        req.setAttribute("products", productService.findAvailableProducts());
+        req.getRequestDispatcher("/WEB-INF/views/customer/preorder.jsp").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
-        String action = req.getParameter("action");
+        String action = getAction(req);
         String bookingCode = req.getParameter("bookingCode");
-
-        if ("confirm".equals(action) && bookingCode != null) {
-            Booking booking = bookingService.findByCode(bookingCode);
-            if (booking == null) {
-                req.setAttribute("error", "Không tìm thấy đặt bàn.");
-                doGet(req, resp);
-                return;
+        
+        try {
+            switch (action) {
+                case "add":
+                    handleAdd(req);
+                    flash(req, "Đã thêm món vào đơn đặt trước!", "success");
+                    break;
+                    
+                case "update":
+                    handleUpdate(req);
+                    flash(req, "Đã cập nhật số lượng!", "success");
+                    break;
+                    
+                case "remove":
+                    handleRemove(req);
+                    flash(req, "Đã xóa món khỏi đơn đặt trước!", "success");
+                    break;
+                    
+                case "pay-deposit":
+                    handlePayDeposit(req);
+                    flash(req, "Đã xác nhận thanh toán tiền cọc!", "success");
+                    break;
+                    
+                default:
+                    throw new RuntimeException("Invalid action");
             }
-
-            try {
-                int itemCount = Integer.parseInt(req.getParameter("itemCount"));
-                String note = req.getParameter("note");
-
-                for (int i = 0; i < itemCount; i++) {
-                    int productId = Integer.parseInt(req.getParameter("productId_" + i));
-                    int quantity = Integer.parseInt(req.getParameter("quantity_" + i));
-
-                    Product product = productService.findById(productId);
-                    if (product != null && quantity > 0) {
-                        PreOrderItem item = new PreOrderItem();
-                        item.setBooking(booking);
-                        item.setProduct(product);
-                        item.setQuantity(quantity);
-                        item.setNote(note);
-                        bookingService.savePreOrderItem(item);
-                    }
-                }
-
-                resp.sendRedirect(req.getContextPath() + "/pre-order?code=" + bookingCode + "&success=1");
-            } catch (Exception e) {
-                req.setAttribute("error", "Có lỗi xảy ra khi đặt món: " + e.getMessage());
-                req.setAttribute("booking", booking);
-                req.setAttribute("menuItems", productService.findAvailable());
-                req.setAttribute("categories", categoryService.findActive());
-                req.getRequestDispatcher("/WEB-INF/views/customer/pre-order.jsp").forward(req, resp);
-            }
-        } else {
-            doGet(req, resp);
+        } catch (RuntimeException e) {
+            flash(req, e.getMessage(), "error");
         }
+        
+        // Redirect back to pre-order page
+        resp.sendRedirect(req.getContextPath() + "/customer/preorder?bookingCode=" + bookingCode);
+    }
+
+    private void handleAdd(HttpServletRequest req) {
+        int bookingId = Integer.parseInt(req.getParameter("bookingId"));
+        int productId = Integer.parseInt(req.getParameter("productId"));
+        int quantity = Integer.parseInt(req.getParameter("quantity"));
+        String note = req.getParameter("note");
+        
+        preOrderService.addPreOrderItem(bookingId, productId, quantity, note);
+    }
+
+    private void handleUpdate(HttpServletRequest req) {
+        int itemId = Integer.parseInt(req.getParameter("itemId"));
+        int quantity = Integer.parseInt(req.getParameter("quantity"));
+        
+        preOrderService.updatePreOrderItem(itemId, quantity);
+    }
+
+    private void handleRemove(HttpServletRequest req) {
+        int itemId = Integer.parseInt(req.getParameter("itemId"));
+        
+        preOrderService.removePreOrderItem(itemId);
+    }
+
+    private void handlePayDeposit(HttpServletRequest req) {
+        int bookingId = Integer.parseInt(req.getParameter("bookingId"));
+        String paymentRef = req.getParameter("paymentRef");
+        
+        if (paymentRef == null || paymentRef.isEmpty()) {
+            paymentRef = "DEPOSIT-" + System.currentTimeMillis();
+        }
+        
+        preOrderService.markDepositPaid(bookingId, paymentRef);
+    }
+
+    private String getAction(HttpServletRequest req) {
+        String path = req.getServletPath();
+        if (path.endsWith("/add")) return "add";
+        if (path.endsWith("/update")) return "update";
+        if (path.endsWith("/remove")) return "remove";
+        if (path.endsWith("/pay-deposit")) return "pay-deposit";
+        return req.getParameter("action");
+    }
+
+    private void flash(HttpServletRequest req, String msg, String type) {
+        req.getSession().setAttribute("flash_msg", msg);
+        req.getSession().setAttribute("flash_type", type);
     }
 }
