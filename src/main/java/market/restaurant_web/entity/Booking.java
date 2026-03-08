@@ -45,6 +45,22 @@ public class Booking {
     @Column(name = "cancel_reason", length = 500)
     private String cancelReason;
 
+    /** Deposit amount (10% of pre-order total) */
+    @Column(name = "deposit_amount", precision = 18, scale = 2)
+    private java.math.BigDecimal depositAmount = java.math.BigDecimal.ZERO;
+
+    /** Deposit payment status: PENDING, PAID, REFUNDED */
+    @Column(name = "deposit_status", length = 20)
+    private String depositStatus = "PENDING";
+
+    /** Deposit payment reference/transaction ID */
+    @Column(name = "deposit_ref", length = 100)
+    private String depositRef;
+
+    /** Timestamp when pre-order is locked (60 mins before booking time) */
+    @Column(name = "preorder_locked_at")
+    private LocalDateTime preorderLockedAt;
+
     @ManyToOne
     @JoinColumn(name = "table_id")
     private DiningTable table;
@@ -198,5 +214,56 @@ public class Booking {
 
     public void setPreOrderItems(List<PreOrderItem> preOrderItems) {
         this.preOrderItems = preOrderItems;
+    }
+
+    public java.math.BigDecimal getDepositAmount() {
+        return depositAmount;
+    }
+
+    public void setDepositAmount(java.math.BigDecimal depositAmount) {
+        this.depositAmount = depositAmount;
+    }
+
+    public String getDepositStatus() {
+        return depositStatus;
+    }
+
+    public void setDepositStatus(String depositStatus) {
+        this.depositStatus = depositStatus;
+    }
+
+    public String getDepositRef() {
+        return depositRef;
+    }
+
+    public void setDepositRef(String depositRef) {
+        this.depositRef = depositRef;
+    }
+
+    public LocalDateTime getPreorderLockedAt() {
+        return preorderLockedAt;
+    }
+
+    public void setPreorderLockedAt(LocalDateTime preorderLockedAt) {
+        this.preorderLockedAt = preorderLockedAt;
+    }
+
+    /** Helper: Check if pre-order is locked (within 60 mins of booking time) */
+    public boolean isPreorderLocked() {
+        if (preorderLockedAt != null) {
+            return true;
+        }
+        LocalDateTime cutoffTime = LocalDateTime.of(bookingDate, bookingTime).minusMinutes(60);
+        return LocalDateTime.now().isAfter(cutoffTime);
+    }
+
+    /** Helper: Calculate total pre-order amount */
+    public java.math.BigDecimal calculatePreorderTotal() {
+        if (preOrderItems == null || preOrderItems.isEmpty()) {
+            return java.math.BigDecimal.ZERO;
+        }
+        return preOrderItems.stream()
+            .map(item -> item.getProduct().getPrice().multiply(new java.math.BigDecimal(item.getQuantity())))
+            .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
     }
 }

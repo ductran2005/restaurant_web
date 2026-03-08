@@ -249,6 +249,13 @@ CREATE TABLE bookings (
     cancel_reason   NVARCHAR(500) NULL,
     table_id        INT           NULL,
     user_id         INT           NULL,
+    
+    -- Pre-order deposit fields
+    deposit_amount     DECIMAL(18,2) NULL CONSTRAINT DF_bookings_deposit_amount DEFAULT (0.00),
+    deposit_status     NVARCHAR(20)  NULL CONSTRAINT DF_bookings_deposit_status DEFAULT ('PENDING'),
+    deposit_ref        NVARCHAR(100) NULL,
+    preorder_locked_at DATETIME2(0)  NULL,
+    
     created_at      DATETIME2(0)  NOT NULL CONSTRAINT DF_bookings_created_at DEFAULT (SYSDATETIME()),
     updated_at      DATETIME2(0)  NULL,
 
@@ -256,10 +263,13 @@ CREATE TABLE bookings (
     CONSTRAINT FK_bookings_users  FOREIGN KEY (user_id)  REFERENCES users(user_id),
     CONSTRAINT UQ_bookings_code UNIQUE (booking_code),
     CONSTRAINT CK_bookings_party CHECK (party_size > 0),
-    CONSTRAINT CK_bookings_status CHECK (status IN ('PENDING','CONFIRMED','CHECKED_IN','CANCELLED','NO_SHOW','COMPLETED'))
+    CONSTRAINT CK_bookings_status CHECK (status IN ('PENDING','CONFIRMED','CHECKED_IN','CANCELLED','NO_SHOW','COMPLETED','SEATED')),
+    CONSTRAINT CK_bookings_deposit_status CHECK (deposit_status IN ('PENDING','PAID','REFUNDED','FORFEITED'))
 );
 CREATE INDEX IX_bookings_date_status ON bookings(booking_date, status);
 CREATE INDEX IX_bookings_phone ON bookings(customer_phone);
+CREATE INDEX IX_bookings_deposit_status ON bookings(deposit_status);
+CREATE INDEX IX_bookings_preorder_locked ON bookings(preorder_locked_at);
 
 -- pre_order_items
 CREATE TABLE pre_order_items (

@@ -679,6 +679,28 @@
 
                 <div class="page">
 
+                    <!-- Debug info (remove in production) -->
+                    <c:if test="${param.debug == 'true'}">
+                        <div style="background:#1a1814;border:1px solid #e8a020;padding:12px;margin-bottom:20px;font-size:12px;color:#f0ebe3">
+                            <strong>Debug Info:</strong><br>
+                            Booking: ${booking != null ? booking.bookingCode : 'NULL'}<br>
+                            Items count: ${items != null ? items.size() : 'NULL'}<br>
+                            Subtotal: ${subtotal}<br>
+                            Deposit: ${deposit}<br>
+                        </div>
+                    </c:if>
+
+                    <!-- Check if booking exists -->
+                    <c:if test="${empty booking}">
+                        <div style="background:#ef4444;color:#fff;padding:20px;border-radius:10px;text-align:center">
+                            <i class="fa-solid fa-triangle-exclamation" style="font-size:2rem;margin-bottom:10px"></i>
+                            <p>Không tìm thấy thông tin booking</p>
+                            <a href="${pageContext.request.contextPath}/pre-order" style="color:#fff;text-decoration:underline">Quay lại</a>
+                        </div>
+                    </c:if>
+
+                    <c:if test="${not empty booking}">
+
                     <!-- Back -->
                     <a href="${pageContext.request.contextPath}/pre-order?code=${booking.bookingCode}"
                         class="back-link">
@@ -701,7 +723,7 @@
                                 </div>
                                 <div class="bb-meta">
                                     ${booking.bookingDate} lúc ${booking.bookingTime}
-                                    <c:if test="${not empty booking.guestCount}"> &bull; ${booking.guestCount} khách
+                                    <c:if test="${not empty booking.partySize}"> &bull; ${booking.partySize} khách
                                     </c:if>
                                 </div>
                             </div>
@@ -966,6 +988,9 @@
 
                         </div><!-- end RIGHT -->
                     </div><!-- end grid -->
+                    
+                    </c:if><!-- end booking check -->
+                    
                 </div><!-- end page -->
 
                 <footer>

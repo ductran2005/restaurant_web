@@ -1,9 +1,11 @@
 package market.restaurant_web.controller.customer;
 
 import market.restaurant_web.config.HibernateUtil;
+import market.restaurant_web.dao.BookingDao;
 import market.restaurant_web.entity.Booking;
 import market.restaurant_web.entity.PreOrderItem;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,6 +14,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLEncoder;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +22,7 @@ import java.util.List;
 public class PreOrderCheckoutController extends HttpServlet {
 
     private static final BigDecimal DEPOSIT_RATE = new BigDecimal("0.10");
+    private final BookingDao bookingDao = new BookingDao();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -89,14 +93,59 @@ public class PreOrderCheckoutController extends HttpServlet {
 
         req.setCharacterEncoding("UTF-8");
         String code = req.getParameter("bookingCode");
+        String method = req.getParameter("method");
+        String amountStr = req.getParameter("amount");
 
         if (code == null || code.isBlank()) {
             resp.sendRedirect(req.getContextPath() + "/pre-order");
             return;
         }
 
-        String msg = URLEncoder.encode(
-                "Đặt cọc thành công! Nhà hàng sẽ xác nhận trong vòng 30 phút.", "UTF-8");
-        resp.sendRedirect(req.getContextPath() + "/pre-order?code=" + code + "&successMsg=" + msg);
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            Booking booking = bookingDao.findByCode(s, code.trim());
+            if (booking == null) {
+                throw new RuntimeException("Booking không tồn tại");
+            }
+
+            // Calculate deposit amount
+            List<PreOrderItem> items = s.createQuery(
+                "FROM PreOrderItem WHERE booking.id = :bookingId",
+                PreOrderItem.class)
+                .setParameter("bookingId", booking.getId())
+                .list();
+
+            BigDecimal subtotal = BigDecimal.ZERO;
+            for (PreOrderItem item : items) {
+                if (item.getProduct() != null && item.getProduct().getPrice() != null) {
+                    subtotal = subtotal.add(
+                        item.getProduct().getPrice().multiply(new BigDecimal(item.getQuantity()))
+                    );
+                }
+            }
+
+            BigDecimal deposit = subtotal.multiply(DEPOSIT_RATE).setScale(0, RoundingMode.CEILING);
+
+            // Update booking with deposit info
+            booking.setDepositAmount(deposit);
+            booking.setDepositStatus("PAID");
+            booking.setDepositRef(method + "-" + System.currentTimeMillis());
+            booking.setUpdatedAt(LocalDateTime.now());
+            
+            bookingDao.update(s, booking);
+            tx.commit();
+
+            String msg = URLEncoder.encode(
+                    "Đặt cọc thành công " + deposit.toString() + "đ! Nhà hàng sẽ xác nhận trong vòng 30 phút.", "UTF-8");
+            resp.sendRedirect(req.getContextPath() + "/pre-order?code=" + code + "&successMsg=" + msg);
+
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            String error = URLEncoder.encode("Lỗi: " + e.getMessage(), "UTF-8");
+            resp.sendRedirect(req.getContextPath() + "/pre-order/checkout?code=" + code + "&error=" + error);
+        } finally {
+            s.close();
+        }
     }
 }
