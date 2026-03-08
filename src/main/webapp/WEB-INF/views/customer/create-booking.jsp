@@ -338,6 +338,8 @@
                         <a href="${pageContext.request.contextPath}/booking" class="active">Đặt bàn</a>
                         <a href="${pageContext.request.contextPath}/booking/status">Tra cứu</a>
                         <a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a>
+                        <a href="${pageContext.request.contextPath}/about">Về chúng tôi</a>
+                        <a href="${pageContext.request.contextPath}/contact">Liên hệ</a>
                     </div>
                     <div class="nav-actions">
                         <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
@@ -494,6 +496,15 @@
                                 <li><a href="${pageContext.request.contextPath}/menu">Thực đơn</a></li>
                                 <li><a href="${pageContext.request.contextPath}/booking">Đặt bàn</a></li>
                                 <li><a href="${pageContext.request.contextPath}/booking/status">Tra cứu booking</a></li>
+                                <li><a href="${pageContext.request.contextPath}/pre-order">Đặt món trước</a></li>
+                                <li><a href="${pageContext.request.contextPath}/about">Về chúng tôi</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Về chúng tôi</h4>
+                            <ul>
+                                <li><a href="${pageContext.request.contextPath}/about">Giới thiệu</a></li>
+                                <li><a href="${pageContext.request.contextPath}/contact">Liên hệ</a></li>
                             </ul>
                         </div>
                         <div class="footer-col">
