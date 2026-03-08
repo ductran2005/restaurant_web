@@ -170,7 +170,7 @@ public class PaymentService {
             // Update table status
             if (order.getTable() != null) {
                 DiningTable table = order.getTable();
-                table.setStatus("AVAILABLE");
+                table.setStatus(TableStatus.AVAILABLE);
                 tableDao.update(s, table);
             }
 
