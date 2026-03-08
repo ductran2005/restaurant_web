@@ -5,8 +5,6 @@ import market.restaurant_web.dao.BookingDao;
 import market.restaurant_web.dao.TableDAO;
 import market.restaurant_web.entity.Booking;
 import market.restaurant_web.entity.DiningTable;
-import market.restaurant_web.entity.PreOrderItem;
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -34,11 +32,7 @@ public class BookingService {
 
     public Booking findByCode(String code) {
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {
-            Booking b = bookingDao.findByCode(s, code);
-            if (b != null) {
-                Hibernate.initialize(b.getPreOrderItems());
-            }
-            return b;
+            return bookingDao.findByCode(s, code);
         }
     }
 
@@ -669,21 +663,5 @@ public class BookingService {
 
     private String generateCode() {
         return "BK" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-    }
-
-    /** Save a pre-order item linked to a booking */
-    public void savePreOrderItem(PreOrderItem item) {
-        Session s = HibernateUtil.getSessionFactory().openSession();
-        Transaction tx = s.beginTransaction();
-        try {
-            s.persist(item);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null)
-                tx.rollback();
-            throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            s.close();
-        }
     }
 }
