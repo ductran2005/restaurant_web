@@ -26,11 +26,20 @@ public class BookingScheduler implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        System.out.println("========================================");
+        System.out.println("BookingScheduler INITIALIZING...");
+        System.out.println("========================================");
+        
         scheduler = Executors.newScheduledThreadPool(1);
         
         // Run every 5 minutes to check and update booking statuses
         scheduler.scheduleAtFixedRate(() -> {
             try {
+                System.out.println("\n>>> Scheduler running at: " + java.time.LocalDateTime.now());
+                
+                // Auto-assign tables for confirmed bookings 60 mins before booking time
+                bookingService.autoAssignTablesForUpcomingBookings(60);
+                
                 // Update tables to RESERVED for bookings 15-30 mins away
                 bookingService.updateTableStatusForUpcomingBookings(30);
                 
@@ -44,16 +53,26 @@ public class BookingScheduler implements ServletContextListener {
                 // This can be enabled if needed
                 // autoMarkNoShow();
                 
+                System.out.println("<<< Scheduler completed\n");
+                
             } catch (Exception e) {
                 System.err.println("Error in booking scheduler: " + e.getMessage());
+                e.printStackTrace();
             }
         }, 1, 5, TimeUnit.MINUTES);
         
-        System.out.println("BookingScheduler started - checking every 5 minutes");
+        System.out.println("========================================");
+        System.out.println("BookingScheduler STARTED - checking every 5 minutes");
+        System.out.println("Next run in 1 minute");
+        System.out.println("========================================");
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
+        System.out.println("========================================");
+        System.out.println("BookingScheduler STOPPING...");
+        System.out.println("========================================");
+        
         if (scheduler != null) {
             scheduler.shutdown();
             try {
@@ -64,7 +83,8 @@ public class BookingScheduler implements ServletContextListener {
                 scheduler.shutdownNow();
             }
         }
-        System.out.println("BookingScheduler stopped");
+        
+        System.out.println("BookingScheduler STOPPED");
     }
     
     /**

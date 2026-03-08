@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 @WebServlet({ "/staff/bookings", "/staff/bookings/confirm", "/staff/bookings/cancel", "/staff/bookings/checkin",
         "/staff/bookings/assign-table", "/staff/bookings/auto-assign", "/staff/bookings/no-show", 
-        "/staff/bookings/seat", "/staff/bookings/complete" })
+        "/staff/bookings/seat", "/staff/bookings/complete", "/staff/bookings/trigger-auto-assign" })
 public class BookingController extends HttpServlet {
     private final BookingService bookingService = new BookingService();
     private final TableService tableService = new TableService();
@@ -60,6 +60,8 @@ public class BookingController extends HttpServlet {
                 action = "seat";
             else if (path.endsWith("/complete"))
                 action = "complete";
+            else if (path.endsWith("/trigger-auto-assign"))
+                action = "triggerAutoAssign";
         }
 
         try {
@@ -90,6 +92,10 @@ public class BookingController extends HttpServlet {
             } else if ("complete".equals(action)) {
                 bookingService.complete(Integer.parseInt(req.getParameter("bookingId")));
                 flash(req, "Hoàn thành booking!", "success");
+            } else if ("triggerAutoAssign".equals(action)) {
+                // Trigger auto-assign for all upcoming bookings (for testing)
+                bookingService.autoAssignTablesForUpcomingBookings(60);
+                flash(req, "Đã chạy auto-assign cho tất cả booking trong 60 phút tới!", "info");
             }
         } catch (RuntimeException e) {
             flash(req, e.getMessage(), "error");

@@ -151,8 +151,33 @@ POST /staff/bookings/cancel
 
 ### BookingScheduler
 Chạy mỗi 5 phút để:
+- **Tự động gán bàn** cho booking đã CONFIRMED trước 1 tiếng (nếu chưa có bàn)
 - Cập nhật bàn sang RESERVED cho booking sắp tới (15-30 phút)
+- Khóa pre-order trước 60 phút
+- Dọn dẹp món không còn trong pre-order
 - (Tùy chọn) Tự động đánh dấu NO_SHOW cho booking trễ 30+ phút
+
+#### Tự Động Gán Bàn
+Hệ thống tự động gán bàn cho các booking đã được xác nhận (CONFIRMED) nhưng chưa có bàn, khi còn 1 tiếng trước giờ booking:
+
+```java
+bookingService.autoAssignTablesForUpcomingBookings(60);
+```
+
+Quy trình:
+1. Tìm tất cả booking CONFIRMED chưa có bàn, trong vòng 60 phút tới
+2. Với mỗi booking, tìm bàn phù hợp nhất:
+   - Capacity >= số khách
+   - Không trùng thời gian với booking khác
+   - Ưu tiên bàn có capacity gần nhất với số khách
+3. Gán bàn và chuyển trạng thái bàn sang RESERVED
+4. Log kết quả (thành công hoặc không tìm thấy bàn)
+
+Lợi ích:
+- Giảm công việc thủ công cho staff
+- Đảm bảo mọi booking đều có bàn trước 1 tiếng khi khách đến
+- Tối ưu hóa việc sử dụng bàn
+- Có nhiều thời gian hơn để xử lý các trường hợp đặc biệt
 
 Để bật auto NO_SHOW, uncomment dòng trong `BookingScheduler.java`:
 ```java
@@ -169,15 +194,25 @@ Chạy mỗi 5 phút để:
 
 ## Ví Dụ Sử Dụng
 
-### Scenario 1: Booking Thành Công
+### Scenario 1: Booking Thành Công (Tự Động Gán Bàn)
 ```
 1. Khách đặt bàn 4 người lúc 18:00
-2. Staff xác nhận → CONFIRMED
-3. Hệ thống tự động gán bàn 4 chỗ → RESERVED
-4. 17:45 - Scheduler tự động đảm bảo bàn RESERVED
+2. Staff xác nhận → CONFIRMED (chưa gán bàn)
+3. 17:00 - Scheduler tự động gán bàn 4 chỗ phù hợp → RESERVED
+4. 17:45 - Scheduler đảm bảo bàn vẫn RESERVED
 5. 18:00 - Khách đến, staff "seat" → SEATED, bàn OCCUPIED
 6. 19:30 - Khách ăn xong, thanh toán → COMPLETED, bàn DIRTY
 7. Staff dọn bàn → bàn EMPTY
+```
+
+### Scenario 1b: Booking Thành Công (Gán Bàn Thủ Công)
+```
+1. Khách đặt bàn 4 người lúc 18:00
+2. Staff xác nhận và gán bàn ngay → CONFIRMED, bàn RESERVED
+3. 17:45 - Scheduler đảm bảo bàn vẫn RESERVED
+4. 18:00 - Khách đến, staff "seat" → SEATED, bàn OCCUPIED
+5. 19:30 - Khách ăn xong, thanh toán → COMPLETED, bàn DIRTY
+6. Staff dọn bàn → bàn EMPTY
 ```
 
 ### Scenario 2: No-Show

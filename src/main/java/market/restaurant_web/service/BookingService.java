@@ -474,6 +474,81 @@ public class BookingService {
         }
     }
 
+    /** 
+     * Auto-assign tables for confirmed bookings within specified minutes before booking time
+     * Only assigns if booking doesn't have a table yet
+     */
+    public void autoAssignTablesForUpcomingBookings(int minutesBefore) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime targetTime = now.plusMinutes(minutesBefore);
+            
+            System.out.println("=== Auto-assign tables check ===");
+            System.out.println("Current time: " + now);
+            System.out.println("Target time: " + targetTime);
+            
+            // Get all CONFIRMED bookings without table, then filter in Java
+            List<Booking> allBookings = s.createQuery(
+                "FROM Booking WHERE status = 'CONFIRMED' AND table IS NULL",
+                Booking.class)
+                .list();
+            
+            // Filter bookings within time window
+            List<Booking> bookings = allBookings.stream()
+                .filter(b -> {
+                    LocalDateTime bookingDateTime = LocalDateTime.of(b.getBookingDate(), b.getBookingTime());
+                    return bookingDateTime.isAfter(now) && bookingDateTime.isBefore(targetTime);
+                })
+                .toList();
+            
+            System.out.println("Found " + bookings.size() + " bookings to auto-assign (out of " + allBookings.size() + " total CONFIRMED without table)");
+            
+            for (Booking b : bookings) {
+                try {
+                    System.out.println("Processing booking: " + b.getBookingCode() + 
+                        " (Party: " + b.getPartySize() + ", Date: " + b.getBookingDate() + ", Time: " + b.getBookingTime() + ")");
+                    
+                    // Find best suitable table
+                    DiningTable bestTable = findBestAvailableTable(s, b.getPartySize(), 
+                        b.getBookingDate(), b.getBookingTime(), b.getId());
+                    
+                    if (bestTable != null) {
+                        // Assign table
+                        b.setTable(bestTable);
+                        b.setUpdatedAt(LocalDateTime.now());
+                        bookingDao.update(s, b);
+                        
+                        // Set table status to RESERVED
+                        bestTable.setStatus(market.restaurant_web.entity.TableStatus.RESERVED);
+                        tableDao.update(s, bestTable);
+                        
+                        System.out.println("✓ Auto-assigned table " + bestTable.getTableName() + 
+                            " to booking " + b.getBookingCode() + " for " + b.getPartySize() + " guests");
+                    } else {
+                        System.out.println("✗ No suitable table found for booking " + b.getBookingCode() + 
+                            " (party size: " + b.getPartySize() + ")");
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to auto-assign table for booking " + b.getBookingCode() + 
+                        ": " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null)
+                tx.rollback();
+            System.err.println("Error in autoAssignTablesForUpcomingBookings: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            s.close();
+        }
+    }
+
     private String generateCode() {
         return "BK" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
