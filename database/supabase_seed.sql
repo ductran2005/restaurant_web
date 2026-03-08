@@ -201,7 +201,7 @@ INSERT INTO system_config (config_key, config_value, description) VALUES
 ('SEPAY_CONTENT_PREFIX', 'HV', 'Tiền tố nội dung chuyển khoản'),
 ('SEPAY_API_KEY', '', 'API Key xác thực webhook từ SePay'),
 ('SEPAY_ENABLED', 'true', 'Bật/tắt thanh toán QR qua SePay'),
-('GROQ_API_KEY', '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', 'API Key của Groq cho chatbot AI'),
+('GROQ_API_KEY', '', 'API Key của Groq cho chatbot AI'),
 ('GROQ_MODEL', 'llama-3.3-70b-versatile', 'Model AI sử dụng cho chatbot (Groq)'),
 ('CHATBOT_ENABLED', 'true', 'Bật/tắt chatbot AI trên trang khách hàng')
 ON CONFLICT (config_key) DO NOTHING;
