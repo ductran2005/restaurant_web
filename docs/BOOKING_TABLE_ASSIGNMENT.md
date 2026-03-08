@@ -152,6 +152,7 @@ POST /staff/bookings/cancel
 ### BookingScheduler
 Chạy mỗi 5 phút để:
 - **Tự động gán bàn** cho booking đã CONFIRMED trước 1 tiếng (nếu chưa có bàn)
+- **Tự động hủy booking** nếu khách không đến sau 20 phút
 - Cập nhật bàn sang RESERVED cho booking sắp tới (15-30 phút)
 - Khóa pre-order trước 60 phút
 - Dọn dẹp món không còn trong pre-order
@@ -215,13 +216,15 @@ Lợi ích:
 6. Staff dọn bàn → bàn EMPTY
 ```
 
-### Scenario 2: No-Show
+### Scenario 2: No-Show / Auto-Cancel
 ```
 1. Khách đặt bàn 2 người lúc 19:00
 2. Staff xác nhận và gán bàn → CONFIRMED, bàn RESERVED
-3. 19:30 - Khách không đến
-4. Staff đánh dấu NO_SHOW → bàn EMPTY
-5. Bàn sẵn sàng cho booking khác
+3. 19:00 - Giờ đặt bàn, khách chưa đến
+4. 19:20 - Scheduler chạy → Khách trễ 20 phút
+5. Tự động hủy booking → CANCELLED
+6. Giải phóng bàn → EMPTY
+7. Lý do: "Tự động hủy: Khách không đến sau 20 phút"
 ```
 
 ### Scenario 3: Trùng Thời Gian

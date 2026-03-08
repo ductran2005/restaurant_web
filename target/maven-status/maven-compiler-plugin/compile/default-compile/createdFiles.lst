@@ -62,6 +62,7 @@ market\restaurant_web\servlet\ChatbotServlet$ChatResponse.class
 market\restaurant_web\service\PreOrderService.class
 market\restaurant_web\entity\Product.class
 market\restaurant_web\service\impl\TableManagementServiceImpl.class
+market\restaurant_web\controller\staff\DebugBookingController.class
 market\restaurant_web\controller\cashier\CheckoutController.class
 market\restaurant_web\entity\Inventory.class
 market\restaurant_web\controller\customer\LandingController.class
@@ -78,6 +79,7 @@ market\restaurant_web\controller\customer\BookingStatusController.class
 market\restaurant_web\service\CategoryService.class
 market\restaurant_web\controller\customer\BookingFormController.class
 market\restaurant_web\scheduler\BookingScheduler.class
+market\restaurant_web\controller\staff\TestAutoAssignController.class
 market\restaurant_web\filter\AuthFilter.class
 market\restaurant_web\service\BookingService.class
 market\restaurant_web\TestConnection.class

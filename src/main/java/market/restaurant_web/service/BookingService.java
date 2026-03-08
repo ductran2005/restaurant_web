@@ -447,6 +447,74 @@ public class BookingService {
         }
     }
 
+    /** 
+     * Auto-cancel bookings that are late (customer didn't show up after specified minutes)
+     * Only cancels CONFIRMED bookings (not CHECKED_IN)
+     */
+    public void autoCancelLateBookings(int minutesAfter) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            
+            // Get all CONFIRMED bookings without table
+            List<Booking> allBookings = s.createQuery(
+                "FROM Booking WHERE status = 'CONFIRMED'",
+                Booking.class).list();
+            
+            // Filter bookings that are late (booking time + minutesAfter < now)
+            List<Booking> lateBookings = allBookings.stream()
+                .filter(b -> {
+                    LocalDateTime bookingDateTime = LocalDateTime.of(b.getBookingDate(), b.getBookingTime());
+                    LocalDateTime cancelTime = bookingDateTime.plusMinutes(minutesAfter);
+                    return now.isAfter(cancelTime);
+                })
+                .toList();
+            
+            System.out.println("=== Auto-cancel late bookings check ===");
+            System.out.println("Current time: " + now);
+            System.out.println("Found " + lateBookings.size() + " late bookings to cancel");
+            
+            for (Booking b : lateBookings) {
+                try {
+                    LocalDateTime bookingDateTime = LocalDateTime.of(b.getBookingDate(), b.getBookingTime());
+                    long minutesLate = java.time.Duration.between(bookingDateTime, now).toMinutes();
+                    
+                    // Free the table if assigned
+                    if (b.getTable() != null) {
+                        DiningTable t = b.getTable();
+                        t.setStatus(market.restaurant_web.entity.TableStatus.EMPTY);
+                        tableDao.update(s, t);
+                        System.out.println("Freed table " + t.getTableName() + " from booking " + b.getBookingCode());
+                    }
+                    
+                    // Cancel booking
+                    b.setStatus("CANCELLED");
+                    b.setCancelReason("Tự động hủy: Khách không đến sau " + minutesLate + " phút");
+                    b.setUpdatedAt(LocalDateTime.now());
+                    bookingDao.update(s, b);
+                    
+                    System.out.println("✓ Auto-cancelled booking " + b.getBookingCode() + 
+                        " (late by " + minutesLate + " minutes)");
+                        
+                } catch (Exception e) {
+                    System.err.println("Failed to auto-cancel booking " + b.getBookingCode() + 
+                        ": " + e.getMessage());
+                }
+            }
+            
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null)
+                tx.rollback();
+            System.err.println("Error in autoCancelLateBookings: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            s.close();
+        }
+    }
+
     /** Update table status to RESERVED for confirmed bookings approaching their time */
     public void updateTableStatusForUpcomingBookings(int minutesBefore) {
         Session s = HibernateUtil.getSessionFactory().openSession();

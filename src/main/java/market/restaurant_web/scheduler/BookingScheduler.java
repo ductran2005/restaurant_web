@@ -43,6 +43,9 @@ public class BookingScheduler implements ServletContextListener {
                 // Update tables to RESERVED for bookings 15-30 mins away
                 bookingService.updateTableStatusForUpcomingBookings(30);
                 
+                // Auto-cancel bookings if customer is 20+ mins late
+                bookingService.autoCancelLateBookings(20);
+                
                 // Lock pre-orders for bookings within 60 mins
                 lockUpcomingPreOrders();
                 
