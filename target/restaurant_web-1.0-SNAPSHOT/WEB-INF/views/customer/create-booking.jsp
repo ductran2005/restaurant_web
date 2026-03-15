@@ -161,6 +161,163 @@
                         min-height: 80px;
                     }
 
+                    select.form-control {
+                        appearance: none;
+                        -webkit-appearance: none;
+                        -moz-appearance: none;
+                        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239e9488' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+                        background-repeat: no-repeat;
+                        background-position: right 14px center;
+                        padding-right: 40px;
+                        cursor: pointer;
+                    }
+
+                    select.form-control option {
+                        background: #1a1814;
+                        color: var(--text);
+                        padding: 8px 14px;
+                    }
+
+                    /* ── Combined DateTime Picker ── */
+                    .datetime-wrapper {
+                        position: relative;
+                    }
+
+                    .datetime-wrapper .form-control {
+                        padding-right: 42px;
+                        font-variant-numeric: tabular-nums;
+                        letter-spacing: 0.03em;
+                        font-weight: 600;
+                    }
+
+                    .datetime-wrapper .dt-icon {
+                        position: absolute;
+                        right: 14px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        color: var(--text-muted);
+                        font-size: 15px;
+                        cursor: pointer;
+                        transition: all .25s;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 6px;
+                    }
+
+                    .datetime-wrapper .dt-icon:hover {
+                        color: var(--primary);
+                        background: rgba(232, 160, 32, 0.1);
+                    }
+
+                    .datetime-wrapper .form-control:focus ~ .dt-icon {
+                        color: var(--primary);
+                    }
+
+                    /* Dropdown */
+                    .dt-dropdown {
+                        position: absolute;
+                        top: calc(100% + 6px);
+                        left: 0;
+                        right: 0;
+                        background: #1a1814;
+                        border: 1px solid rgba(232, 160, 32, 0.2);
+                        border-radius: 12px;
+                        padding: 0;
+                        z-index: 100;
+                        display: none;
+                        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+                        overflow: hidden;
+                    }
+
+                    .dt-dropdown.open {
+                        display: block;
+                        animation: dropIn .15s ease-out;
+                    }
+
+                    @keyframes dropIn {
+                        from { opacity: 0; transform: translateY(-6px); }
+                        to   { opacity: 1; transform: translateY(0); }
+                    }
+
+                    .dt-columns {
+                        display: flex;
+                    }
+
+                    .dt-col {
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                        min-width: 0;
+                    }
+
+                    .dt-col + .dt-col {
+                        border-left: 1px solid rgba(232, 160, 32, 0.08);
+                    }
+
+                    .dt-col.dt-separator {
+                        border-left: 2px solid rgba(232, 160, 32, 0.25);
+                    }
+
+                    .dt-col-label {
+                        text-align: center;
+                        font-size: 9px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        letter-spacing: 0.08em;
+                        color: var(--primary);
+                        padding: 10px 0 6px;
+                        border-bottom: 1px solid rgba(232, 160, 32, 0.08);
+                        white-space: nowrap;
+                    }
+
+                    .dt-col-list {
+                        max-height: 200px;
+                        overflow-y: auto;
+                        padding: 4px;
+                    }
+
+                    .dt-slot {
+                        padding: 7px 2px;
+                        text-align: center;
+                        font-size: 13px;
+                        font-weight: 600;
+                        color: var(--text-muted);
+                        border-radius: 6px;
+                        cursor: pointer;
+                        transition: all .15s;
+                        font-variant-numeric: tabular-nums;
+                        letter-spacing: 0.02em;
+                        margin-bottom: 1px;
+                    }
+
+                    .dt-slot:hover {
+                        background: rgba(232, 160, 32, 0.12);
+                        color: var(--primary);
+                    }
+
+                    .dt-slot.active {
+                        background: var(--primary);
+                        color: #000;
+                        font-weight: 700;
+                    }
+
+                    .dt-slot.disabled {
+                        opacity: 0.25;
+                        pointer-events: none;
+                    }
+
+                    /* Scrollbar */
+                    .dt-col-list::-webkit-scrollbar {
+                        width: 3px;
+                    }
+                    .dt-col-list::-webkit-scrollbar-thumb {
+                        background: rgba(232, 160, 32, 0.25);
+                        border-radius: 2px;
+                    }
+
                     .btn-submit {
                         width: 100%;
                         padding: 14px 24px;
@@ -433,19 +590,60 @@
                                     <div class="form-row">
                                         <div class="form-group">
                                             <label class="form-label">Ngày <span class="required">*</span></label>
-                                            <input type="date" name="bookingDate"
-                                                class="form-control ${not empty errors.bookingDate ? 'error' : ''}"
-                                                value="${not empty param.bookingDate ? param.bookingDate : bookingDate}"
-                                                required>
+                                            <input type="hidden" name="bookingDate" id="bookingDateHidden"
+                                                value="${not empty param.bookingDate ? param.bookingDate : bookingDate}">
+                                            <div class="datetime-wrapper" id="dateWrapper">
+                                                <input type="text" id="dateDisplayInput"
+                                                    class="form-control ${not empty errors.bookingDate ? 'error' : ''}"
+                                                    placeholder="Chọn ngày"
+                                                    autocomplete="off"
+                                                    required readonly>
+                                                <i class="fa-regular fa-calendar dt-icon" id="dateToggle"></i>
+                                                <div class="dt-dropdown" id="dateDropdown">
+                                                    <div class="dt-columns">
+                                                        <div class="dt-col">
+                                                            <div class="dt-col-label">Ngày</div>
+                                                            <div class="dt-col-list" id="daySlots"></div>
+                                                        </div>
+                                                        <div class="dt-col">
+                                                            <div class="dt-col-label">Tháng</div>
+                                                            <div class="dt-col-list" id="monthSlots"></div>
+                                                        </div>
+                                                        <div class="dt-col">
+                                                            <div class="dt-col-label">Năm</div>
+                                                            <div class="dt-col-list" id="yearSlots"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <c:if test="${not empty errors.bookingDate}">
                                                 <div class="form-error">${errors.bookingDate}</div>
                                             </c:if>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Giờ <span class="required">*</span></label>
-                                            <input type="time" name="bookingTime"
-                                                class="form-control ${not empty errors.bookingTime ? 'error' : ''}"
-                                                value="${param.bookingTime}" required>
+                                            <input type="hidden" name="bookingTime" id="bookingTimeHidden"
+                                                value="${param.bookingTime}">
+                                            <div class="datetime-wrapper" id="timeWrapper">
+                                                <input type="text" id="timeDisplayInput"
+                                                    class="form-control ${not empty errors.bookingTime ? 'error' : ''}"
+                                                    placeholder="Chọn giờ"
+                                                    autocomplete="off"
+                                                    required readonly>
+                                                <i class="fa-regular fa-clock dt-icon" id="timeToggle"></i>
+                                                <div class="dt-dropdown" id="timeDropdown">
+                                                    <div class="dt-columns">
+                                                        <div class="dt-col">
+                                                            <div class="dt-col-label">Giờ</div>
+                                                            <div class="dt-col-list" id="hourSlots"></div>
+                                                        </div>
+                                                        <div class="dt-col">
+                                                            <div class="dt-col-label">Phút</div>
+                                                            <div class="dt-col-list" id="minuteSlots"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <c:if test="${not empty errors.bookingTime}">
                                                 <div class="form-error">${errors.bookingTime}</div>
                                             </c:if>
@@ -455,13 +653,24 @@
                                     <!-- Số người -->
                                     <div class="form-group">
                                         <label class="form-label">Số lượng khách <span class="required">*</span></label>
-                                        <select name="partySize" class="form-control" required>
-                                            <option value="">-- Chọn số khách --</option>
-                                            <c:forEach begin="1" end="20" var="i">
-                                                <option value="${i}" ${param.partySize==i ? 'selected' : '' }>${i} người
-                                                </option>
-                                            </c:forEach>
-                                        </select>
+                                        <input type="hidden" name="partySize" id="partySizeHidden"
+                                            value="${param.partySize}">
+                                        <div class="datetime-wrapper" id="partyWrapper">
+                                            <input type="text" id="partyDisplayInput"
+                                                class="form-control"
+                                                placeholder="Chọn số khách"
+                                                autocomplete="off"
+                                                required readonly>
+                                            <i class="fa-solid fa-users dt-icon" id="partyToggle"></i>
+                                            <div class="dt-dropdown" id="partyDropdown">
+                                                <div class="dt-columns">
+                                                    <div class="dt-col">
+                                                        <div class="dt-col-label">Số khách</div>
+                                                        <div class="dt-col-list" id="partySlots"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <!-- Ghi chú -->
@@ -555,14 +764,225 @@
                         });
                     }
 
-                    // Set default date to tomorrow
-                    const dateInput = document.querySelector('input[name="bookingDate"]');
-                    if (dateInput && !dateInput.value) {
-                        const tomorrow = new Date();
-                        tomorrow.setDate(tomorrow.getDate() + 1);
-                        dateInput.value = tomorrow.toISOString().split('T')[0];
-                        dateInput.min = new Date().toISOString().split('T')[0];
-                    }
+                    // ── Date Picker (3 columns) ──
+                    (function () {
+                        const displayInput = document.getElementById('dateDisplayInput');
+                        const hiddenInput = document.getElementById('bookingDateHidden');
+                        const dropdown = document.getElementById('dateDropdown');
+                        const toggle = document.getElementById('dateToggle');
+                        const dayC = document.getElementById('daySlots');
+                        const monthC = document.getElementById('monthSlots');
+                        const yearC = document.getElementById('yearSlots');
+                        const wrapper = document.getElementById('dateWrapper');
+                        if (!displayInput || !dropdown) return;
+
+                        const now = new Date();
+                        const todayD = now.getDate(), todayM = now.getMonth() + 1, todayY = now.getFullYear();
+                        let sDay = null, sMonth = null, sYear = null;
+
+                        const initVal = hiddenInput ? hiddenInput.value.trim() : '';
+                        if (initVal && initVal.includes('-')) {
+                            const p = initVal.split('-');
+                            sYear = parseInt(p[0]); sMonth = parseInt(p[1]); sDay = parseInt(p[2]);
+                        } else {
+                            const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
+                            sDay = tmr.getDate(); sMonth = tmr.getMonth() + 1; sYear = tmr.getFullYear();
+                        }
+
+                        function pad(n) { return String(n).padStart(2, '0'); }
+                        function daysInMonth(m, y) { return new Date(y, m, 0).getDate(); }
+                        function isDatePast(d, m, y) { return new Date(y, m - 1, d) < new Date(todayY, todayM - 1, todayD); }
+
+                        function sync() {
+                            if (sDay && sMonth && sYear) {
+                                displayInput.value = pad(sDay) + '/' + pad(sMonth) + '/' + sYear;
+                                hiddenInput.value = sYear + '-' + pad(sMonth) + '-' + pad(sDay);
+                            }
+                        }
+
+                        for (let m = 1; m <= 12; m++) {
+                            const el = document.createElement('div');
+                            el.className = 'dt-slot'; el.textContent = pad(m); el.dataset.val = m;
+                            el.addEventListener('click', function (e) {
+                                e.stopPropagation(); sMonth = parseInt(this.dataset.val);
+                                rebuildDays(); sync(); highlight();
+                            });
+                            monthC.appendChild(el);
+                        }
+
+                        for (let y = todayY; y <= todayY + 2; y++) {
+                            const el = document.createElement('div');
+                            el.className = 'dt-slot'; el.textContent = y; el.dataset.val = y;
+                            el.addEventListener('click', function (e) {
+                                e.stopPropagation(); sYear = parseInt(this.dataset.val);
+                                rebuildDays(); sync(); highlight();
+                            });
+                            yearC.appendChild(el);
+                        }
+
+                        function rebuildDays() {
+                            const max = daysInMonth(sMonth || todayM, sYear || todayY);
+                            if (sDay > max) sDay = max;
+                            dayC.innerHTML = '';
+                            for (let d = 1; d <= max; d++) {
+                                const el = document.createElement('div');
+                                el.className = 'dt-slot'; el.textContent = pad(d); el.dataset.val = d;
+                                if (isDatePast(d, sMonth || todayM, sYear || todayY)) el.classList.add('disabled');
+                                el.addEventListener('click', function (e) {
+                                    e.stopPropagation(); sDay = parseInt(this.dataset.val);
+                                    sync(); highlight();
+                                });
+                                dayC.appendChild(el);
+                            }
+                        }
+
+                        function highlight() {
+                            dayC.querySelectorAll('.dt-slot').forEach(s => s.classList.toggle('active', parseInt(s.dataset.val) === sDay));
+                            monthC.querySelectorAll('.dt-slot').forEach(s => s.classList.toggle('active', parseInt(s.dataset.val) === sMonth));
+                            yearC.querySelectorAll('.dt-slot').forEach(s => s.classList.toggle('active', parseInt(s.dataset.val) === sYear));
+                        }
+
+                        function scrollActive() {
+                            [dayC, monthC, yearC].forEach(c => {
+                                const a = c.querySelector('.dt-slot.active');
+                                if (a) a.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                            });
+                        }
+
+                        function open() { dropdown.classList.add('open'); highlight(); setTimeout(scrollActive, 50); }
+                        function close() { dropdown.classList.remove('open'); }
+
+                        toggle.addEventListener('click', function (e) { e.stopPropagation(); dropdown.classList.contains('open') ? close() : open(); });
+                        displayInput.addEventListener('click', function (e) { e.stopPropagation(); open(); });
+                        document.addEventListener('click', function (e) { if (!wrapper.contains(e.target)) close(); });
+
+                        rebuildDays(); sync(); highlight();
+                    })();
+
+                    // ── Time Picker (2 columns) ──
+                    (function () {
+                        const displayInput = document.getElementById('timeDisplayInput');
+                        const hiddenInput = document.getElementById('bookingTimeHidden');
+                        const dropdown = document.getElementById('timeDropdown');
+                        const toggle = document.getElementById('timeToggle');
+                        const hourC = document.getElementById('hourSlots');
+                        const minuteC = document.getElementById('minuteSlots');
+                        const wrapper = document.getElementById('timeWrapper');
+                        if (!displayInput || !dropdown) return;
+
+                        let sHour = null, sMinute = null;
+
+                        const initVal = hiddenInput ? hiddenInput.value.trim() : '';
+                        if (initVal && initVal.includes(':')) {
+                            const p = initVal.split(':');
+                            sHour = parseInt(p[0]); sMinute = parseInt(p[1]);
+                        } else {
+                            sHour = 18; sMinute = 0;
+                        }
+
+                        function pad(n) { return String(n).padStart(2, '0'); }
+
+                        function sync() {
+                            if (sHour !== null && sMinute !== null) {
+                                displayInput.value = pad(sHour) + ':' + pad(sMinute);
+                                hiddenInput.value = pad(sHour) + ':' + pad(sMinute);
+                            }
+                        }
+
+                        for (let h = 10; h <= 21; h++) {
+                            const el = document.createElement('div');
+                            el.className = 'dt-slot'; el.textContent = pad(h); el.dataset.val = h;
+                            el.addEventListener('click', function (e) {
+                                e.stopPropagation(); sHour = parseInt(this.dataset.val);
+                                if (sMinute === null) sMinute = 0;
+                                sync(); highlight();
+                            });
+                            hourC.appendChild(el);
+                        }
+
+                        for (let m = 0; m <= 59; m++) {
+                            const el = document.createElement('div');
+                            el.className = 'dt-slot'; el.textContent = pad(m); el.dataset.val = m;
+                            el.addEventListener('click', function (e) {
+                                e.stopPropagation(); sMinute = parseInt(this.dataset.val);
+                                if (sHour === null) sHour = 10;
+                                sync(); highlight();
+                            });
+                            minuteC.appendChild(el);
+                        }
+
+                        function highlight() {
+                            hourC.querySelectorAll('.dt-slot').forEach(s => s.classList.toggle('active', parseInt(s.dataset.val) === sHour));
+                            minuteC.querySelectorAll('.dt-slot').forEach(s => s.classList.toggle('active', parseInt(s.dataset.val) === sMinute));
+                        }
+
+                        function scrollActive() {
+                            [hourC, minuteC].forEach(c => {
+                                const a = c.querySelector('.dt-slot.active');
+                                if (a) a.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                            });
+                        }
+
+                        function open() { dropdown.classList.add('open'); highlight(); setTimeout(scrollActive, 50); }
+                        function close() { dropdown.classList.remove('open'); }
+
+                        toggle.addEventListener('click', function (e) { e.stopPropagation(); dropdown.classList.contains('open') ? close() : open(); });
+                        displayInput.addEventListener('click', function (e) { e.stopPropagation(); open(); });
+                        document.addEventListener('click', function (e) { if (!wrapper.contains(e.target)) close(); });
+
+                        sync(); highlight();
+                    })();
+
+                    // ── Party Size Picker (1 column) ──
+                    (function () {
+                        const displayInput = document.getElementById('partyDisplayInput');
+                        const hiddenInput = document.getElementById('partySizeHidden');
+                        const dropdown = document.getElementById('partyDropdown');
+                        const toggle = document.getElementById('partyToggle');
+                        const slotC = document.getElementById('partySlots');
+                        const wrapper = document.getElementById('partyWrapper');
+                        if (!displayInput || !dropdown) return;
+
+                        let selected = hiddenInput && hiddenInput.value ? parseInt(hiddenInput.value) : null;
+
+                        function sync() {
+                            if (selected) {
+                                displayInput.value = selected + ' người';
+                                hiddenInput.value = selected;
+                            }
+                        }
+
+                        for (let i = 1; i <= 20; i++) {
+                            const el = document.createElement('div');
+                            el.className = 'dt-slot';
+                            el.textContent = i + ' người';
+                            el.dataset.val = i;
+                            el.addEventListener('click', function (e) {
+                                e.stopPropagation();
+                                selected = parseInt(this.dataset.val);
+                                sync(); highlight();
+                            });
+                            slotC.appendChild(el);
+                        }
+
+                        function highlight() {
+                            slotC.querySelectorAll('.dt-slot').forEach(s => s.classList.toggle('active', parseInt(s.dataset.val) === selected));
+                        }
+
+                        function scrollActive() {
+                            const a = slotC.querySelector('.dt-slot.active');
+                            if (a) a.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                        }
+
+                        function open() { dropdown.classList.add('open'); highlight(); setTimeout(scrollActive, 50); }
+                        function close() { dropdown.classList.remove('open'); }
+
+                        toggle.addEventListener('click', function (e) { e.stopPropagation(); dropdown.classList.contains('open') ? close() : open(); });
+                        displayInput.addEventListener('click', function (e) { e.stopPropagation(); open(); });
+                        document.addEventListener('click', function (e) { if (!wrapper.contains(e.target)) close(); });
+
+                        sync(); highlight();
+                    })();
                 </script>
                 <script
                     src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
