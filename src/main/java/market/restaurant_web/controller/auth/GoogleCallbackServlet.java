@@ -2,7 +2,9 @@ package market.restaurant_web.controller.auth;
 
 import market.restaurant_web.config.GoogleOAuthConfig;
 import market.restaurant_web.config.HibernateUtil;
+import market.restaurant_web.dao.RoleDAO;
 import market.restaurant_web.dao.UserDAO;
+import market.restaurant_web.entity.Role;
 import market.restaurant_web.entity.User;
 import market.restaurant_web.service.AuthService;
 import market.restaurant_web.service.PermissionService;
@@ -17,6 +19,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
+import java.util.UUID;
+import org.hibernate.Transaction;
 
 /**
  * Step 2 of Google OAuth flow:
@@ -32,6 +36,7 @@ import java.util.Set;
 public class GoogleCallbackServlet extends HttpServlet {
 
     private final UserDAO userDao = new UserDAO();
+    private final RoleDAO roleDao = new RoleDAO();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -74,6 +79,7 @@ public class GoogleCallbackServlet extends HttpServlet {
             // 5. Get user info from Google (email, name)
             String[] userInfo = fetchUserInfo(accessToken);
             String email = userInfo[0];
+            String googleName = userInfo[1];
 
             if (email == null || email.isEmpty()) {
                 resp.sendRedirect(req.getContextPath() + "/login?error=no_email");
@@ -86,11 +92,14 @@ public class GoogleCallbackServlet extends HttpServlet {
                 user = userDao.findByEmail(dbSession, email);
             }
 
-            // 7. If email not found in DB → deny access
+            // 7. If email not found → auto-register as CUSTOMER (guest)
             if (user == null) {
-                req.setAttribute("error", "Email " + email + " chưa được đăng ký trong hệ thống. Vui lòng liên hệ Admin.");
-                req.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(req, resp);
-                return;
+                user = createGoogleUser(email, googleName);
+                if (user == null) {
+                    req.setAttribute("error", "Không thể tạo tài khoản. Vui lòng thử lại.");
+                    req.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(req, resp);
+                    return;
+                }
             }
 
             // 8. Check if user is active
@@ -131,6 +140,47 @@ public class GoogleCallbackServlet extends HttpServlet {
             e.printStackTrace();
             req.setAttribute("error", "Đăng nhập Google thất bại: " + e.getMessage());
             req.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(req, resp);
+        }
+    }
+
+    /**
+     * Auto-create a new CUSTOMER account from Google profile.
+     * Username = email prefix + random suffix to avoid duplicates.
+     */
+    private User createGoogleUser(String email, String googleName) {
+        Session dbSession = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = dbSession.beginTransaction();
+        try {
+            // Find CUSTOMER role
+            Role customerRole = roleDao.findByName(dbSession, "CUSTOMER");
+            if (customerRole == null) {
+                System.err.println("CUSTOMER role not found in DB!");
+                return null;
+            }
+
+            // Generate username from email (e.g. "john" from "john@gmail.com")
+            String baseUsername = email.split("@")[0].replaceAll("[^a-zA-Z0-9]", "");
+            if (baseUsername.length() > 40) baseUsername = baseUsername.substring(0, 40);
+            String username = baseUsername + "_" + UUID.randomUUID().toString().substring(0, 6);
+
+            // Create user
+            User user = new User();
+            user.setRole(customerRole);
+            user.setUsername(username);
+            user.setPasswordHash("GOOGLE_OAUTH_" + UUID.randomUUID()); // no password login
+            user.setFullName(googleName != null ? googleName : baseUsername);
+            user.setEmail(email);
+            user.setStatus("ACTIVE");
+
+            dbSession.persist(user);
+            tx.commit();
+            return user;
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+            return null;
+        } finally {
+            dbSession.close();
         }
     }
 
