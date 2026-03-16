@@ -19,6 +19,10 @@
                     <i class="fa-solid fa-phone"></i> <span class="nav-label">Liên hệ</span>
                 </a>
                 <a href="${pageContext.request.contextPath}/login"
+                    class="nav-link ${navActive == 'booking' ? 'active' : ''}">
+                    <i class="fa-solid fa-calendar-plus"></i> <span class="nav-label">Đặt bàn</span>
+                </a>
+                <a href="${pageContext.request.contextPath}/login"
                     class="nav-link">
                     <i class="fa-solid fa-right-to-bracket"></i> <span class="nav-label">Đăng nhập</span>
                 </a>

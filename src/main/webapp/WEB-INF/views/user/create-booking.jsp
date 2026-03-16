@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
     <%@ taglib prefix="c" uri="jakarta.tags.core" %>
         <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
             <!DOCTYPE html>
@@ -479,30 +479,54 @@
                             grid-template-columns: 1fr;
                         }
                     }
+
+                    /* ─── User Dropdown ─── */
+                    .user-dropdown { position: relative; }
+                    .user-dropdown-btn { display:flex; align-items:center; gap:10px; background:rgba(232,160,32,0.1); border:1px solid rgba(232,160,32,0.25); border-radius:50px; padding:8px 16px 8px 10px; color:#e8a020; font-size:14px; font-weight:500; cursor:pointer; transition:all 0.3s; font-family:inherit; }
+                    .user-dropdown-btn:hover { background:rgba(232,160,32,0.18); border-color:rgba(232,160,32,0.4); }
+                    .user-avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#e8a020,#d4911c); display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; }
+                    .dd-arrow { font-size:10px; transition:transform 0.3s; color:rgba(232,160,32,0.6); }
+                    .user-dropdown.open .dd-arrow { transform:rotate(180deg); }
+                    .user-dropdown-menu { position:absolute; top:calc(100% + 8px); right:0; min-width:220px; background:#1a1710; border:1px solid rgba(232,160,32,0.2); border-radius:12px; padding:6px; box-shadow:0 12px 40px rgba(0,0,0,0.5); opacity:0; visibility:hidden; transform:translateY(-8px); transition:all 0.25s ease; z-index:100; }
+                    .user-dropdown.open .user-dropdown-menu { opacity:1; visibility:visible; transform:translateY(0); }
+                    .dd-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:8px; font-size:14px; color:rgba(255,255,255,0.75); text-decoration:none; transition:all 0.2s; }
+                    .dd-item:hover { background:rgba(232,160,32,0.1); color:#e8a020; }
+                    .dd-item i { width:18px; text-align:center; font-size:13px; }
+                    .dd-divider { height:1px; background:rgba(255,255,255,0.08); margin:4px 8px; }
+                    .dd-logout:hover { color:#f87171; background:rgba(248,113,113,0.08); }
                 </style>
             </head>
 
             <body>
 
-                <!-- ── NAVBAR ── -->
-                <nav class="navbar" id="navbar">
-                    <a href="${pageContext.request.contextPath}/" class="nav-logo">
+                <!-- ── USER NAVBAR ── -->
+                <nav class="navbar" id="navbar" style="background:rgba(15,14,12,0.95); backdrop-filter:blur(12px);">
+                    <a href="${pageContext.request.contextPath}/user/home" class="nav-logo">
                         <div class="nav-logo-icon"><i class="fa-solid fa-utensils"></i></div>
                         <div class="nav-logo-text">Hương Việt<span>Nhà hàng & Quán nhậu</span></div>
                     </a>
                     <div class="nav-links">
                         <a href="${pageContext.request.contextPath}/user/menu">Thực đơn</a>
                         <a href="${pageContext.request.contextPath}/user/booking/create" class="active">Đặt bàn</a>
-                        <a href="${pageContext.request.contextPath}/user/booking/status">Tra cứu</a>
-                        <a href="${pageContext.request.contextPath}/user/pre-order">Đặt món trước</a>
-                        <a href="${pageContext.request.contextPath}/about">Về chúng tôi</a>
-                        <a href="${pageContext.request.contextPath}/contact">Liên hệ</a>
+                        <a href="${pageContext.request.contextPath}/user/booking/status">Tra cứu booking</a>
                     </div>
                     <div class="nav-actions">
-                        <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
-                        <a href="${pageContext.request.contextPath}/user/booking/create" class="btn-book">
-                            <i class="fa-solid fa-calendar-check"></i> Đặt bàn
-                        </a>
+                        <div class="user-dropdown" id="userDropdown">
+                            <button class="user-dropdown-btn" onclick="document.getElementById('userDropdown').classList.toggle('open')">
+                                <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
+                                <span>${sessionScope.user.fullName}</span>
+                                <i class="fa-solid fa-chevron-down dd-arrow"></i>
+                            </button>
+                            <div class="user-dropdown-menu">
+                                <a href="${pageContext.request.contextPath}/user/profile" class="dd-item">
+                                    <i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa thông tin
+                                </a>
+                                <div class="dd-divider"></div>
+                                <a href="${pageContext.request.contextPath}/logout" class="dd-item dd-logout">
+                                    <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                                </a>
+                            </div>
+                        </div>
                     </div>
                     <div class="nav-burger" id="navBurger"><span></span><span></span><span></span></div>
                 </nav>
@@ -534,10 +558,7 @@
                                         class="btn-outline-light">
                                         <i class="fa-solid fa-search"></i> Xem trạng thái
                                     </a>
-                                    <a href="${pageContext.request.contextPath}/user/pre-order?code=${bookingCode}"
-                                        class="btn-outline-light">
-                                        <i class="fa-solid fa-utensils"></i> Đặt món trước
-                                    </a>
+
                                     <a href="${pageContext.request.contextPath}/user/booking/create" class="btn-outline-light">
                                         <i class="fa-solid fa-plus"></i> Đặt bàn mới
                                     </a>
@@ -690,57 +711,9 @@
                 </div>
 
                 <!-- ── FOOTER ── -->
-                <footer class="footer" id="footer">
-                    <div class="footer-grid">
-                        <div class="footer-brand">
-                            <div class="footer-logo">
-                                <div class="footer-logo-icon"><i class="fa-solid fa-utensils"></i></div>
-                                <div class="footer-logo-text">Hương Việt<span>Nhà hàng &amp; Quán nhậu</span></div>
-                            </div>
-                            <p class="footer-desc">Không chỉ là nhà hàng, Hương Việt còn là phong cách sống — điểm hẹn của những khoảnh khắc đáng nhớ.</p>
-                            <div class="socials">
-                                <a href="#" class="social"><i class="fa-brands fa-facebook-f"></i></a>
-                                <a href="#" class="social"><i class="fa-brands fa-instagram"></i></a>
-                                <a href="#" class="social"><i class="fa-brands fa-tiktok"></i></a>
-                                <a href="#" class="social"><i class="fa-brands fa-youtube"></i></a>
-                            </div>
-                        </div>
-                        <div class="footer-col">
-                            <h4>Khám phá</h4>
-                            <ul>
-                                <li><a href="${pageContext.request.contextPath}/user/menu">Thực đơn</a></li>
-                                <li><a href="${pageContext.request.contextPath}/user/booking/create">Đặt bàn</a></li>
-                                <li><a href="${pageContext.request.contextPath}/user/booking/status">Tra cứu booking</a></li>
-                                <li><a href="${pageContext.request.contextPath}/user/pre-order">Đặt món trước</a></li>
-                            </ul>
-                        </div>
-                        <div class="footer-col">
-                            <h4>Về chúng tôi</h4>
-                            <ul>
-                                <li><a href="${pageContext.request.contextPath}/about">Giới thiệu</a></li>
-                                <li><a href="${pageContext.request.contextPath}/contact">Liên hệ</a></li>
-                            </ul>
-                        </div>
-                        <div class="footer-col">
-                            <h4>Liên hệ</h4>
-                            <div class="footer-contact-item">
-                                <div class="footer-contact-icon"><i class="fa-solid fa-location-dot"></i></div>
-                                <div class="footer-contact-text"><strong>Địa chỉ</strong>123 Nguyễn Huệ, Quận 1, TP.HCM</div>
-                            </div>
-                            <div class="footer-contact-item">
-                                <div class="footer-contact-icon"><i class="fa-solid fa-phone"></i></div>
-                                <div class="footer-contact-text"><strong>Hotline</strong>1900 1234 (8:00 – 23:00)</div>
-                            </div>
-                            <div class="footer-contact-item">
-                                <div class="footer-contact-icon"><i class="fa-regular fa-clock"></i></div>
-                                <div class="footer-contact-text"><strong>Giờ mở cửa</strong>10:00 – 23:00 hàng ngày</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="footer-bottom">
-                        <p>© 2026 Nhà hàng Hương Việt.</p>
-                        <p>Thiết kế bởi <a href="#">Đội ngũ Hương Việt Tech</a></p>
-                    </div>
+                <footer style="background:#0a0908; border-top:1px solid rgba(255,255,255,0.06); padding:24px 40px; display:flex; align-items:center; justify-content:space-between; font-size:13px; color:#9e9488;">
+                    <p>© 2026 Nhà hàng Hương Việt. 123 Nguyễn Huệ, Q.1, TP.HCM</p>
+                    <p>Hotline: <strong style="color:#e8a020;">1900 1234</strong> (8:00 – 23:00)</p>
                 </footer>
 
                 <script>
@@ -752,6 +725,12 @@
                     document.getElementById('navBurger').addEventListener('click', function () {
                         const links = document.querySelector('.nav-links');
                         links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
+                    });
+
+                    // Close dropdown on outside click
+                    document.addEventListener('click', function(e) {
+                        const dd = document.getElementById('userDropdown');
+                        if (dd && !dd.contains(e.target)) dd.classList.remove('open');
                     });
 
                     // Copy booking code

@@ -3,6 +3,7 @@ package market.restaurant_web.controller.user;
 import market.restaurant_web.entity.Booking;
 import market.restaurant_web.service.BookingService;
 import market.restaurant_web.util.ValidationUtil;
+import market.restaurant_web.entity.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -24,16 +25,28 @@ public class UserBookingFormController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+
+        // Pre-fill from session user if no params provided
+        User user = (User) req.getSession().getAttribute("user");
+
         String name = req.getParameter("customerName");
         if (name == null) {
             name = req.getParameter("name");
-            if (name != null) req.setAttribute("customerName", name);
         }
+        if (name == null && user != null && user.getFullName() != null) {
+            name = user.getFullName();
+        }
+        if (name != null) req.setAttribute("customerName", name);
+
         String phone = req.getParameter("customerPhone");
         if (phone == null) {
             phone = req.getParameter("phone");
-            if (phone != null) req.setAttribute("customerPhone", phone);
         }
+        if (phone == null && user != null && user.getPhone() != null) {
+            phone = user.getPhone();
+        }
+        if (phone != null) req.setAttribute("customerPhone", phone);
+
         String date = req.getParameter("bookingDate");
         if (date == null) {
             date = req.getParameter("date");

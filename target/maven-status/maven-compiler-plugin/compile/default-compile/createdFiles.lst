@@ -1,6 +1,7 @@
 market\restaurant_web\controller\api\TableApiController.class
 market\restaurant_web\entity\TableStatus.class
 market\restaurant_web\exception\BusinessException.class
+market\restaurant_web\controller\user\UserProfileController.class
 market\restaurant_web\config\HibernateUtil.class
 market\restaurant_web\util\PasswordUtil.class
 market\restaurant_web\dao\CategoryDAO.class
