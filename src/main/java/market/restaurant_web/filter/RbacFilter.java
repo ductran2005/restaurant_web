@@ -22,7 +22,8 @@ public class RbacFilter implements Filter {
     private static final Map<String, Set<String>> URL_ROLE_MAP = Map.of(
             "/admin", Set.of("ADMIN"),
             "/staff", Set.of("ADMIN", "STAFF"),
-            "/cashier", Set.of("ADMIN", "CASHIER"));
+            "/cashier", Set.of("ADMIN", "CASHIER"),
+            "/user", Set.of("ADMIN", "CUSTOMER"));
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -34,7 +35,7 @@ public class RbacFilter implements Filter {
         String uri = request.getRequestURI().substring(ctx.length());
 
         // Only check RBAC for admin/staff/cashier routes
-        if (!uri.startsWith("/admin") && !uri.startsWith("/staff") && !uri.startsWith("/cashier")) {
+        if (!uri.startsWith("/admin") && !uri.startsWith("/staff") && !uri.startsWith("/cashier") && !uri.startsWith("/user")) {
             chain.doFilter(request, response);
             return;
         }

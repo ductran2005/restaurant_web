@@ -23,6 +23,6 @@ public class PublicMenuController extends HttpServlet {
         req.setAttribute("search", search);
         req.setAttribute("selectedCategoryId", categoryId);
         req.setAttribute("navActive", "menu");
-        req.getRequestDispatcher("/WEB-INF/views/customer/public-menu.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/views/public/public-menu.jsp").forward(req, resp);
     }
 }

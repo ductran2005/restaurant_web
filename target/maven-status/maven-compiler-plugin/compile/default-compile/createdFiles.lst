@@ -18,8 +18,10 @@ market\restaurant_web\controller\admin\RbacController.class
 market\restaurant_web\entity\AuditLog.class
 market\restaurant_web\entity\Payment.class
 market\restaurant_web\controller\admin\CategoriesController.class
+market\restaurant_web\controller\auth\GoogleLoginServlet.class
 market\restaurant_web\controller\admin\ReportsController.class
 market\restaurant_web\controller\api\SchedulerApiController.class
+market\restaurant_web\controller\user\UserPreOrderPageController.class
 market\restaurant_web\util\ValidationUtil.class
 market\restaurant_web\dao\BookingDao.class
 market\restaurant_web\entity\UserSession.class
@@ -31,6 +33,7 @@ market\restaurant_web\entity\Order.class
 market\restaurant_web\entity\Role.class
 market\restaurant_web\service\TableService.class
 market\restaurant_web\entity\SystemConfig.class
+market\restaurant_web\controller\user\UserPreOrderCheckoutController.class
 market\restaurant_web\controller\staff\OrderEditorController.class
 market\restaurant_web\service\AuthService.class
 market\restaurant_web\controller\auth\LogoutController.class
@@ -40,6 +43,8 @@ market\restaurant_web\dao\PermissionDao.class
 market\restaurant_web\dao\AreaDAO.class
 market\restaurant_web\controller\cashier\SepayWebhookController.class
 market\restaurant_web\controller\staff\BookingController.class
+market\restaurant_web\controller\user\UserHomeController.class
+market\restaurant_web\controller\auth\GoogleCallbackServlet.class
 market\restaurant_web\controller\customer\ChatbotApiServlet.class
 market\restaurant_web\service\ConfigService.class
 market\restaurant_web\entity\User.class
@@ -53,6 +58,7 @@ market\restaurant_web\controller\customer\PreOrderCheckoutController.class
 market\restaurant_web\entity\Permission.class
 market\restaurant_web\controller\admin\TablesAreasController.class
 market\restaurant_web\controller\auth\LoginController.class
+market\restaurant_web\controller\user\UserBookingFormController.class
 market\restaurant_web\controller\customer\PreOrderPageController.class
 market\restaurant_web\service\PreOrderService.class
 market\restaurant_web\entity\Product.class
@@ -60,6 +66,7 @@ market\restaurant_web\controller\cashier\CheckoutController.class
 market\restaurant_web\entity\Inventory.class
 market\restaurant_web\controller\customer\LandingController.class
 market\restaurant_web\entity\PreOrderItem.class
+market\restaurant_web\config\GoogleOAuthConfig.class
 market\restaurant_web\controller\admin\ReportsController$TopItem.class
 market\restaurant_web\controller\customer\ContactController.class
 market\restaurant_web\service\PaymentService.class
@@ -70,6 +77,7 @@ market\restaurant_web\dao\UserDAO.class
 market\restaurant_web\dao\PaymentDAO.class
 market\restaurant_web\controller\customer\BookingStatusController.class
 market\restaurant_web\service\CategoryService.class
+market\restaurant_web\controller\user\UserMenuController.class
 market\restaurant_web\controller\customer\BookingFormController.class
 market\restaurant_web\scheduler\BookingScheduler.class
 market\restaurant_web\filter\AuthFilter.class
@@ -77,6 +85,7 @@ market\restaurant_web\service\BookingService.class
 market\restaurant_web\controller\cashier\PaymentStatusController.class
 market\restaurant_web\dao\TableDAO.class
 market\restaurant_web\controller\auth\AccessDeniedController.class
+market\restaurant_web\controller\user\UserBookingStatusController.class
 market\restaurant_web\controller\staff\TableMapController.class
 market\restaurant_web\filter\EncodingFilter.class
 market\restaurant_web\filter\RbacFilter.class

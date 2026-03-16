@@ -209,6 +209,14 @@
                         <div class="alert-error"><i class="fa-solid fa-lock"></i> Tài khoản đã bị khóa. Liên hệ Admin.
                         </div>
                     </c:if>
+                    <c:if test="${param.error == 'google_denied'}">
+                        <div class="alert-error"><i class="fa-brands fa-google"></i> Bạn đã từ chối đăng nhập bằng Google.
+                        </div>
+                    </c:if>
+                    <c:if test="${param.error == 'token_failed' || param.error == 'no_code' || param.error == 'invalid_state' || param.error == 'no_email'}">
+                        <div class="alert-error"><i class="fa-brands fa-google"></i> Đăng nhập Google thất bại. Vui lòng thử lại.
+                        </div>
+                    </c:if>
 
 
                     <form method="POST" action="${ctx}/login">
@@ -231,10 +239,10 @@
                     </form>
 
                     <div class="divider">hoặc</div>
-                    <button class="btn-google" onclick="alert('Google OAuth chưa được cấu hình')">
+                    <a href="${ctx}/oauth2/google" class="btn-google" style="text-decoration:none">
                         <img src="https://www.google.com/favicon.ico" width="16" height="16" alt="Google"> Tiếp tục với
                         Google
-                    </button>
+                    </a>
 
 
 

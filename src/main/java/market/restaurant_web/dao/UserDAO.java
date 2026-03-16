@@ -18,6 +18,14 @@ public class UserDAO extends GenericDAO<User> {
         return q.uniqueResult();
     }
 
+    /** Find user by email — used for Google OAuth login */
+    public User findByEmail(Session session, String email) {
+        Query<User> q = session.createQuery(
+                "FROM User WHERE email = :e", User.class);
+        q.setParameter("e", email);
+        return q.uniqueResult();
+    }
+
     public List<User> findByRole(Session session, int roleId) {
         Query<User> q = session.createQuery(
                 "FROM User WHERE role.id = :r ORDER BY id", User.class);

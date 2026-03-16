@@ -16,6 +16,7 @@ public class AuthFilter implements Filter {
 
     private static final Set<String> PUBLIC_PREFIXES = Set.of(
             "/assets/", "/css/", "/js/", "/img/", "/images/",
+            "/oauth2/",
             "/booking");
 
     private static final Set<String> PUBLIC_PAGES = Set.of(
@@ -53,7 +54,8 @@ public class AuthFilter implements Filter {
         // Check if protected path needs auth
         boolean requiresAuth = uri.startsWith("/admin") ||
                 uri.startsWith("/staff") ||
-                uri.startsWith("/cashier");
+                uri.startsWith("/cashier") ||
+                uri.startsWith("/user");
 
         if (requiresAuth) {
             HttpSession session = request.getSession(false);

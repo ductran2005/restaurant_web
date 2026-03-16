@@ -296,7 +296,10 @@ INSERT INTO system_config (config_key, config_value, description) VALUES
 ('SEPAY_ENABLED', 'true', 'Bật/tắt thanh toán QR qua SePay'),
 ('GROQ_API_KEY', '', 'API Key của Groq cho chatbot AI'),
 ('GROQ_MODEL', 'llama-3.3-70b-versatile', 'Model AI sử dụng cho chatbot (Groq)'),
-('CHATBOT_ENABLED', 'true', 'Bật/tắt chatbot AI trên trang khách hàng')
+('CHATBOT_ENABLED', 'true', 'Bật/tắt chatbot AI trên trang khách hàng'),
+('GOOGLE_CLIENT_ID', '120394683638-3i5duilf0c5dcch0l82c08to6ge9nd2f.apps.googleusercontent.com', 'Google OAuth Client ID'),
+('GOOGLE_CLIENT_SECRET', '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', 'Google OAuth Client Secret'),
+('GOOGLE_REDIRECT_URI', 'http://localhost:8080/oauth2/google/callback', 'Google OAuth Redirect URI')
 ON CONFLICT (config_key) DO NOTHING;
 
 -- areas

@@ -15,6 +15,6 @@ public class LandingController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        req.getRequestDispatcher("/WEB-INF/views/customer/landing.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/views/public/landing.jsp").forward(req, resp);
     }
 }

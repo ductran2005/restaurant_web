@@ -11,6 +11,6 @@ public class AboutController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("navActive", "about");
-        req.getRequestDispatcher("/WEB-INF/views/customer/about.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/views/public/about.jsp").forward(req, resp);
     }
 }

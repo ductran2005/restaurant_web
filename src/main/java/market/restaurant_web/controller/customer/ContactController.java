@@ -12,7 +12,7 @@ public class ContactController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("navActive", "contact");
-        req.getRequestDispatcher("/WEB-INF/views/customer/contact.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/views/public/contact.jsp").forward(req, resp);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class ContactController extends HttpServlet {
             }
 
             req.setAttribute("success", "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong vòng 24h.");
-            req.getRequestDispatcher("/WEB-INF/views/customer/contact.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/public/contact.jsp").forward(req, resp);
 
         } catch (Exception e) {
             req.setAttribute("error", e.getMessage());
@@ -39,7 +39,7 @@ public class ContactController extends HttpServlet {
             req.setAttribute("phone", req.getParameter("phone"));
             req.setAttribute("subject", req.getParameter("subject"));
             req.setAttribute("message", req.getParameter("message"));
-            req.getRequestDispatcher("/WEB-INF/views/customer/contact.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/public/contact.jsp").forward(req, resp);
         }
     }
 }

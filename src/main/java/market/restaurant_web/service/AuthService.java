@@ -44,7 +44,7 @@ public class AuthService {
             case "ADMIN" -> "/admin";
             case "STAFF" -> "/staff";
             case "CASHIER" -> "/cashier";
-            case "CUSTOMER" -> "/";
+            case "CUSTOMER" -> "/user/home";
             default -> "/";
         };
     }
