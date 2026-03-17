@@ -46,15 +46,34 @@ public class CheckoutController extends HttpServlet {
         req.setAttribute("payment", existingPayment);
 
         // Calculate correct totals (subtotal + VAT + service_fee - discount) and save to order
-        PaymentService.OrderTotals totals = paymentService.calculateAndSaveOrderTotal(orderId);
-        // Reload order with updated totalAmount
-        order = orderService.findById(orderId);
-        req.setAttribute("order", order);
-        req.setAttribute("totals", totals);
-        req.setAttribute("vatRate", totals.vatRate);
-        req.setAttribute("vatAmount", totals.vatAmount);
-        req.setAttribute("serviceFeeRate", totals.serviceFeeRate);
-        req.setAttribute("serviceFeeAmount", totals.serviceFeeAmount);
+        try {
+            PaymentService.OrderTotals totals = paymentService.calculateAndSaveOrderTotal(orderId);
+            // Reload order with updated totalAmount
+            order = orderService.findById(orderId);
+            req.setAttribute("order", order);
+            req.setAttribute("totals", totals);
+            req.setAttribute("vatRate", totals.vatRate);
+            req.setAttribute("vatAmount", totals.vatAmount);
+            req.setAttribute("serviceFeeRate", totals.serviceFeeRate);
+            req.setAttribute("serviceFeeAmount", totals.serviceFeeAmount);
+        } catch (Exception e) {
+            // Fallback: use order's existing data and build a basic totals object
+            System.err.println("[CheckoutController] calculateAndSaveOrderTotal error: " + e.getMessage());
+            java.math.BigDecimal subtotal = order.getSubtotal() != null ? order.getSubtotal() : java.math.BigDecimal.ZERO;
+            java.math.BigDecimal total = order.getTotalAmount() != null ? order.getTotalAmount() : subtotal;
+            PaymentService.OrderTotals fallback = new PaymentService.OrderTotals(
+                subtotal,
+                java.math.BigDecimal.ZERO, java.math.BigDecimal.ZERO,
+                java.math.BigDecimal.ZERO, java.math.BigDecimal.ZERO,
+                order.getDiscountAmount() != null ? order.getDiscountAmount() : java.math.BigDecimal.ZERO,
+                total
+            );
+            req.setAttribute("totals", fallback);
+            req.setAttribute("vatRate", java.math.BigDecimal.ZERO);
+            req.setAttribute("vatAmount", java.math.BigDecimal.ZERO);
+            req.setAttribute("serviceFeeRate", java.math.BigDecimal.ZERO);
+            req.setAttribute("serviceFeeAmount", java.math.BigDecimal.ZERO);
+        }
 
         // SePay QR config
         String sepayEnabled = configService.getValue("SEPAY_ENABLED");
