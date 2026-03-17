@@ -45,6 +45,17 @@ public class CheckoutController extends HttpServlet {
         Payment existingPayment = paymentService.findByOrderId(orderId);
         req.setAttribute("payment", existingPayment);
 
+        // Calculate correct totals (subtotal + VAT + service_fee - discount) and save to order
+        PaymentService.OrderTotals totals = paymentService.calculateAndSaveOrderTotal(orderId);
+        // Reload order with updated totalAmount
+        order = orderService.findById(orderId);
+        req.setAttribute("order", order);
+        req.setAttribute("totals", totals);
+        req.setAttribute("vatRate", totals.vatRate);
+        req.setAttribute("vatAmount", totals.vatAmount);
+        req.setAttribute("serviceFeeRate", totals.serviceFeeRate);
+        req.setAttribute("serviceFeeAmount", totals.serviceFeeAmount);
+
         // SePay QR config
         String sepayEnabled = configService.getValue("SEPAY_ENABLED");
         req.setAttribute("sepayEnabled", "true".equals(sepayEnabled));
@@ -52,12 +63,6 @@ public class CheckoutController extends HttpServlet {
         req.setAttribute("sepayBankName", configService.getValue("SEPAY_BANK_NAME"));
         req.setAttribute("sepayAccountName", configService.getValue("SEPAY_ACCOUNT_NAME"));
         req.setAttribute("sepayContentPrefix", configService.getValue("SEPAY_CONTENT_PREFIX"));
-
-        // VAT rate
-        String vatRateStr = configService.getValue("vat_rate");
-        double vatRate = 0;
-        try { if (vatRateStr != null) vatRate = Double.parseDouble(vatRateStr.trim()); } catch (NumberFormatException ignored) {}
-        req.setAttribute("vatRate", vatRate);
 
         req.getRequestDispatcher("/WEB-INF/views/cashier/checkout.jsp").forward(req, resp);
     }

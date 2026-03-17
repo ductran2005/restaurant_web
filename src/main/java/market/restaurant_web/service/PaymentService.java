@@ -33,6 +33,80 @@ public class PaymentService {
         catch (NumberFormatException e) { return BigDecimal.ZERO; }
     }
 
+    /** Read service fee rate from system_config (key: service_fee_rate). Returns 0 if not set. */
+    private BigDecimal getServiceFeeRate() {
+        String val = configService.getValue("service_fee_rate");
+        if (val == null || val.isBlank()) return BigDecimal.ZERO;
+        try { return new BigDecimal(val.trim()); }
+        catch (NumberFormatException e) { return BigDecimal.ZERO; }
+    }
+
+    /**
+     * Calculate the correct order total (subtotal + VAT + service_fee - discount)
+     * and persist it to DB. Called before displaying the checkout page so QR amount is correct.
+     * Returns a map-like object via OrderTotals inner class.
+     */
+    public OrderTotals calculateAndSaveOrderTotal(int orderId) {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            Transaction tx = s.beginTransaction();
+            Order order = orderDao.findById(s, orderId);
+            if (order == null) throw new RuntimeException("Order not found: " + orderId);
+
+            // Sum subtotal from active order details
+            List<OrderDetail> details = s.createQuery(
+                    "FROM OrderDetail WHERE order.id = :oid AND itemStatus = 'ORDERED'", OrderDetail.class)
+                    .setParameter("oid", orderId).list();
+
+            BigDecimal subtotal = BigDecimal.ZERO;
+            for (OrderDetail d : details) {
+                subtotal = subtotal.add(d.getUnitPrice().multiply(BigDecimal.valueOf(d.getQuantity())));
+            }
+
+            BigDecimal vatRate = getVatRate();
+            BigDecimal serviceFeeRate = getServiceFeeRate();
+            BigDecimal discountAmount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
+
+            BigDecimal vatAmount = subtotal.multiply(vatRate)
+                    .divide(java.math.BigDecimal.valueOf(100), 0, java.math.RoundingMode.HALF_UP);
+            BigDecimal serviceFeeAmount = subtotal.multiply(serviceFeeRate)
+                    .divide(java.math.BigDecimal.valueOf(100), 0, java.math.RoundingMode.HALF_UP);
+
+            BigDecimal totalAmount = subtotal.add(vatAmount).add(serviceFeeAmount).subtract(discountAmount);
+            if (totalAmount.compareTo(BigDecimal.ZERO) < 0) totalAmount = BigDecimal.ZERO;
+
+            // Persist calculated total to order
+            order.setSubtotal(subtotal);
+            order.setTotalAmount(totalAmount);
+            orderDao.update(s, order);
+            tx.commit();
+
+            return new OrderTotals(subtotal, vatRate, vatAmount, serviceFeeRate, serviceFeeAmount, discountAmount, totalAmount);
+        }
+    }
+
+    /** DTO holding all breakdown values for checkout display */
+    public static class OrderTotals {
+        public final BigDecimal subtotal;
+        public final BigDecimal vatRate;
+        public final BigDecimal vatAmount;
+        public final BigDecimal serviceFeeRate;
+        public final BigDecimal serviceFeeAmount;
+        public final BigDecimal discountAmount;
+        public final BigDecimal totalAmount;
+
+        public OrderTotals(BigDecimal subtotal, BigDecimal vatRate, BigDecimal vatAmount,
+                           BigDecimal serviceFeeRate, BigDecimal serviceFeeAmount,
+                           BigDecimal discountAmount, BigDecimal totalAmount) {
+            this.subtotal = subtotal;
+            this.vatRate = vatRate;
+            this.vatAmount = vatAmount;
+            this.serviceFeeRate = serviceFeeRate;
+            this.serviceFeeAmount = serviceFeeAmount;
+            this.discountAmount = discountAmount;
+            this.totalAmount = totalAmount;
+        }
+    }
+
     /**
      * Checkout: calculate order totals, create payment, mark order PAID.
      */
