@@ -12,6 +12,7 @@
                 <title>Thanh toán — Thu ngân</title>
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
                 <link rel="stylesheet" href="${ctx}/assets/css/admin.css">
+                <link rel="stylesheet" href="${ctx}/assets/css/mobile.css">
                 <style>
                     /* ===== QR Payment Styles ===== */
                     .payment-methods {
@@ -401,10 +402,6 @@
                                                 <div class="method-btn" data-method="CASH" onclick="selectMethod(this)">
                                                     <i class="fa-solid fa-money-bill-wave"></i>
                                                     Tiền mặt
-                                                </div>
-                                                <div class="method-btn" data-method="CARD" onclick="selectMethod(this)">
-                                                    <i class="fa-solid fa-credit-card"></i>
-                                                    Thẻ
                                                 </div>
                                                 <c:if test="${sepayEnabled}">
                                                     <div class="method-btn" data-method="TRANSFER"

@@ -68,6 +68,7 @@ C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\customer\AboutController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\entity\Payment.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\dao\CategoryDAO.java
+C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\service\SupabaseStorageService.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\dao\BookingDao.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\staff\TableMapController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\config\GoogleOAuthConfig.java

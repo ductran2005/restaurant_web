@@ -27,5 +27,42 @@
                     <i class="fa-solid fa-right-to-bracket"></i> <span class="nav-label">Đăng nhập</span>
                 </a>
             </div>
+            <button class="mobile-burger" onclick="document.getElementById('mobileDrawerPublic').classList.add('open')" aria-label="Menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
         </div>
     </nav>
+
+    <%-- Mobile Drawer --%>
+    <div class="mobile-drawer" id="mobileDrawerPublic">
+        <div class="mobile-drawer-overlay" onclick="this.parentElement.classList.remove('open')"></div>
+        <div class="mobile-drawer-panel">
+            <div class="mobile-drawer-header">
+                <a href="${pageContext.request.contextPath}/" class="nav-brand">
+                    <div class="nav-brand-icon"><i class="fa-solid fa-utensils"></i></div>
+                    <span>Hương Việt</span>
+                </a>
+                <button class="mobile-drawer-close" onclick="document.getElementById('mobileDrawerPublic').classList.remove('open')" aria-label="Đóng">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="mobile-drawer-body">
+                <a href="${pageContext.request.contextPath}/menu" class="mobile-drawer-link ${navActive == 'menu' ? 'active' : ''}">
+                    <i class="fa-solid fa-book-open"></i> Thực đơn
+                </a>
+                <a href="${pageContext.request.contextPath}/about" class="mobile-drawer-link ${navActive == 'about' ? 'active' : ''}">
+                    <i class="fa-solid fa-info-circle"></i> Về chúng tôi
+                </a>
+                <a href="${pageContext.request.contextPath}/contact" class="mobile-drawer-link ${navActive == 'contact' ? 'active' : ''}">
+                    <i class="fa-solid fa-phone"></i> Liên hệ
+                </a>
+                <a href="${pageContext.request.contextPath}/login" class="mobile-drawer-link ${navActive == 'booking' ? 'active' : ''}">
+                    <i class="fa-solid fa-calendar-plus"></i> Đặt bàn
+                </a>
+                <div class="mobile-drawer-divider"></div>
+                <a href="${pageContext.request.contextPath}/login" class="mobile-drawer-link mobile-drawer-cta">
+                    <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
+                </a>
+            </div>
+        </div>
+    </div>

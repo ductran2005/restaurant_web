@@ -11,6 +11,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/landing.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/mobile.css">
     </head>
 
     <body>
@@ -35,10 +36,44 @@
                     <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
                 </a>
             </div>
-            <div class="nav-burger" id="navBurger">
-                <span></span><span></span><span></span>
-            </div>
+            <button class="mobile-burger" id="navBurger" aria-label="Menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
         </nav>
+
+        <%-- Landing Mobile Drawer --%>
+        <div class="mobile-drawer" id="mobileDrawerLanding">
+            <div class="mobile-drawer-overlay" onclick="this.parentElement.classList.remove('open')"></div>
+            <div class="mobile-drawer-panel mobile-drawer-panel--dark">
+                <div class="mobile-drawer-header">
+                    <a href="#" class="nav-brand">
+                        <div class="nav-brand-icon" style="background:var(--primary);color:#000"><i class="fa-solid fa-utensils"></i></div>
+                        <span style="color:#f0ebe3">Hương Việt</span>
+                    </a>
+                    <button class="mobile-drawer-close" onclick="document.getElementById('mobileDrawerLanding').classList.remove('open')" aria-label="Đóng" style="color:#f0ebe3">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="mobile-drawer-body">
+                    <a href="${pageContext.request.contextPath}/menu" class="mobile-drawer-link active">
+                        <i class="fa-solid fa-book-open"></i> Thực đơn
+                    </a>
+                    <a href="${pageContext.request.contextPath}/about" class="mobile-drawer-link">
+                        <i class="fa-solid fa-info-circle"></i> Về chúng tôi
+                    </a>
+                    <a href="${pageContext.request.contextPath}/contact" class="mobile-drawer-link">
+                        <i class="fa-solid fa-phone"></i> Liên hệ
+                    </a>
+                    <a href="${pageContext.request.contextPath}/login" class="mobile-drawer-link">
+                        <i class="fa-solid fa-calendar-plus"></i> Đặt bàn
+                    </a>
+                    <div class="mobile-drawer-divider"></div>
+                    <a href="${pageContext.request.contextPath}/login" class="mobile-drawer-link mobile-drawer-cta">
+                        <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
+                    </a>
+                </div>
+            </div>
+        </div>
 
         <!-- ============================================================
      HERO
@@ -524,10 +559,9 @@
                 });
             });
 
-            // Mobile burger nav (simple toggle placeholder)
+            // Mobile burger nav — opens drawer
             document.getElementById('navBurger').addEventListener('click', function () {
-                document.querySelector('.nav-links').style.display =
-                    document.querySelector('.nav-links').style.display === 'flex' ? 'none' : 'flex';
+                document.getElementById('mobileDrawerLanding').classList.add('open');
             });
         </script>
 

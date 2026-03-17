@@ -39,6 +39,9 @@ public class Product {
     @Column(name = "description", length = 500)
     private String description;
 
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
     // Getters & Setters
     public Integer getId() {
         return id;
@@ -116,5 +119,13 @@ public class Product {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

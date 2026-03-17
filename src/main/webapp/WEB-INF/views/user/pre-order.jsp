@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
     <%@ taglib prefix="c" uri="jakarta.tags.core" %>
         <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
             <!DOCTYPE html>
@@ -7,9 +7,10 @@
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Đặt món trước — Nhà hàng Hương Việt</title>
+                <title>�?t m�n tru?c � Nh� h�ng Huong Vi?t</title>
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/landing.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/mobile.css">
                 <style>
                     .preorder-hero {
                         padding: 140px 48px 40px;
@@ -313,7 +314,7 @@
                     }
 
                     .menu-item-soldout .menu-item-name::after {
-                        content: ' (Hết)';
+                        content: ' (H?t)';
                         color: #ef4444;
                         font-weight: 400;
                         font-size: 12px;
@@ -597,15 +598,15 @@
                 <nav class="navbar" id="navbar">
                     <a href="${pageContext.request.contextPath}/" class="nav-logo">
                         <div class="nav-logo-icon"><i class="fa-solid fa-utensils"></i></div>
-                        <div class="nav-logo-text">Hương Việt<span>Nhà hàng & Quán nhậu</span></div>
+                        <div class="nav-logo-text">Huong Vi?t<span>Nh� h�ng & Qu�n nh?u</span></div>
                     </a>
                     <div class="nav-links">
-                        <a href="${pageContext.request.contextPath}/user/menu">Thực đơn</a>
-                        <a href="${pageContext.request.contextPath}/user/booking/create">Đặt bàn</a>
-                        <a href="${pageContext.request.contextPath}/user/booking/status">Tra cứu</a>
-                        <a href="${pageContext.request.contextPath}/user/pre-order" class="active">Đặt món trước</a>
-                        <a href="${pageContext.request.contextPath}/about">Về chúng tôi</a>
-                        <a href="${pageContext.request.contextPath}/contact">Liên hệ</a>
+                        <a href="${pageContext.request.contextPath}/user/menu">Th?c don</a>
+                        <a href="${pageContext.request.contextPath}/user/booking/create">�?t b�n</a>
+                        <a href="${pageContext.request.contextPath}/user/booking/status">Tra c?u</a>
+                        <a href="${pageContext.request.contextPath}/user/pre-order" class="active">�?t m�n tru?c</a>
+                        <a href="${pageContext.request.contextPath}/about">V? ch�ng t�i</a>
+                        <a href="${pageContext.request.contextPath}/contact">Li�n h?</a>
                     </div>
                     <div class="nav-actions">
                         <div class="hotline"><i class="fa-solid fa-phone-volume"></i> 1900 1234</div>
@@ -615,9 +616,9 @@
 
                 <!-- HERO -->
                 <section class="preorder-hero">
-                    <div class="section-label"><i class="fa-solid fa-utensils"></i> Đặt món trước</div>
-                    <h1>Chuẩn bị <em>bữa tiệc</em> hoàn hảo</h1>
-                    <p>Đặt món trước khi đến nhà hàng. Món ăn sẽ được chuẩn bị sẵn sàng khi bạn tới.</p>
+                    <div class="section-label"><i class="fa-solid fa-utensils"></i> �?t m�n tru?c</div>
+                    <h1>Chu?n b? <em>b?a ti?c</em> ho�n h?o</h1>
+                    <p>�?t m�n tru?c khi d?n nh� h�ng. M�n an s? du?c chu?n b? s?n s�ng khi b?n t?i.</p>
                 </section>
 
                 <!-- CONTENT -->
@@ -636,19 +637,19 @@
                             <div class="lookup-card">
                                 <h3
                                     style="font-size:16px;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px">
-                                    <i class="fa-solid fa-ticket" style="color:var(--primary)"></i> Nhập mã đặt bàn
+                                    <i class="fa-solid fa-ticket" style="color:var(--primary)"></i> Nh?p m� d?t b�n
                                 </h3>
                                 <form method="get" action="${pageContext.request.contextPath}/user/pre-order"
                                     class="lookup-form">
                                     <input type="text" name="code" class="form-control"
-                                        placeholder="Mã đặt bàn (VD: BK-2026-001)" value="${param.code}" required>
-                                    <button type="submit" class="btn-lookup"><i class="fa-solid fa-search"></i> Tìm
+                                        placeholder="M� d?t b�n (VD: BK-2026-001)" value="${param.code}" required>
+                                    <button type="submit" class="btn-lookup"><i class="fa-solid fa-search"></i> T�m
                                         booking</button>
                                 </form>
                                 <p style="font-size:13px;color:var(--text-muted);margin-top:12px">
-                                    <i class="fa-solid fa-info-circle"></i> Bạn cần có mã đặt bàn để đặt món trước.
+                                    <i class="fa-solid fa-info-circle"></i> B?n c?n c� m� d?t b�n d? d?t m�n tru?c.
                                     <a href="${pageContext.request.contextPath}/user/booking/create"
-                                        style="color:var(--primary)">Đặt bàn ngay →</a>
+                                        style="color:var(--primary)">�?t b�n ngay ?</a>
                                 </p>
                             </div>
                         </c:when>
@@ -666,12 +667,12 @@
                                     </div>
                                     <div class="info-chip"><i class="fa-solid fa-clock"></i> ${booking.bookingTime}
                                     </div>
-                                    <div class="info-chip"><i class="fa-solid fa-users"></i> ${booking.partySize} khách
+                                    <div class="info-chip"><i class="fa-solid fa-users"></i> ${booking.partySize} kh�ch
                                     </div>
                                 </div>
                                 <c:if test="${not empty cutoffDisplay}">
                                     <div class="cutoff-timer ${cutoffOk ? 'ok' : ''}">
-                                        <i class="fa-solid fa-hourglass-half"></i> Hạn sửa: ${cutoffDisplay}
+                                        <i class="fa-solid fa-hourglass-half"></i> H?n s?a: ${cutoffDisplay}
                                     </div>
                                 </c:if>
                             </div>
@@ -681,17 +682,17 @@
                                 <!-- LEFT: Menu -->
                                 <div class="menu-panel">
                                     <div class="menu-panel-header">
-                                        <h3><i class="fa-solid fa-bowl-food" style="color:var(--primary)"></i> Chọn món
+                                        <h3><i class="fa-solid fa-bowl-food" style="color:var(--primary)"></i> Ch?n m�n
                                         </h3>
                                         <div class="search-wrap">
                                             <i class="fa-solid fa-magnifying-glass"></i>
-                                            <input type="text" class="menu-search" placeholder="Tìm món..."
+                                            <input type="text" class="menu-search" placeholder="T�m m�n..."
                                                 id="menuSearch" onkeyup="filterMenu()">
                                         </div>
                                     </div>
                                     <div class="cat-tabs" id="catTabs">
-                                        <button class="cat-tab active" onclick="filterCat(this, '')" type="button">Tất
-                                            cả</button>
+                                        <button class="cat-tab active" onclick="filterCat(this, '')" type="button">T?t
+                                            c?</button>
                                         <c:forEach var="cat" items="${categories}">
                                             <button class="cat-tab" onclick="filterCat(this, '${cat.categoryName}')"
                                                 type="button">${cat.categoryName}</button>
@@ -707,10 +708,10 @@
                                                     <div class="menu-item-cat">${item.category.categoryName}</div>
                                                 </div>
                                                 <div class="menu-item-price">
-                                                    <fmt:formatNumber value="${item.price}" pattern="#,###" />đ
+                                                    <fmt:formatNumber value="${item.price}" pattern="#,###" />d
                                                 </div>
                                                 <c:if test="${item.status == 'AVAILABLE'}">
-                                                    <button type="button" class="btn-add-item" title="Thêm"
+                                                    <button type="button" class="btn-add-item" title="Th�m"
                                                         onclick="addToCart('${item.id}', '${item.productName}', ${item.price}, '${item.category.categoryName}')">
                                                         <i class="fa-solid fa-plus"></i>
                                                     </button>
@@ -718,7 +719,7 @@
                                             </div>
                                         </c:forEach>
                                         <c:if test="${empty menuItems}">
-                                            <div class="cart-empty"><i class="fa-solid fa-bowl-food"></i>Chưa có món nào
+                                            <div class="cart-empty"><i class="fa-solid fa-bowl-food"></i>Chua c� m�n n�o
                                             </div>
                                         </c:if>
                                     </div>
@@ -727,29 +728,29 @@
                                 <!-- RIGHT: Cart -->
                                 <div class="cart-panel">
                                     <div class="cart-header">
-                                        <h3><i class="fa-solid fa-cart-shopping" style="color:var(--primary)"></i> Món
-                                            đã chọn
+                                        <h3><i class="fa-solid fa-cart-shopping" style="color:var(--primary)"></i> M�n
+                                            d� ch?n
                                             <span class="cart-count" id="cartCount" style="display:none">0</span>
                                         </h3>
                                     </div>
                                     <div class="cart-body" id="cartBody">
                                         <div class="cart-empty" id="cartEmpty">
                                             <i class="fa-solid fa-cart-shopping"></i>
-                                            Chưa có món nào.<br>Chọn món từ danh sách bên trái.
+                                            Chua c� m�n n�o.<br>Ch?n m�n t? danh s�ch b�n tr�i.
                                         </div>
                                     </div>
                                     <div class="cart-footer">
                                         <div class="cart-total-row">
-                                            <span class="cart-total-label">Tạm tính</span>
-                                            <span class="cart-total-value" id="cartTotal">0đ</span>
+                                            <span class="cart-total-label">T?m t�nh</span>
+                                            <span class="cart-total-value" id="cartTotal">0d</span>
                                         </div>
                                         <div class="cart-note">
                                             <textarea id="preorderNote"
-                                                placeholder="Ghi chú (dị ứng, yêu cầu đặc biệt...)"></textarea>
+                                                placeholder="Ghi ch� (d? ?ng, y�u c?u d?c bi?t...)"></textarea>
                                         </div>
                                         <button type="button" class="btn-confirm-preorder" id="btnConfirm" disabled
                                             onclick="confirmPreOrder()">
-                                            <i class="fa-solid fa-check"></i> Xác nhận đặt món
+                                            <i class="fa-solid fa-check"></i> X�c nh?n d?t m�n
                                         </button>
                                     </div>
                                 </div>
@@ -764,9 +765,9 @@
                         <div class="footer-brand">
                             <div class="footer-logo">
                                 <div class="footer-logo-icon"><i class="fa-solid fa-utensils"></i></div>
-                                <div class="footer-logo-text">Hương Việt<span>Nhà hàng &amp; Quán nhậu</span></div>
+                                <div class="footer-logo-text">Huong Vi?t<span>Nh� h�ng &amp; Qu�n nh?u</span></div>
                             </div>
-                            <p class="footer-desc">Không chỉ là nhà hàng, Hương Việt còn là phong cách sống — điểm hẹn của những khoảnh khắc đáng nhớ.</p>
+                            <p class="footer-desc">Kh�ng ch? l� nh� h�ng, Huong Vi?t c�n l� phong c�ch s?ng � di?m h?n c?a nh?ng kho?nh kh?c d�ng nh?.</p>
                             <div class="socials">
                                 <a href="#" class="social"><i class="fa-brands fa-facebook-f"></i></a>
                                 <a href="#" class="social"><i class="fa-brands fa-instagram"></i></a>
@@ -775,40 +776,40 @@
                             </div>
                         </div>
                         <div class="footer-col">
-                            <h4>Khám phá</h4>
+                            <h4>Kh�m ph�</h4>
                             <ul>
-                                <li><a href="${pageContext.request.contextPath}/user/menu">Thực đơn</a></li>
-                                <li><a href="${pageContext.request.contextPath}/user/booking/create">Đặt bàn</a></li>
-                                <li><a href="${pageContext.request.contextPath}/user/booking/status">Tra cứu booking</a></li>
-                                <li><a href="${pageContext.request.contextPath}/user/pre-order">Đặt món trước</a></li>
+                                <li><a href="${pageContext.request.contextPath}/user/menu">Th?c don</a></li>
+                                <li><a href="${pageContext.request.contextPath}/user/booking/create">�?t b�n</a></li>
+                                <li><a href="${pageContext.request.contextPath}/user/booking/status">Tra c?u booking</a></li>
+                                <li><a href="${pageContext.request.contextPath}/user/pre-order">�?t m�n tru?c</a></li>
                             </ul>
                         </div>
                         <div class="footer-col">
-                            <h4>Về chúng tôi</h4>
+                            <h4>V? ch�ng t�i</h4>
                             <ul>
-                                <li><a href="${pageContext.request.contextPath}/about">Giới thiệu</a></li>
-                                <li><a href="${pageContext.request.contextPath}/contact">Liên hệ</a></li>
+                                <li><a href="${pageContext.request.contextPath}/about">Gi?i thi?u</a></li>
+                                <li><a href="${pageContext.request.contextPath}/contact">Li�n h?</a></li>
                             </ul>
                         </div>
                         <div class="footer-col">
-                            <h4>Liên hệ</h4>
+                            <h4>Li�n h?</h4>
                             <div class="footer-contact-item">
                                 <div class="footer-contact-icon"><i class="fa-solid fa-location-dot"></i></div>
-                                <div class="footer-contact-text"><strong>Địa chỉ</strong>123 Nguyễn Huệ, Quận 1, TP.HCM</div>
+                                <div class="footer-contact-text"><strong>�?a ch?</strong>123 Nguy?n Hu?, Qu?n 1, TP.HCM</div>
                             </div>
                             <div class="footer-contact-item">
                                 <div class="footer-contact-icon"><i class="fa-solid fa-phone"></i></div>
-                                <div class="footer-contact-text"><strong>Hotline</strong>1900 1234 (8:00 – 23:00)</div>
+                                <div class="footer-contact-text"><strong>Hotline</strong>1900 1234 (8:00 � 23:00)</div>
                             </div>
                             <div class="footer-contact-item">
                                 <div class="footer-contact-icon"><i class="fa-regular fa-clock"></i></div>
-                                <div class="footer-contact-text"><strong>Giờ mở cửa</strong>10:00 – 23:00 hàng ngày</div>
+                                <div class="footer-contact-text"><strong>Gi? m? c?a</strong>10:00 � 23:00 h�ng ng�y</div>
                             </div>
                         </div>
                     </div>
                     <div class="footer-bottom">
-                        <p>© 2026 Nhà hàng Hương Việt.</p>
-                        <p>Thiết kế bởi <a href="#">Đội ngũ Hương Việt Tech</a></p>
+                        <p>� 2026 Nh� h�ng Huong Vi?t.</p>
+                        <p>Thi?t k? b?i <a href="#">�?i ngu Huong Vi?t Tech</a></p>
                     </div>
                 </footer>
 
@@ -871,7 +872,7 @@
                     }
 
                     function formatVND(n) {
-                        return n.toLocaleString('vi-VN') + 'đ';
+                        return n.toLocaleString('vi-VN') + 'd';
                     }
 
                     function renderCart() {
@@ -887,7 +888,7 @@
                             body.appendChild(emptyEl);
                             emptyEl.style.display = '';
                             countEl.style.display = 'none';
-                            totalEl.textContent = '0đ';
+                            totalEl.textContent = '0d';
                             btnConfirm.disabled = true;
                             return;
                         }
@@ -911,7 +912,7 @@
                                 + '    <span class="qty-val">' + item.qty + '</span>'
                                 + '    <button type="button" class="qty-btn" onclick="changeQty(\'' + item.id + '\', 1)">+</button>'
                                 + '  </div>'
-                                + '  <button type="button" class="btn-remove" title="Xóa" onclick="removeFromCart(\'' + item.id + '\')">'
+                                + '  <button type="button" class="btn-remove" title="X�a" onclick="removeFromCart(\'' + item.id + '\')">'
                                 + '    <i class="fa-solid fa-trash"></i>'
                                 + '  </button>'
                                 + '</div>';

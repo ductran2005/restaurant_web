@@ -10,6 +10,7 @@
                 <title>Đặt món trước — Nhà hàng Hương Việt</title>
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/landing.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/mobile.css">
                 <style>
                     .preorder-hero {
                         padding: 140px 48px 40px;

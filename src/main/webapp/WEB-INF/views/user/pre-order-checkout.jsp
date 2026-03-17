@@ -754,7 +754,14 @@
                                         <c:forEach var="poi" items="${items}">
                                             <c:if test="${not empty poi.product}">
                                                 <div class="item-row">
-                                                    <div class="item-thumb"><i class="fa-solid fa-bowl-food"></i></div>
+                                                    <div class="item-thumb">
+                                                        <c:choose>
+                                                            <c:when test="${not empty poi.product.imageUrl}">
+                                                                <img src="${poi.product.imageUrl}" alt="${poi.product.productName}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">
+                                                            </c:when>
+                                                            <c:otherwise><i class="fa-solid fa-bowl-food"></i></c:otherwise>
+                                                        </c:choose>
+                                                    </div>""
                                                     <div class="item-info">
                                                         <div class="item-name">${poi.product.productName}</div>
                                                         <div class="item-unit">
