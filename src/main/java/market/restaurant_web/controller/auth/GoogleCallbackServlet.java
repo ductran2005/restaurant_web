@@ -47,19 +47,41 @@ public class GoogleCallbackServlet extends HttpServlet {
             return;
         }
 
-        // 2. Verify CSRF state
+        // 2. Verify CSRF state — check session first, fallback to cookie
         String state = req.getParameter("state");
         HttpSession httpSession = req.getSession(false);
-        if (httpSession == null) {
+
+        String savedState = null;
+        // Try session first
+        if (httpSession != null) {
+            savedState = (String) httpSession.getAttribute("oauth_state");
+        }
+        // Fallback: check cookie (handles Nginx proxy session loss)
+        if (savedState == null) {
+            Cookie[] cookies = req.getCookies();
+            if (cookies != null) {
+                for (Cookie c : cookies) {
+                    if ("OAUTH_STATE".equals(c.getName())) {
+                        savedState = c.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+        // Clear the state cookie
+        Cookie clearCookie = new Cookie("OAUTH_STATE", "");
+        clearCookie.setPath("/");
+        clearCookie.setMaxAge(0);
+        resp.addCookie(clearCookie);
+
+        if (state == null || savedState == null || !state.equals(savedState)) {
             resp.sendRedirect(req.getContextPath() + "/login?error=invalid_state");
             return;
         }
-        String savedState = (String) httpSession.getAttribute("oauth_state");
-        if (state == null || !state.equals(savedState)) {
-            resp.sendRedirect(req.getContextPath() + "/login?error=invalid_state");
-            return;
+        if (httpSession != null) {
+            httpSession.removeAttribute("oauth_state");
         }
-        httpSession.removeAttribute("oauth_state");
+
 
         // 3. Get authorization code
         String code = req.getParameter("code");

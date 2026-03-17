@@ -23,6 +23,14 @@ public class GoogleLoginServlet extends HttpServlet {
         HttpSession session = req.getSession(true);
         session.setAttribute("oauth_state", state);
 
+        // Also store state in cookie as fallback (for reverse proxy / Nginx environments
+        // where session may be lost during Google's redirect)
+        Cookie stateCookie = new Cookie("OAUTH_STATE", state);
+        stateCookie.setPath("/");
+        stateCookie.setHttpOnly(true);
+        stateCookie.setMaxAge(300); // 5 minutes
+        resp.addCookie(stateCookie);
+
         // Build Google OAuth URL
         String authUrl = GoogleOAuthConfig.AUTH_URL
                 + "?client_id=" + enc(GoogleOAuthConfig.getClientId())
