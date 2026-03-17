@@ -574,11 +574,8 @@
                                 .then(data => {
                                     if (data.status === 'PAID') {
                                         clearInterval(pollingInterval);
-                                        // Show success
-                                        document.getElementById('statusChecking').style.display = 'none';
-                                        document.getElementById('paymentSuccessBanner').classList.add('show');
 
-                                        // Play a subtle sound effect (optional)
+                                        // Play a subtle sound effect
                                         try {
                                             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                                             const oscillator = audioCtx.createOscillator();
@@ -592,6 +589,15 @@
                                             oscillator.start(audioCtx.currentTime);
                                             oscillator.stop(audioCtx.currentTime + 0.5);
                                         } catch (e) { }
+
+                                        // Show success banner briefly then redirect to bill/receipt
+                                        document.getElementById('statusChecking').style.display = 'none';
+                                        document.getElementById('paymentSuccessBanner').classList.add('show');
+
+                                        // Redirect to receipt page after 1.5 seconds
+                                        setTimeout(function () {
+                                            window.location.href = ctx + '/cashier/receipt/view?orderId=' + orderId;
+                                        }, 1500);
                                     }
                                 })
                                 .catch(err => console.error('Polling error:', err));
