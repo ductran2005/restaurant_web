@@ -379,37 +379,37 @@
                                             <div class="breakdown-row">
                                                 <span>Tạm tính:</span>
                                                 <span>
-                                                    <fmt:formatNumber value="${totals.subtotal}" pattern="#,###" /> đ
+                                                    <fmt:formatNumber value="${calcSubtotal}" pattern="#,###" /> đ
                                                 </span>
                                             </div>
-                                            <c:if test="${totals.vatRate > 0}">
+                                            <c:if test="${calcVatRate > 0}">
                                                 <div class="breakdown-row">
-                                                    <span>VAT (<fmt:formatNumber value="${totals.vatRate}" pattern="#,##0.##" />%):</span>
+                                                    <span>VAT (<fmt:formatNumber value="${calcVatRate}" pattern="#,##0.##" />%):</span>
                                                     <span>
-                                                        <fmt:formatNumber value="${totals.vatAmount}" pattern="#,###" /> đ
+                                                        <fmt:formatNumber value="${calcVatAmount}" pattern="#,###" /> đ
                                                     </span>
                                                 </div>
                                             </c:if>
-                                            <c:if test="${totals.serviceFeeRate > 0}">
+                                            <c:if test="${calcServiceFeeRate > 0}">
                                                 <div class="breakdown-row">
-                                                    <span>Phí dịch vụ (<fmt:formatNumber value="${totals.serviceFeeRate}" pattern="#,##0.##" />%):</span>
+                                                    <span>Phí dịch vụ (<fmt:formatNumber value="${calcServiceFeeRate}" pattern="#,##0.##" />%):</span>
                                                     <span>
-                                                        <fmt:formatNumber value="${totals.serviceFeeAmount}" pattern="#,###" /> đ
+                                                        <fmt:formatNumber value="${calcServiceFeeAmount}" pattern="#,###" /> đ
                                                     </span>
                                                 </div>
                                             </c:if>
-                                            <c:if test="${totals.discountAmount > 0}">
+                                            <c:if test="${calcDiscount > 0}">
                                                 <div class="breakdown-row">
                                                     <span>Giảm giá:</span>
                                                     <span style="color:var(--success)">
-                                                        -<fmt:formatNumber value="${totals.discountAmount}" pattern="#,###" /> đ
+                                                        -<fmt:formatNumber value="${calcDiscount}" pattern="#,###" /> đ
                                                     </span>
                                                 </div>
                                             </c:if>
                                             <div class="breakdown-row total">
                                                 <span>Tổng cộng:</span>
                                                 <span id="totalAmountDisplay">
-                                                    <fmt:formatNumber value="${totals.totalAmount}" pattern="#,###" /> đ
+                                                    <fmt:formatNumber value="${calcTotal}" pattern="#,###" /> đ
                                                 </span>
                                             </div>
                                         </div>
