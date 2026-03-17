@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-/.vscode
-=======
 # Build output
 target/
 *.class
@@ -23,8 +20,17 @@ Thumbs.db
 
 # Secrets / Environment
 *.env
+.env
 .env.local
+.env.production
+
+# Docker
+.dockerignore
 
 # Logs
 *.log
->>>>>>> 607a489f1e57f440514b7c803911e7a601a414c4
+logs/
+
+# Database
+*.db
+*.sqlite

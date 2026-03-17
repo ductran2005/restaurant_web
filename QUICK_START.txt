@@ -1,0 +1,58 @@
+╔══════════════════════════════════════════════════════════════╗
+║     RESTAURANT MANAGEMENT SYSTEM - QUICK START GUIDE         ║
+╚══════════════════════════════════════════════════════════════╝
+
+📋 YÊU CẦU:
+   - Docker Desktop (Windows/Mac) hoặc Docker Engine (Linux)
+   - 4GB RAM
+   - 10GB disk space
+
+🚀 CHẠY ỨNG DỤNG (3 BƯỚC):
+
+   1. Cài Docker:
+      Windows/Mac: https://www.docker.com/products/docker-desktop
+      Linux: curl -fsSL https://get.docker.com | sh
+
+   2. Chạy lệnh:
+      
+      Windows:
+      > start.bat
+      
+      Linux/Mac:
+      $ chmod +x start.sh
+      $ ./start.sh
+      
+      Hoặc thủ công:
+      $ docker-compose up -d --build
+
+   3. Truy cập:
+      http://localhost:8080
+
+🔑 TÀI KHOẢN MẶC ĐỊNH:
+   Admin:    admin / admin123
+   Cashier:  cashier1 / cashier123
+   Staff:    staff1 / staff123
+
+📊 CÁC LỆNH HỮU ÍCH:
+   docker-compose logs -f webapp    # Xem logs
+   docker-compose ps                # Xem status
+   docker-compose restart webapp    # Restart
+   docker-compose down              # Dừng
+
+📚 TÀI LIỆU:
+   - HUONG_DAN_NHANH.md        : Hướng dẫn chi tiết (Tiếng Việt)
+   - DEPLOYMENT_GUIDE.md       : Deploy production
+   - README_DOCKER.md          : Docker commands
+   - DEPLOY_CHECKLIST.md       : Checklist đầy đủ
+
+⚠️  LƯU Ý:
+   - Lần đầu build mất 3-5 phút
+   - Đổi password admin sau khi đăng nhập!
+   - Cấu hình thông tin nhà hàng tại Admin → Config
+
+🆘 GẶP LỖI?
+   1. Xem logs: docker-compose logs -f webapp
+   2. Đọc HUONG_DAN_NHANH.md
+   3. Kiểm tra Docker đang chạy: docker ps
+
+═══════════════════════════════════════════════════════════════

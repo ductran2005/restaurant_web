@@ -1,0 +1,26 @@
+version: '3.8'
+
+# Docker Compose for production deployment with Supabase
+services:
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: restaurant-webapp
+    ports:
+      - "8080:8080"
+    environment:
+      # Supabase Connection (update these values)
+      DB_HOST: aws-1-ap-southeast-1.pooler.supabase.com
+      DB_PORT: 6543
+      DB_NAME: postgres
+      DB_USER: postgres.bstcdtpgtbvpsitnogzd
+      DB_PASSWORD: ${SUPABASE_PASSWORD}
+      TZ: Asia/Ho_Chi_Minh
+    restart: unless-stopped
+    networks:
+      - restaurant-network
+
+networks:
+  restaurant-network:
+    driver: bridge
