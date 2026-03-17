@@ -187,7 +187,7 @@ public class PaymentService {
             orderDao.update(s, order);
 
             // Find a system/admin user as auto-cashier
-            User autoCashier = s.createQuery("FROM User WHERE role.name IN ('ADMIN','CASHIER') ORDER BY id", User.class)
+            User autoCashier = s.createQuery("FROM User WHERE role.roleName IN ('ADMIN','CASHIER') ORDER BY id", User.class)
                     .setMaxResults(1).uniqueResult();
             if (autoCashier == null) {
                 autoCashier = s.createQuery("FROM User ORDER BY id", User.class).setMaxResults(1).uniqueResult();
