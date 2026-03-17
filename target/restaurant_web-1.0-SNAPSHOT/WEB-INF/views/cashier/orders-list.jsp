@@ -154,8 +154,11 @@
                                                                 <td><span class="badge b-success">PAID</span></td>
                                                                 <td style="color:var(--text-muted)">${o.closedAt}</td>
                                                                 <td>
-                                                                    <button class="btn btn-ghost btn-sm"><i
-                                                                            class="fa-solid fa-print"></i></button>
+                                                                    <a href="${ctx}/cashier/receipt/view?orderId=${o.id}"
+                                                                            class="btn btn-ghost btn-sm"
+                                                                            title="In hóa đơn">
+                                                                        <i class="fa-solid fa-print"></i>
+                                                                    </a>
                                                                 </td>
                                                             </tr>
                                                         </c:forEach>

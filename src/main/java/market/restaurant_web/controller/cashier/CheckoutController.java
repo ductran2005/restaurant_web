@@ -53,6 +53,12 @@ public class CheckoutController extends HttpServlet {
         req.setAttribute("sepayAccountName", configService.getValue("SEPAY_ACCOUNT_NAME"));
         req.setAttribute("sepayContentPrefix", configService.getValue("SEPAY_CONTENT_PREFIX"));
 
+        // VAT rate
+        String vatRateStr = configService.getValue("vat_rate");
+        double vatRate = 0;
+        try { if (vatRateStr != null) vatRate = Double.parseDouble(vatRateStr.trim()); } catch (NumberFormatException ignored) {}
+        req.setAttribute("vatRate", vatRate);
+
         req.getRequestDispatcher("/WEB-INF/views/cashier/checkout.jsp").forward(req, resp);
     }
 

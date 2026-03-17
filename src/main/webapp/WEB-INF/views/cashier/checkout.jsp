@@ -114,6 +114,7 @@
                         font-weight: 700;
                         background: linear-gradient(90deg, #818cf8, #a78bfa);
                         -webkit-background-clip: text;
+                        background-clip: text;
                         -webkit-text-fill-color: transparent;
                         margin-bottom: 4px;
                     }
@@ -381,6 +382,14 @@
                                                     <fmt:formatNumber value="${order.subtotal}" pattern="#,###" /> đ
                                                 </span>
                                             </div>
+                                            <c:if test="${vatRate > 0}">
+                                                <div class="breakdown-row">
+                                                    <span>VAT (<fmt:formatNumber value="${vatRate}" pattern="#,##0.##" />%):</span>
+                                                    <span>
+                                                        <fmt:formatNumber value="${order.subtotal * vatRate / 100}" pattern="#,###" /> đ
+                                                    </span>
+                                                </div>
+                                            </c:if>
                                             <div class="breakdown-row">
                                                 <span>Giảm giá:</span>
                                                 <span>
@@ -523,7 +532,7 @@
                     // Payment method selection
                     let selectedMethod = '';
                     let pollingInterval = null;
-                    const sepayEnabled = ${ sepayEnabled != null ? sepayEnabled : false};
+                    const sepayEnabled = '${sepayEnabled}' === 'true';
 
                     function selectMethod(btn) {
                         // Remove active from all

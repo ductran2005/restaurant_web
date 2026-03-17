@@ -118,7 +118,21 @@ public class ReceiptService {
         BigDecimal discount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
         BigDecimal total = order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO;
 
+        // VAT
+        String vatRateStr = configService.getValue("vat_rate");
+        BigDecimal vatRate = BigDecimal.ZERO;
+        try { if (vatRateStr != null) vatRate = new BigDecimal(vatRateStr.trim()); }
+        catch (NumberFormatException ignored) {}
+        BigDecimal taxAmount = subtotal
+                .multiply(vatRate)
+                .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+
         receipt.append(String.format("%-26s %,10.0f\n", "Tạm tính:", subtotal.doubleValue()));
+        if (vatRate.compareTo(BigDecimal.ZERO) > 0) {
+            receipt.append(String.format("%-26s %,10.0f\n",
+                    "VAT (" + vatRate.stripTrailingZeros().toPlainString() + "%):",
+                    taxAmount.doubleValue()));
+        }
         if (discount.compareTo(BigDecimal.ZERO) > 0) {
             receipt.append(String.format("%-26s -%,9.0f\n", "Giảm giá:", discount.doubleValue()));
         }

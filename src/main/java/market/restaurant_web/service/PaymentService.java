@@ -23,6 +23,15 @@ public class PaymentService {
     private final PaymentDAO paymentDao = new PaymentDAO();
     private final TableDAO tableDao = new TableDAO();
     private final ReceiptService receiptService = new ReceiptService();
+    private final ConfigService configService = new ConfigService();
+
+    /** Read VAT rate from system_config (key: vat_rate). Returns 0 if not set. */
+    private BigDecimal getVatRate() {
+        String val = configService.getValue("vat_rate");
+        if (val == null || val.isBlank()) return BigDecimal.ZERO;
+        try { return new BigDecimal(val.trim()); }
+        catch (NumberFormatException e) { return BigDecimal.ZERO; }
+    }
 
     /**
      * Checkout: calculate order totals, create payment, mark order PAID.
@@ -55,8 +64,14 @@ public class PaymentService {
                 subtotal = subtotal.add(d.getUnitPrice().multiply(BigDecimal.valueOf(d.getQuantity())));
             }
 
+            // Apply VAT
+            BigDecimal vatRate = getVatRate();
+            BigDecimal taxAmount = subtotal
+                    .multiply(vatRate)
+                    .divide(java.math.BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+
             BigDecimal discountAmount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
-            BigDecimal totalAmount = subtotal.subtract(discountAmount);
+            BigDecimal totalAmount = subtotal.add(taxAmount).subtract(discountAmount);
             if (totalAmount.compareTo(BigDecimal.ZERO) < 0)
                 totalAmount = BigDecimal.ZERO;
 
@@ -138,8 +153,14 @@ public class PaymentService {
                 subtotal = subtotal.add(d.getUnitPrice().multiply(BigDecimal.valueOf(d.getQuantity())));
             }
 
+            // Apply VAT
+            BigDecimal vatRate = getVatRate();
+            BigDecimal taxAmount = subtotal
+                    .multiply(vatRate)
+                    .divide(java.math.BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+
             BigDecimal discountAmount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
-            BigDecimal totalAmount = subtotal.subtract(discountAmount);
+            BigDecimal totalAmount = subtotal.add(taxAmount).subtract(discountAmount);
             if (totalAmount.compareTo(BigDecimal.ZERO) < 0)
                 totalAmount = BigDecimal.ZERO;
 
