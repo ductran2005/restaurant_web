@@ -1,1 +1,30 @@
+<<<<<<< HEAD
 /.vscode
+=======
+# Build output
+target/
+*.class
+*.war
+*.jar
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+*.swp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secrets / Environment
+*.env
+.env.local
+
+# Logs
+*.log
+>>>>>>> 607a489f1e57f440514b7c803911e7a601a414c4
