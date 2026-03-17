@@ -82,8 +82,8 @@ public class ReceiptService {
             }
             receipt.append("\n");
         }
-        if (order.getStaff() != null) {
-            receipt.append("Nhân viên: ").append(order.getStaff().getFullName()).append("\n");
+        if (order.getCreatedByUser() != null) {
+            receipt.append("Nhân viên: ").append(order.getCreatedByUser().getFullName()).append("\n");
         }
         receipt.append("Ngày: ").append(order.getCreatedAt().format(dateFormatter)).append("\n");
         receipt.append("\n");
