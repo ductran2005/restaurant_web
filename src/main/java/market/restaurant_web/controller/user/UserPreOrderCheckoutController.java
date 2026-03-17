@@ -68,10 +68,16 @@ public class UserPreOrderCheckoutController extends HttpServlet {
             }
         }
 
-        BigDecimal deposit = subtotal.multiply(DEPOSIT_RATE).setScale(0, RoundingMode.CEILING);
-        BigDecimal vat = subtotal.multiply(new BigDecimal("0.10")).setScale(0, RoundingMode.CEILING);
-        BigDecimal serviceFee = subtotal.multiply(new BigDecimal("0.05")).setScale(0, RoundingMode.CEILING);
+        ConfigService configService = new ConfigService();
+        BigDecimal vatRate = parseBigDecimal(configService.getValue("vat_rate"), BigDecimal.TEN);
+        BigDecimal serviceFeeRate = parseBigDecimal(configService.getValue("service_fee_rate"), new BigDecimal("5"));
+
+        BigDecimal vat = subtotal.multiply(vatRate)
+                .divide(java.math.BigDecimal.valueOf(100), 0, RoundingMode.HALF_UP);
+        BigDecimal serviceFee = subtotal.multiply(serviceFeeRate)
+                .divide(java.math.BigDecimal.valueOf(100), 0, RoundingMode.HALF_UP);
         BigDecimal grandTotal = subtotal.add(vat).add(serviceFee);
+        BigDecimal deposit = grandTotal.multiply(DEPOSIT_RATE).setScale(0, RoundingMode.CEILING);
 
         req.setAttribute("booking", booking);
         req.setAttribute("items", items);
@@ -80,10 +86,11 @@ public class UserPreOrderCheckoutController extends HttpServlet {
         req.setAttribute("vat", vat);
         req.setAttribute("serviceFee", serviceFee);
         req.setAttribute("grandTotal", grandTotal);
+        req.setAttribute("vatRate", vatRate);
+        req.setAttribute("serviceFeeRate", serviceFeeRate);
         req.setAttribute("navActive", "preorder");
 
         // SePay config — always provide bank info with fallback defaults
-        ConfigService configService = new ConfigService();
         String bankAccount = configService.getValue("SEPAY_BANK_ACCOUNT");
         String bankName    = configService.getValue("SEPAY_BANK_NAME");
         String accountName = configService.getValue("SEPAY_ACCOUNT_NAME");
@@ -154,5 +161,11 @@ public class UserPreOrderCheckoutController extends HttpServlet {
         } finally {
             s.close();
         }
+    }
+
+    private BigDecimal parseBigDecimal(String val, BigDecimal defaultVal) {
+        if (val == null || val.isBlank()) return defaultVal;
+        try { return new BigDecimal(val.trim()); }
+        catch (NumberFormatException e) { return defaultVal; }
     }
 }

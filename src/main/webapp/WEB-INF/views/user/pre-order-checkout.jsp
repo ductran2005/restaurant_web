@@ -1,4 +1,4 @@
-﻿<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <!DOCTYPE html>
@@ -461,6 +461,10 @@
                                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
                                 osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.5);
                             } catch(e) {}
+                            // Redirect to booking status (bill) after 1.5 seconds
+                            setTimeout(function() {
+                                window.location.href = ctx + '/user/booking/status?code=' + bookingCode;
+                            }, 1500);
                         }
                     })
                     .catch(err => console.error('Polling error:', err));
