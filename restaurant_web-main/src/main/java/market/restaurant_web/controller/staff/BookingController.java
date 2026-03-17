@@ -72,8 +72,11 @@ public class BookingController extends HttpServlet {
                 bookingService.confirm(Integer.parseInt(req.getParameter("bookingId")));
                 flash(req, "Xác nhận booking thành công!", "success");
             } else if ("checkin".equals(action)) {
-                bookingService.checkIn(Integer.parseInt(req.getParameter("bookingId")));
-                flash(req, "Check-in thành công!", "success");
+                market.restaurant_web.entity.User staff =
+                    (market.restaurant_web.entity.User) req.getSession().getAttribute("user");
+                int staffId = (staff != null) ? staff.getId() : 1;
+                bookingService.checkIn(Integer.parseInt(req.getParameter("bookingId")), staffId);
+                flash(req, "Check-in thành công! Order đã được tạo.", "success");
             } else if ("cancel".equals(action)) {
                 String reason = req.getParameter("reason");
                 bookingService.cancel(Integer.parseInt(req.getParameter("bookingId")), reason);

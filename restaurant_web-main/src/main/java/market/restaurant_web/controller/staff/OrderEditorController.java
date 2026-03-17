@@ -42,7 +42,7 @@ public class OrderEditorController extends HttpServlet {
         if (orderIdStr != null && !orderIdStr.isEmpty()) {
             req.setAttribute("order", orderService.findById(Integer.parseInt(orderIdStr)));
         }
-        req.setAttribute("activeOrders", orderService.findActiveOrders());
+        req.setAttribute("activeOrders", orderService.findActiveOrdersWithItems());
         req.setAttribute("products", productService.findAvailable());
         req.setAttribute("categories", categoryService.findActive());
         req.getRequestDispatcher("/WEB-INF/views/staff/order-editor.jsp").forward(req, resp);

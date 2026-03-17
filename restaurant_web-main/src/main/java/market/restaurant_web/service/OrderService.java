@@ -41,6 +41,22 @@ public class OrderService {
         }
     }
 
+    /** Returns only orders that have at least 1 active item — used for order list displays */
+    public List<Order> findActiveOrdersWithItems() {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            List<Order> list = orderDao.findActiveOrdersWithItems(s);
+            for (Order o : list) {
+                if (o.getOrderDetails() != null) {
+                    Hibernate.initialize(o.getOrderDetails());
+                    for (OrderDetail d : o.getOrderDetails()) {
+                        Hibernate.initialize(d.getProduct());
+                    }
+                }
+            }
+            return list;
+        }
+    }
+
     public List<Order> findByStatus(String status) {
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {
             return orderDao.findByStatus(s, status);
@@ -202,15 +218,27 @@ public class OrderService {
         order.setTotalAmount(subtotal.subtract(order.getDiscountAmount()));
         s.merge(order);
 
-        // Update table status: if no items, table should be EMPTY (unless reserved)
+        // Update table status based on items — respect active booking state
         DiningTable table = order.getTable();
         if (table != null && "OPEN".equals(order.getStatus())) {
+            // Check if there's an active booking on this table (checked-in or seated)
+            boolean hasActiveBooking = s.createQuery(
+                    "SELECT COUNT(*) FROM Booking WHERE table.id = :tid " +
+                    "AND status IN ('CHECKED_IN','SEATED')", Long.class)
+                    .setParameter("tid", table.getId())
+                    .uniqueResult() > 0;
+
             if (details.isEmpty()) {
-                if (table.getStatus() == TableStatus.OCCUPIED) {
+                // Only revert to RESERVED (not EMPTY) if there's a checked-in booking without items yet
+                if (hasActiveBooking && table.getStatus() == TableStatus.OCCUPIED) {
+                    table.setStatus(TableStatus.RESERVED);
+                    s.merge(table);
+                } else if (!hasActiveBooking && table.getStatus() == TableStatus.OCCUPIED) {
                     table.setStatus(TableStatus.EMPTY);
                     s.merge(table);
                 }
             } else {
+                // Has items → table is being served
                 if (table.getStatus() != TableStatus.OCCUPIED) {
                     table.setStatus(TableStatus.OCCUPIED);
                     s.merge(table);

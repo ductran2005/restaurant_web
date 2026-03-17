@@ -17,7 +17,7 @@ public class OrdersListController extends HttpServlet {
             req.setAttribute("paidOrders", orderService.findByStatus("PAID"));
             req.setAttribute("activeTab", "paid");
         } else {
-            req.setAttribute("orders", orderService.findActiveOrders());
+            req.setAttribute("orders", orderService.findActiveOrdersWithItems());
             req.setAttribute("activeTab", "orders");
         }
         req.getRequestDispatcher("/WEB-INF/views/cashier/orders-list.jsp").forward(req, resp);

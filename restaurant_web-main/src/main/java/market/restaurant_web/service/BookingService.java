@@ -2,21 +2,25 @@ package market.restaurant_web.service;
 
 import market.restaurant_web.config.HibernateUtil;
 import market.restaurant_web.dao.BookingDao;
+import market.restaurant_web.dao.OrderDAO;
 import market.restaurant_web.dao.TableDAO;
-import market.restaurant_web.entity.Booking;
-import market.restaurant_web.entity.DiningTable;
+import market.restaurant_web.entity.*;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class BookingService {
     private final BookingDao bookingDao = new BookingDao();
     private final TableDAO tableDao = new TableDAO();
+    private final OrderDAO orderDao = new OrderDAO();
 
     public List<Booking> search(String keyword, String status, LocalDate date) {
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {
@@ -73,53 +77,118 @@ public class BookingService {
         updateStatus(bookingId, "CONFIRMED");
     }
 
-    /** Check-in a confirmed booking - validates available tables and booking time */
-    public void checkIn(int bookingId) {
+    /** Check-in a confirmed booking (called from controller with logged-in staff) */
+    public void checkIn(int bookingId, int staffId) {
         Session s = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = s.beginTransaction();
         try {
             Booking b = bookingDao.findById(s, bookingId);
             if (b == null)
                 throw new RuntimeException("Booking không tồn tại");
-            
-            // Check if booking time is appropriate for check-in
-            // Allow check-in 30 minutes before booking time
+
+            // Force-initialize lazy collections needed in this transaction
+            Hibernate.initialize(b.getPreOrderItems());
+            if (b.getPreOrderItems() != null) {
+                for (PreOrderItem item : b.getPreOrderItems()) {
+                    Hibernate.initialize(item.getProduct());
+                }
+            }
+
+            // Validate check-in window: allow 30 minutes before booking time
             LocalDateTime bookingDateTime = LocalDateTime.of(b.getBookingDate(), b.getBookingTime());
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime earliestCheckIn = bookingDateTime.minusMinutes(30);
-            
+
             if (now.isBefore(earliestCheckIn)) {
-                long minutesUntilCheckIn = java.time.Duration.between(now, earliestCheckIn).toMinutes();
+                long minutesUntil = java.time.Duration.between(now, earliestCheckIn).toMinutes();
                 throw new RuntimeException(
-                    "Chưa đến giờ check-in. Vui lòng quay lại sau " + minutesUntilCheckIn + " phút " +
+                    "Chưa đến giờ check-in. Vui lòng quay lại sau " + minutesUntil + " phút " +
                     "(có thể check-in từ " + earliestCheckIn.toLocalTime() + ")"
                 );
             }
-            
-            // Check if there are any available tables
-            long availableCount = s.createQuery(
-                "SELECT COUNT(*) FROM DiningTable WHERE status = :empty OR status = :available", 
-                Long.class)
-                .setParameter("empty", market.restaurant_web.entity.TableStatus.EMPTY)
-                .setParameter("available", market.restaurant_web.entity.TableStatus.AVAILABLE)
-                .uniqueResult();
-            
-            if (availableCount == 0) {
-                throw new RuntimeException("Không còn bàn trống để check-in. Vui lòng đợi bàn được dọn dẹp.");
-            }
-            
+
+            if (b.getTable() == null)
+                throw new RuntimeException("Booking chưa được gán bàn, không thể check-in");
+
+            DiningTable table = b.getTable();
+
+            // Set booking to CHECKED_IN
             b.setStatus("CHECKED_IN");
-            b.setUpdatedAt(LocalDateTime.now());
+            b.setUpdatedAt(now);
             bookingDao.update(s, b);
+
+            boolean hasPreOrder = b.getPreOrderItems() != null && !b.getPreOrderItems().isEmpty();
+
+            if (hasPreOrder) {
+                // Has pre-order → table OCCUPIED immediately + create order with items
+                table.setStatus(TableStatus.OCCUPIED);
+                tableDao.update(s, table);
+
+                Order existingOrder = orderDao.findOpenByTable(s, table.getId());
+                if (existingOrder == null) {
+                    User staff = s.get(User.class, staffId);
+                    if (staff == null)
+                        throw new RuntimeException("Không tìm thấy nhân viên (staffId=" + staffId + ")");
+
+                    Order order = new Order();
+                    order.setTable(table);
+                    order.setCreatedByUser(staff);
+                    order.setStatus("OPEN");
+                    order.setOrderType("DINE_IN");
+                    order.setBooking(b);
+                    order.setOrderDetails(new ArrayList<>());
+                    orderDao.save(s, order);
+
+                    BigDecimal subtotal = BigDecimal.ZERO;
+                    for (PreOrderItem item : b.getPreOrderItems()) {
+                        OrderDetail detail = new OrderDetail();
+                        detail.setOrder(order);
+                        detail.setProduct(item.getProduct());
+                        detail.setQuantity(item.getQuantity());
+                        detail.setUnitPrice(item.getProduct().getPrice());
+                        detail.setItemStatus("PENDING");
+                        s.persist(detail);
+                        subtotal = subtotal.add(
+                            item.getProduct().getPrice()
+                                .multiply(BigDecimal.valueOf(item.getQuantity()))
+                        );
+                    }
+                    order.setSubtotal(subtotal);
+                    order.setTotalAmount(subtotal.subtract(order.getDiscountAmount()));
+                    s.merge(order);
+                    System.out.println("✓ Auto-created order #" + order.getId() +
+                        " with " + b.getPreOrderItems().size() + " pre-order items for booking " + b.getBookingCode());
+                }
+            } else {
+                // No pre-order → keep table RESERVED, becomes OCCUPIED when staff adds first item
+                System.out.println("ℹ No pre-order for booking " + b.getBookingCode() +
+                    " — table stays RESERVED until staff creates order");
+            }
+
             tx.commit();
         } catch (RuntimeException e) {
-            if (tx != null)
-                tx.rollback();
+            if (tx != null) tx.rollback();
             throw e;
         } catch (Exception e) {
-            if (tx != null)
-                tx.rollback();
+            if (tx != null) tx.rollback();
             throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            s.close();
+        }
+    }
+
+    /** Check-in without staffId — fallback, picks first available staff user */
+    public void checkIn(int bookingId) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        try {
+            // Find first STAFF or ADMIN user to use as order creator
+            User systemUser = s.createQuery(
+                "FROM User u WHERE u.role.roleName IN ('STAFF','ADMIN','CASHIER') " +
+                "AND u.status = 'ACTIVE' ORDER BY u.id ASC", User.class)
+                .setMaxResults(1)
+                .uniqueResult();
+            int staffId = (systemUser != null) ? systemUser.getId() : 1;
+            checkIn(bookingId, staffId);
         } finally {
             s.close();
         }
@@ -319,22 +388,27 @@ public class BookingService {
         }
     }
 
-    /** Find best available table for given party size and time */
+    /** Find best available table for given party size and time.
+     *  Only considers tables that are currently EMPTY or AVAILABLE. */
     private DiningTable findBestAvailableTable(Session s, int partySize, LocalDate date, LocalTime time, Integer excludeBookingId) {
-        // Get all tables with sufficient capacity, ordered by capacity (smallest first)
+        // Only consider tables that are physically free right now
         List<DiningTable> tables = s.createQuery(
-            "FROM DiningTable WHERE capacity >= :size ORDER BY capacity ASC", 
+            "FROM DiningTable WHERE capacity >= :size " +
+            "AND (status = :empty OR status = :available) " +
+            "ORDER BY capacity ASC",
             DiningTable.class)
             .setParameter("size", partySize)
+            .setParameter("empty", market.restaurant_web.entity.TableStatus.EMPTY)
+            .setParameter("available", market.restaurant_web.entity.TableStatus.AVAILABLE)
             .list();
-        
-        // Find first table without time conflict
+
+        // Find first table without time conflict with any OTHER booking
         for (DiningTable table : tables) {
             if (!hasTimeConflict(s, table.getId(), date, time, excludeBookingId)) {
                 return table;
             }
         }
-        
+
         return null;
     }
 
@@ -575,27 +649,46 @@ public class BookingService {
         }
     }
 
-    /** Update table status to RESERVED for confirmed bookings approaching their time */
+    /** Update table status to RESERVED for confirmed bookings approaching their time.
+     *  Only sets RESERVED if the table is currently EMPTY and belongs to THIS booking. */
     public void updateTableStatusForUpcomingBookings(int minutesBefore) {
         Session s = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = s.beginTransaction();
         try {
             List<Booking> bookings = getBookingsToReserve(minutesBefore);
-            
+
             for (Booking b : bookings) {
-                if (b.getTable() != null) {
-                    DiningTable t = b.getTable();
-                    if (t.getStatus() == market.restaurant_web.entity.TableStatus.EMPTY) {
+                if (b.getTable() == null) continue;
+                DiningTable t = b.getTable();
+
+                // Only flip to RESERVED if the table is currently free (EMPTY/AVAILABLE)
+                // If it's already RESERVED/OCCUPIED by someone else, skip
+                if (t.getStatus() == market.restaurant_web.entity.TableStatus.EMPTY
+                        || t.getStatus() == market.restaurant_web.entity.TableStatus.AVAILABLE) {
+
+                    // Double-check: no other active booking is using this table right now
+                    boolean takenByOther = s.createQuery(
+                        "SELECT COUNT(*) FROM Booking WHERE table.id = :tid " +
+                        "AND id != :bid " +
+                        "AND status IN ('CHECKED_IN','SEATED','RESERVED')",
+                        Long.class)
+                        .setParameter("tid", t.getId())
+                        .setParameter("bid", b.getId())
+                        .uniqueResult() > 0;
+
+                    if (!takenByOther) {
                         t.setStatus(market.restaurant_web.entity.TableStatus.RESERVED);
                         tableDao.update(s, t);
+                        System.out.println("✓ Table " + t.getTableName() + " → RESERVED for booking " + b.getBookingCode());
+                    } else {
+                        System.out.println("✗ Table " + t.getTableName() + " already taken by another booking, skipping " + b.getBookingCode());
                     }
                 }
             }
-            
+
             tx.commit();
         } catch (Exception e) {
-            if (tx != null)
-                tx.rollback();
+            if (tx != null) tx.rollback();
             throw new RuntimeException(e.getMessage(), e);
         } finally {
             s.close();

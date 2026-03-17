@@ -62,10 +62,10 @@ public class SchedulerApiController extends HttpServlet {
             
             boolean firstTask = true;
             
-            // Task 1: Auto-assign tables for bookings 60 mins before
+            // Task 1: Auto-assign tables for bookings 30 mins before
             try {
                 System.out.println("\n[Task 1] Auto-assigning tables...");
-                bookingService.autoAssignTablesForUpcomingBookings(60);
+                bookingService.autoAssignTablesForUpcomingBookings(30);
                 if (!firstTask) result.append(",");
                 result.append("{\"task\": \"auto_assign_tables\", \"status\": \"completed\"}");
                 firstTask = false;
