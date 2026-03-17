@@ -44,12 +44,29 @@ public class ConfigService {
             }
             tx.commit();
         } catch (Exception e) {
-            if (tx != null)
-                tx.rollback();
+            if (tx != null) tx.rollback();
             throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            s.close();
-        }
+        } finally { s.close(); }
+    }
+
+    /** Insert if not exists, update if exists */
+    public void upsert(String key, String value, String description) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            SystemConfig cfg = configDao.findByKey(s, key);
+            if (cfg == null) {
+                cfg = new SystemConfig();
+                cfg.setConfigKey(key);
+            }
+            cfg.setConfigValue(value);
+            if (description != null && cfg.getDescription() == null) cfg.setDescription(description);
+            configDao.saveOrUpdate(s, cfg);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            throw new RuntimeException(e.getMessage(), e);
+        } finally { s.close(); }
     }
 
     public void updateAll(Map<String, String> configs) {

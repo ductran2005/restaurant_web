@@ -27,6 +27,7 @@ public class AuthFilter implements Filter {
             "/menu", "/public-menu",
             "/about", "/contact",
             "/chatbot-api",
+            "/chatbot-booking",
             "/booking", "/booking/status", "/booking/pre-order");
 
     @Override
