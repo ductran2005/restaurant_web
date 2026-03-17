@@ -143,7 +143,7 @@ public class PaymentService {
                 throw new RuntimeException("Order đã được thanh toán");
             }
 
-            // Calculate subtotal
+            // Calculate subtotal from order details
             List<OrderDetail> details = s.createQuery(
                     "FROM OrderDetail WHERE order.id = :oid AND itemStatus = 'ORDERED'", OrderDetail.class)
                     .setParameter("oid", orderId).list();
@@ -153,16 +153,25 @@ public class PaymentService {
                 subtotal = subtotal.add(d.getUnitPrice().multiply(BigDecimal.valueOf(d.getQuantity())));
             }
 
-            // Apply VAT
-            BigDecimal vatRate = getVatRate();
-            BigDecimal taxAmount = subtotal
-                    .multiply(vatRate)
-                    .divide(java.math.BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
-
             BigDecimal discountAmount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
-            BigDecimal totalAmount = subtotal.add(taxAmount).subtract(discountAmount);
-            if (totalAmount.compareTo(BigDecimal.ZERO) < 0)
-                totalAmount = BigDecimal.ZERO;
+
+            // Use order's existing totalAmount (as shown on QR) for validation.
+            // This avoids mismatch when VAT was already included in the displayed amount.
+            BigDecimal existingTotal = order.getTotalAmount();
+            BigDecimal totalAmount;
+            if (existingTotal != null && existingTotal.compareTo(BigDecimal.ZERO) > 0) {
+                // Use already-calculated total (same as QR code amount)
+                totalAmount = existingTotal;
+            } else {
+                // Fallback: recalculate with VAT
+                BigDecimal vatRate = getVatRate();
+                BigDecimal taxAmount = subtotal
+                        .multiply(vatRate)
+                        .divide(java.math.BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+                totalAmount = subtotal.add(taxAmount).subtract(discountAmount);
+                if (totalAmount.compareTo(BigDecimal.ZERO) < 0)
+                    totalAmount = BigDecimal.ZERO;
+            }
 
             // Verify transfer amount (allow equal or greater)
             if (transferAmount < totalAmount.longValue()) {
