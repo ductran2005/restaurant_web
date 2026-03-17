@@ -17,6 +17,7 @@ public class AuthFilter implements Filter {
     private static final Set<String> PUBLIC_PREFIXES = Set.of(
             "/assets/", "/css/", "/js/", "/img/", "/images/",
             "/oauth2/",
+            "/api/",
             "/booking");
 
     private static final Set<String> PUBLIC_PAGES = Set.of(

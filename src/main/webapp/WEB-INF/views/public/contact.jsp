@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/landing.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/mobile.css">
     <style>
         .contact-page-hero {
             padding: 140px 48px 40px;

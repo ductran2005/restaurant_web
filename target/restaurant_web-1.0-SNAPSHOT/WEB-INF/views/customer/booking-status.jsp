@@ -10,6 +10,7 @@
                 <title>Tra cứu đặt bàn — Nhà hàng Hương Việt</title>
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/landing.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/mobile.css">
                 <!-- intl-tel-input styles -->
                 <link rel="stylesheet"
                     href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css">

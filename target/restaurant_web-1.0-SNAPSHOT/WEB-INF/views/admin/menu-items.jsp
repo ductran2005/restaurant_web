@@ -12,6 +12,100 @@
                 <title>Thực đơn — Admin</title>
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
                 <link rel="stylesheet" href="${ctx}/assets/css/admin.css">
+                <link rel="stylesheet" href="${ctx}/assets/css/mobile.css">
+                <style>
+                    .img-thumb {
+                        width: 56px;
+                        height: 56px;
+                        border-radius: 10px;
+                        object-fit: cover;
+                        border: 2px solid var(--border);
+                        background: var(--bg-subtle, #f5f5f5);
+                    }
+                    .img-placeholder {
+                        width: 56px;
+                        height: 56px;
+                        border-radius: 10px;
+                        border: 2px dashed var(--border);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: var(--text-muted);
+                        font-size: 18px;
+                        background: var(--bg-subtle, #f5f5f5);
+                    }
+                    .product-name-cell {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                    }
+                    /* Upload area */
+                    .upload-area {
+                        border: 2px dashed var(--border);
+                        border-radius: 12px;
+                        padding: 20px;
+                        text-align: center;
+                        cursor: pointer;
+                        transition: all .2s;
+                        position: relative;
+                        background: var(--bg-subtle, #f9f9f9);
+                    }
+                    .upload-area:hover {
+                        border-color: var(--primary);
+                        background: rgba(99, 102, 241, .04);
+                    }
+                    .upload-area input[type="file"] {
+                        position: absolute;
+                        inset: 0;
+                        opacity: 0;
+                        cursor: pointer;
+                    }
+                    .upload-icon {
+                        font-size: 28px;
+                        color: var(--text-muted);
+                        margin-bottom: 8px;
+                    }
+                    .upload-text {
+                        font-size: 13px;
+                        color: var(--text-muted);
+                    }
+                    .upload-text strong {
+                        color: var(--primary);
+                    }
+                    .upload-hint {
+                        font-size: 11px;
+                        color: var(--text-muted);
+                        margin-top: 4px;
+                    }
+                    .img-preview-wrap {
+                        position: relative;
+                        display: inline-block;
+                    }
+                    .img-preview {
+                        max-width: 100%;
+                        max-height: 160px;
+                        border-radius: 10px;
+                        object-fit: cover;
+                        border: 2px solid var(--border);
+                    }
+                    .img-remove-btn {
+                        position: absolute;
+                        top: -8px;
+                        right: -8px;
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 50%;
+                        background: var(--destructive);
+                        color: #fff;
+                        border: 2px solid #fff;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 11px;
+                        cursor: pointer;
+                        box-shadow: 0 2px 6px rgba(0,0,0,.2);
+                    }
+                </style>
             </head>
 
             <body>
@@ -72,7 +166,7 @@
                                     <table class="admin-table">
                                         <thead>
                                             <tr>
-                                                <th>Tên</th>
+                                                <th>Sản phẩm</th>
                                                 <th>Danh mục</th>
                                                 <th style="text-align:right">Giá bán</th>
                                                 <th style="text-align:right">Giá vốn</th>
@@ -84,8 +178,20 @@
                                         <tbody>
                                             <c:forEach var="p" items="${products}">
                                                 <tr>
-                                                    <td style="font-weight:600">
-                                                        <c:out value="${p.productName}" />
+                                                    <td>
+                                                        <div class="product-name-cell">
+                                                            <c:choose>
+                                                                <c:when test="${not empty p.imageUrl}">
+                                                                    <img src="${p.imageUrl}" alt="${p.productName}" class="img-thumb">
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <div class="img-placeholder">
+                                                                        <i class="fa-solid fa-image"></i>
+                                                                    </div>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                            <span style="font-weight:600"><c:out value="${p.productName}" /></span>
+                                                        </div>
                                                     </td>
                                                     <td style="color:var(--text-muted)">${p.category.categoryName}</td>
                                                     <td style="text-align:right">
@@ -104,7 +210,7 @@
                                                     <td>
                                                         <div style="display:flex;gap:4px">
                                                             <button class="btn btn-ghost btn-sm"
-                                                                onclick="openEditModal(${p.id},'${p.productName}',${p.category.id},${p.price},${p.costPrice},${p.quantity},'${p.status}','${p.description}')"
+                                                                onclick="openEditModal(${p.id},'${p.productName}',${p.category.id},${p.price},${p.costPrice},${p.quantity},'${p.status}','${p.description}','${p.imageUrl}')"
                                                                 title="Sửa"><i class="fa-solid fa-pen"></i></button>
                                                             <form method="post" action="${ctx}/admin/menu"
                                                                 style="display:inline">
@@ -148,10 +254,27 @@
                                     class="btn btn-ghost btn-sm" onclick="closeModal('formModal')"><i
                                         class="fa-solid fa-xmark"></i></button>
                             </div>
-                            <form method="post" id="prodForm" action="${ctx}/admin/menu">
+                            <form method="post" id="prodForm" action="${ctx}/admin/menu" enctype="multipart/form-data">
                                 <input type="hidden" name="action" id="pAction" value="create">
                                 <input type="hidden" name="itemId" id="pId">
+                                <input type="hidden" name="removeImage" id="pRemoveImage" value="false">
                                 <div class="modal-body">
+                                    <!-- Image Upload -->
+                                    <div class="form-group">
+                                        <label class="form-label">Ảnh sản phẩm</label>
+                                        <div id="uploadArea" class="upload-area">
+                                            <input type="file" name="imageFile" id="pImage" accept="image/*"
+                                                onchange="previewImage(this)">
+                                            <div id="uploadPlaceholder">
+                                                <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                                                <div class="upload-text">Kéo thả hoặc <strong>chọn ảnh</strong></div>
+                                                <div class="upload-hint">JPG, PNG, WebP — Tối đa 5MB</div>
+                                            </div>
+                                            <div id="imagePreviewContainer" style="display:none">
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="form-group"><label class="form-label">Tên sản phẩm *</label><input
                                             type="text" name="itemName" id="pName" class="form-control" required>
                                     </div>
@@ -220,9 +343,94 @@
                             function closeModal(id) { document.getElementById(id).classList.remove('active') }
                             function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').classList.add('active') }
                             function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('active') }
-                            function openCreateModal() { document.getElementById('fTitle').textContent = 'Thêm sản phẩm'; document.getElementById('fBtn').textContent = 'Thêm mới'; document.getElementById('pAction').value = 'create'; document.getElementById('pId').value = ''; document.getElementById('pName').value = ''; document.getElementById('pPrice').value = ''; document.getElementById('pCost').value = ''; document.getElementById('pQty').value = '0'; document.getElementById('pDesc').value = ''; document.getElementById('pIsActive').checked = true; openModal('formModal') }
-                            function openEditModal(id, n, cat, pr, co, qty, st, de) { document.getElementById('fTitle').textContent = 'Sửa sản phẩm'; document.getElementById('fBtn').textContent = 'Cập nhật'; document.getElementById('pAction').value = 'update'; document.getElementById('pId').value = id; document.getElementById('pName').value = n; document.getElementById('pCat').value = cat; document.getElementById('pPrice').value = pr; document.getElementById('pCost').value = co; document.getElementById('pQty').value = qty; document.getElementById('pIsActive').checked = (st === 'AVAILABLE'); document.getElementById('pDesc').value = de || ''; openModal('formModal') }
-                            function openDeleteModal(id, n) { document.getElementById('delId').value = id; document.getElementById('delDesc').textContent = 'Xóa "' + n + '"? Không thể hoàn tác.'; openModal('delModal') }
+
+                            function openCreateModal() {
+                                document.getElementById('fTitle').textContent = 'Thêm sản phẩm';
+                                document.getElementById('fBtn').textContent = 'Thêm mới';
+                                document.getElementById('pAction').value = 'create';
+                                document.getElementById('pId').value = '';
+                                document.getElementById('pName').value = '';
+                                document.getElementById('pPrice').value = '';
+                                document.getElementById('pCost').value = '';
+                                document.getElementById('pQty').value = '0';
+                                document.getElementById('pDesc').value = '';
+                                document.getElementById('pIsActive').checked = true;
+                                document.getElementById('pRemoveImage').value = 'false';
+                                resetImageUpload();
+                                openModal('formModal');
+                            }
+
+                            function openEditModal(id, n, cat, pr, co, qty, st, de, imgUrl) {
+                                document.getElementById('fTitle').textContent = 'Sửa sản phẩm';
+                                document.getElementById('fBtn').textContent = 'Cập nhật';
+                                document.getElementById('pAction').value = 'update';
+                                document.getElementById('pId').value = id;
+                                document.getElementById('pName').value = n;
+                                document.getElementById('pCat').value = cat;
+                                document.getElementById('pPrice').value = pr;
+                                document.getElementById('pCost').value = co;
+                                document.getElementById('pQty').value = qty;
+                                document.getElementById('pIsActive').checked = (st === 'AVAILABLE');
+                                document.getElementById('pDesc').value = de || '';
+                                document.getElementById('pRemoveImage').value = 'false';
+
+                                // Show existing image or reset
+                                if (imgUrl && imgUrl !== 'null' && imgUrl !== '') {
+                                    showImagePreview(imgUrl);
+                                } else {
+                                    resetImageUpload();
+                                }
+
+                                openModal('formModal');
+                            }
+
+                            function openDeleteModal(id, n) {
+                                document.getElementById('delId').value = id;
+                                document.getElementById('delDesc').textContent = 'Xóa "' + n + '"? Không thể hoàn tác.';
+                                openModal('delModal');
+                            }
+
+                            // Image preview functions
+                            function previewImage(input) {
+                                if (input.files && input.files[0]) {
+                                    var file = input.files[0];
+                                    // Validate size (5MB)
+                                    if (file.size > 5 * 1024 * 1024) {
+                                        alert('Ảnh quá lớn! Tối đa 5MB.');
+                                        input.value = '';
+                                        return;
+                                    }
+                                    var reader = new FileReader();
+                                    reader.onload = function (e) {
+                                        showImagePreview(e.target.result);
+                                    };
+                                    reader.readAsDataURL(file);
+                                    document.getElementById('pRemoveImage').value = 'false';
+                                }
+                            }
+
+                            function showImagePreview(src) {
+                                document.getElementById('uploadPlaceholder').style.display = 'none';
+                                var container = document.getElementById('imagePreviewContainer');
+                                container.style.display = 'block';
+                                container.innerHTML = '<div class="img-preview-wrap">' +
+                                    '<img src="' + src + '" class="img-preview" alt="Preview">' +
+                                    '<button type="button" class="img-remove-btn" onclick="removeImage()" title="Xóa ảnh">' +
+                                    '<i class="fa-solid fa-xmark"></i></button></div>';
+                            }
+
+                            function removeImage() {
+                                document.getElementById('pImage').value = '';
+                                document.getElementById('pRemoveImage').value = 'true';
+                                resetImageUpload();
+                            }
+
+                            function resetImageUpload() {
+                                document.getElementById('uploadPlaceholder').style.display = 'block';
+                                document.getElementById('imagePreviewContainer').style.display = 'none';
+                                document.getElementById('imagePreviewContainer').innerHTML = '';
+                                document.getElementById('pImage').value = '';
+                            }
                         </script>
             </body>
 

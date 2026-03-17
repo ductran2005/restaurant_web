@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/landing.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/mobile.css">
     <style>
         .menu-page-hero { padding:140px 48px 60px; text-align:center; position:relative; overflow:hidden; }
         .menu-page-hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 0%,rgba(232,160,32,0.08) 0%,transparent 60%); pointer-events:none; }
@@ -147,9 +148,16 @@
                     <c:forEach var="item" items="${products}">
                         <div class="menu-card ${item.status == 'UNAVAILABLE' ? 'sold-out' : ''}">
                             <div class="menu-card-img">
-                                <div class="img-placeholder">
-                                    <i class="fa-solid fa-bowl-food"></i>
-                                </div>
+                                <c:choose>
+                                    <c:when test="${not empty item.imageUrl}">
+                                        <img src="${item.imageUrl}" alt="${item.productName}" style="width:100%;height:100%;object-fit:cover;">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="img-placeholder">
+                                            <i class="fa-solid fa-bowl-food"></i>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
                                 <c:if test="${item.status == 'UNAVAILABLE'}">
                                     <span class="sold-badge"><i class="fa-solid fa-ban"></i> Hết món</span>
                                 </c:if>

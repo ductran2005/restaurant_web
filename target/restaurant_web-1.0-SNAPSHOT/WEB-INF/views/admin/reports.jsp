@@ -13,6 +13,7 @@
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
                 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
                 <link rel="stylesheet" href="${ctx}/assets/css/admin.css">
+                <link rel="stylesheet" href="${ctx}/assets/css/mobile.css">
                 <style>
                     /* Report Layout Styles */
                     .filter-bar {
