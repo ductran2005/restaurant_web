@@ -358,9 +358,9 @@
                         <div id="paymentSuccessBanner" style="display:none;margin-top:14px;background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(16,185,129,.15));border:1px solid rgba(52,211,153,.3);border-radius:12px;padding:20px;text-align:center">
                             <i class="fa-solid fa-circle-check" style="font-size:2.5rem;color:#34d399;display:block;margin-bottom:8px"></i>
                             <div style="color:#34d399;font-size:17px;font-weight:800;margin-bottom:4px">Thanh toán thành công!</div>
-                            <div style="color:rgba(255,255,255,.6);font-size:13px;margin-bottom:14px">Giao dịch đã được xác nhận tự động</div>
-                            <a href="${pageContext.request.contextPath}/user/booking/status" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:#34d399;color:#000;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none">
-                                <i class="fa-solid fa-arrow-left"></i> Xem lịch sử booking
+                            <div style="color:rgba(255,255,255,.6);font-size:13px;margin-bottom:14px">Đang chuyển đến bill thanh toán...</div>
+                            <a href="${pageContext.request.contextPath}/user/booking/bill?code=${booking.bookingCode}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:#34d399;color:#000;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none">
+                                <i class="fa-solid fa-print"></i> Xem & In bill
                             </a>
                         </div>
                     </div>
@@ -461,9 +461,9 @@
                                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
                                 osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.5);
                             } catch(e) {}
-                            // Redirect to booking status (bill) after 1.5 seconds
+                            // Auto redirect to printable bill after 1.5 seconds
                             setTimeout(function() {
-                                window.location.href = ctx + '/user/booking/status?code=' + bookingCode;
+                                window.location.href = ctx + '/user/booking/bill?code=' + bookingCode;
                             }, 1500);
                         }
                     })
