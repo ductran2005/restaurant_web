@@ -1,7 +1,12 @@
 package market.restaurant_web.controller.cashier;
 
+import market.restaurant_web.config.HibernateUtil;
+import market.restaurant_web.dao.BookingDao;
+import market.restaurant_web.entity.Booking;
 import market.restaurant_web.service.ConfigService;
 import market.restaurant_web.service.PaymentService;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -9,36 +14,22 @@ import jakarta.servlet.http.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Receives webhook POST from SePay when a bank transfer is detected.
- * URL: /api/sepay/webhook
- *
- * SePay sends JSON like:
- * {
- * "id": 92704,
- * "gateway": "MBBank",
- * "transactionDate": "2023-03-25 14:02:37",
- * "accountNumber": "0123499999",
- * "code": null,
- * "content": "HV42 chuyen tien",
- * "transferType": "in",
- * "transferAmount": 150000,
- * "accumulated": 19077000,
- * "subAccount": null,
- * "referenceCode": "MBVCB.3278907687",
- * "description": ""
- * }
- *
- * This controller extracts the order ID from content (matching the prefix),
- * verifies amount, and auto-confirms payment.
+ * Handles both:
+ *   - Order payment:  content contains prefix + orderId  (e.g. "HV42")
+ *   - Deposit payment: content contains bookingCode + " COC" (e.g. "BK6014C8BD COC")
  */
 @WebServlet("/api/sepay/webhook")
 public class SepayWebhookController extends HttpServlet {
     private final PaymentService paymentService = new PaymentService();
     private final ConfigService configService = new ConfigService();
+    private final BookingDao bookingDao = new BookingDao();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -47,16 +38,13 @@ public class SepayWebhookController extends HttpServlet {
         PrintWriter out = resp.getWriter();
 
         try {
-            // Read JSON body
             StringBuilder sb = new StringBuilder();
             BufferedReader reader = req.getReader();
             String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
+            while ((line = reader.readLine()) != null) sb.append(line);
             String body = sb.toString();
 
-            // Verify API Key if configured
+            // Verify API Key
             String configApiKey = configService.getValue("SEPAY_API_KEY");
             if (configApiKey != null && !configApiKey.isEmpty()) {
                 String authHeader = req.getHeader("Authorization");
@@ -67,11 +55,8 @@ public class SepayWebhookController extends HttpServlet {
                 }
             }
 
-            // Simple JSON parsing (no external library needed)
             String transferType = extractJsonString(body, "transferType");
             if (!"in".equals(transferType)) {
-                // Only process incoming transfers
-                resp.setStatus(200);
                 out.print("{\"success\": true, \"message\": \"Ignored outgoing transfer\"}");
                 return;
             }
@@ -81,36 +66,43 @@ public class SepayWebhookController extends HttpServlet {
             String referenceCode = extractJsonString(body, "referenceCode");
 
             if (content == null || content.isEmpty()) {
-                resp.setStatus(200);
                 out.print("{\"success\": true, \"message\": \"No content\"}");
                 return;
             }
 
-            // Extract order ID from content using prefix
-            String prefix = configService.getValue("SEPAY_CONTENT_PREFIX");
-            if (prefix == null || prefix.isEmpty())
-                prefix = "HV";
+            String contentUpper = content.toUpperCase().trim();
 
-            // Match pattern like HV42 or HV 42 (prefix followed by digits)
-            Pattern pattern = Pattern.compile("(?i)" + Pattern.quote(prefix) + "\\s*(\\d+)");
-            Matcher matcher = pattern.matcher(content.toUpperCase());
-
-            if (!matcher.find()) {
-                resp.setStatus(200);
-                out.print("{\"success\": true, \"message\": \"No order code found in content\"}");
+            // --- Check deposit payment: content contains "BK" code + "COC" ---
+            Pattern depositPattern = Pattern.compile("(BK[A-Z0-9]+)\\s+COC");
+            Matcher depositMatcher = depositPattern.matcher(contentUpper);
+            if (depositMatcher.find()) {
+                String bookingCode = depositMatcher.group(1);
+                try {
+                    confirmDeposit(bookingCode, transferAmount, referenceCode);
+                    out.print("{\"success\": true, \"message\": \"Deposit confirmed for booking " + bookingCode + "\"}");
+                } catch (RuntimeException e) {
+                    out.print("{\"success\": true, \"message\": \"" + escapeJson(e.getMessage()) + "\"}");
+                }
                 return;
             }
 
-            int orderId = Integer.parseInt(matcher.group(1));
+            // --- Check order payment: content contains prefix + orderId ---
+            String prefix = configService.getValue("SEPAY_CONTENT_PREFIX");
+            if (prefix == null || prefix.isEmpty()) prefix = "HV";
 
-            // Auto-confirm payment via TRANSFER method
+            Pattern orderPattern = Pattern.compile("(?i)" + Pattern.quote(prefix) + "\\s*(\\d+)");
+            Matcher orderMatcher = orderPattern.matcher(contentUpper);
+
+            if (!orderMatcher.find()) {
+                out.print("{\"success\": true, \"message\": \"No matching code in content\"}");
+                return;
+            }
+
+            int orderId = Integer.parseInt(orderMatcher.group(1));
             try {
                 paymentService.checkoutViaTransfer(orderId, transferAmount, referenceCode);
-                resp.setStatus(200);
                 out.print("{\"success\": true, \"message\": \"Payment confirmed for order " + orderId + "\"}");
             } catch (RuntimeException e) {
-                // Order already paid or other issue - still return success to SePay
-                resp.setStatus(200);
                 out.print("{\"success\": true, \"message\": \"" + escapeJson(e.getMessage()) + "\"}");
             }
 
@@ -120,14 +112,34 @@ public class SepayWebhookController extends HttpServlet {
         }
     }
 
-    // Simple JSON string value extraction
+    private void confirmDeposit(String bookingCode, long transferAmount, String referenceCode) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            Booking b = bookingDao.findByCode(s, bookingCode);
+            if (b == null) throw new RuntimeException("Booking không tồn tại: " + bookingCode);
+            if ("PAID".equals(b.getDepositStatus())) throw new RuntimeException("Deposit đã được thanh toán");
+
+            b.setDepositStatus("PAID");
+            b.setDepositAmount(BigDecimal.valueOf(transferAmount));
+            b.setDepositRef("SEPAY-" + referenceCode);
+            b.setUpdatedAt(LocalDateTime.now());
+            bookingDao.update(s, b);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            s.close();
+        }
+    }
+
     private String extractJsonString(String json, String key) {
         Pattern p = Pattern.compile("\"" + key + "\"\\s*:\\s*\"([^\"]*)\"");
         Matcher m = p.matcher(json);
         return m.find() ? m.group(1) : null;
     }
 
-    // Simple JSON number extraction
     private long extractJsonLong(String json, String key) {
         Pattern p = Pattern.compile("\"" + key + "\"\\s*:\\s*(\\d+)");
         Matcher m = p.matcher(json);
@@ -135,8 +147,7 @@ public class SepayWebhookController extends HttpServlet {
     }
 
     private String escapeJson(String s) {
-        if (s == null)
-            return "";
+        if (s == null) return "";
         return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
     }
 }

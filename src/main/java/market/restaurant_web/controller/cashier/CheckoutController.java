@@ -69,7 +69,9 @@ public class CheckoutController extends HttpServlet {
                 req.getSession().setAttribute("flash_msg",
                         "Thanh toán thành công! Mã TT: #" + payment.getId());
                 req.getSession().setAttribute("flash_type", "success");
-                resp.sendRedirect(req.getContextPath() + "/cashier");
+                
+                // Redirect to receipt view for printing
+                resp.sendRedirect(req.getContextPath() + "/cashier/receipt/view?orderId=" + orderId);
                 return;
             }
         } catch (RuntimeException e) {

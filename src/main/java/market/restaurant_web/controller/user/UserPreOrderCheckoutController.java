@@ -7,6 +7,7 @@ import market.restaurant_web.entity.PreOrderItem;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import market.restaurant_web.service.ConfigService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -80,6 +81,25 @@ public class UserPreOrderCheckoutController extends HttpServlet {
         req.setAttribute("serviceFee", serviceFee);
         req.setAttribute("grandTotal", grandTotal);
         req.setAttribute("navActive", "preorder");
+
+        // SePay config — always provide bank info with fallback defaults
+        ConfigService configService = new ConfigService();
+        String bankAccount = configService.getValue("SEPAY_BANK_ACCOUNT");
+        String bankName    = configService.getValue("SEPAY_BANK_NAME");
+        String accountName = configService.getValue("SEPAY_ACCOUNT_NAME");
+        String contentPrefix = configService.getValue("SEPAY_CONTENT_PREFIX");
+
+        // Use fallback defaults if not configured
+        if (bankAccount == null || bankAccount.isBlank()) bankAccount = "1234567890";
+        if (bankName == null || bankName.isBlank())       bankName = "Vietcombank";
+        if (accountName == null || accountName.isBlank()) accountName = "NGUYEN VAN A";
+        if (contentPrefix == null || contentPrefix.isBlank()) contentPrefix = "";
+
+        req.setAttribute("sepayEnabled", true);  // Always enable QR
+        req.setAttribute("sepayBankAccount", bankAccount);
+        req.setAttribute("sepayBankName", bankName);
+        req.setAttribute("sepayAccountName", accountName);
+        req.setAttribute("sepayContentPrefix", contentPrefix);
 
         req.getRequestDispatcher("/WEB-INF/views/user/pre-order-checkout.jsp").forward(req, resp);
     }

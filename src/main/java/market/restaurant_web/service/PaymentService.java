@@ -22,6 +22,7 @@ public class PaymentService {
     private final OrderDAO orderDao = new OrderDAO();
     private final PaymentDAO paymentDao = new PaymentDAO();
     private final TableDAO tableDao = new TableDAO();
+    private final ReceiptService receiptService = new ReceiptService();
 
     /**
      * Checkout: calculate order totals, create payment, mark order PAID.
@@ -87,6 +88,14 @@ public class PaymentService {
             }
 
             tx.commit();
+            
+            // Auto-print receipt after successful payment
+            try {
+                printReceipt(orderId);
+            } catch (Exception e) {
+                System.err.println("Failed to print receipt for order " + orderId + ": " + e.getMessage());
+            }
+            
             return payment;
         } catch (Exception e) {
             if (tx != null)
@@ -175,6 +184,14 @@ public class PaymentService {
             }
 
             tx.commit();
+            
+            // Auto-print receipt after successful transfer payment
+            try {
+                printReceipt(orderId);
+            } catch (Exception e) {
+                System.err.println("Failed to print receipt for order " + orderId + ": " + e.getMessage());
+            }
+            
             return payment;
         } catch (Exception e) {
             if (tx != null)
@@ -225,6 +242,26 @@ public class PaymentService {
                 }
             }
             return list;
+        }
+    }
+
+    /**
+     * Print receipt for a paid order.
+     * This method generates and outputs the receipt to console/log.
+     * In production, this could be integrated with a physical printer.
+     */
+    private void printReceipt(int orderId) {
+        try {
+            String receipt = receiptService.generateReceipt(orderId);
+            System.out.println("\n" + "=".repeat(50));
+            System.out.println("PRINTING RECEIPT FOR ORDER #" + orderId);
+            System.out.println("=".repeat(50));
+            System.out.println(receipt);
+            System.out.println("=".repeat(50));
+            System.out.println("RECEIPT PRINTED SUCCESSFULLY");
+            System.out.println("=".repeat(50) + "\n");
+        } catch (Exception e) {
+            System.err.println("Error printing receipt: " + e.getMessage());
         }
     }
 }

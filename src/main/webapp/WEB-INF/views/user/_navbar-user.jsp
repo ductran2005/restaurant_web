@@ -16,7 +16,11 @@
                 </a>
                 <a href="${pageContext.request.contextPath}/user/booking/status"
                     class="nav-link ${navActive == 'status' ? 'active' : ''}">
-                    <i class="fa-solid fa-magnifying-glass"></i> <span class="nav-label">Tra cứu booking</span>
+                    <i class="fa-solid fa-clock-rotate-left"></i> <span class="nav-label">Lịch sử booking</span>
+                </a>
+                <a href="${pageContext.request.contextPath}/user/pre-order"
+                    class="nav-link ${navActive == 'preorder' ? 'active' : ''}">
+                    <i class="fa-solid fa-cart-shopping"></i> <span class="nav-label">Đặt món trước</span>
                 </a>
                 <a href="${pageContext.request.contextPath}/logout"
                     class="nav-link">
@@ -50,7 +54,7 @@
                     <i class="fa-solid fa-calendar-plus"></i> Đặt bàn
                 </a>
                 <a href="${pageContext.request.contextPath}/user/booking/status" class="mobile-drawer-link ${navActive == 'status' ? 'active' : ''}">
-                    <i class="fa-solid fa-magnifying-glass"></i> Tra cứu booking
+                    <i class="fa-solid fa-clock-rotate-left"></i> Lịch sử booking
                 </a>
                 <a href="${pageContext.request.contextPath}/user/pre-order" class="mobile-drawer-link ${navActive == 'preorder' ? 'active' : ''}">
                     <i class="fa-solid fa-cart-shopping"></i> Đặt món trước

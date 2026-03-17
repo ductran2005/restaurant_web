@@ -1,13 +1,15 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-    <!DOCTYPE html>
-    <html lang="vi">
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<!DOCTYPE html>
+<html lang="vi">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description"
-            content="Không chỉ là nhà hàng, Hương Việt còn là phong cách sống – điểm hẹn liên hoan, sinh nhật, xả stress, tụ tập bạn bè. 123 Nguyễn Huệ, Q.1, TP.HCM.">
-        <title>Nhà hàng Hương Việt – Hương vị đậm đà, kỷ niệm trọn vẹn</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Không chỉ là nhà hàng, Hương Việt còn là phong cách sống – điểm hẹn liên hoan, sinh nhật, xả stress, tụ tập bạn bè. 123 Nguyễn Huệ, Q.1, TP.HCM.">
+    <title>Nhà hàng Hương Việt – Hương vị đậm đà, kỷ niệm trọn vẹn</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/landing.css">
@@ -121,137 +123,65 @@
             <div class="dishes-ticker" id="ticker">
                 <!-- Set 1 -->
                 <div class="ticker-set">
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish1.png" alt="Gỏi cuốn">
-                        <div>
-                            <div class="ticker-item-name">Gỏi cuốn tôm thịt</div>
-                            <div class="ticker-item-price">65.000 đ</div>
+                    <c:forEach var="product" items="${tickerProducts}" varStatus="status">
+                        <div class="ticker-item">
+                            <c:choose>
+                                <c:when test="${not empty product.imageUrl}">
+                                    <img src="${product.imageUrl}" alt="${product.productName}">
+                                </c:when>
+                                <c:otherwise>
+                                    <img src="${pageContext.request.contextPath}/assets/img/dish${(status.index % 4) + 1}.png" alt="${product.productName}">
+                                </c:otherwise>
+                            </c:choose>
+                            <div>
+                                <div class="ticker-item-name">${product.productName}</div>
+                                <div class="ticker-item-price"><fmt:formatNumber value="${product.price}" pattern="#,###" /> đ</div>
+                            </div>
+                            <span class="ticker-item-tag">${product.category.categoryName}</span>
                         </div>
-                        <span class="ticker-item-tag">Khai vị</span>
-                    </div>
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish2.png" alt="Bò lúc lắc">
-                        <div>
-                            <div class="ticker-item-name">Bò lúc lắc sốt tiêu đen</div>
-                            <div class="ticker-item-price">185.000 đ</div>
+                    </c:forEach>
+                    <c:if test="${empty tickerProducts}">
+                        <!-- Fallback if no products -->
+                        <div class="ticker-item">
+                            <img src="${pageContext.request.contextPath}/assets/img/dish1.png" alt="Món ăn">
+                            <div>
+                                <div class="ticker-item-name">Món ăn đặc biệt</div>
+                                <div class="ticker-item-price">0 đ</div>
+                            </div>
+                            <span class="ticker-item-tag">Đặc sản</span>
                         </div>
-                        <span class="ticker-item-tag">Món hot</span>
-                    </div>
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish3.png" alt="Hải sản">
-                        <div>
-                            <div class="ticker-item-name">Mâm hải sản tươi sống</div>
-                            <div class="ticker-item-price">320.000 đ</div>
-                        </div>
-                        <span class="ticker-item-tag">Đặc sản</span>
-                    </div>
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish4.png" alt="Lẩu">
-                        <div>
-                            <div class="ticker-item-name">Lẩu gà đen nấm rừng</div>
-                            <div class="ticker-item-price">280.000 đ</div>
-                        </div>
-                        <span class="ticker-item-tag">Mới ra</span>
-                    </div>
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish1.png" alt="Gỏi">
-                        <div>
-                            <div class="ticker-item-name">Gỏi bò cà pháo đồng quê</div>
-                            <div class="ticker-item-price">95.000 đ</div>
-                        </div>
-                        <span class="ticker-item-tag">Khai vị</span>
-                    </div>
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish2.png" alt="Nướng">
-                        <div>
-                            <div class="ticker-item-name">Nầm sữa cháy tỏi</div>
-                            <div class="ticker-item-price">145.000 đ</div>
-                        </div>
-                        <span class="ticker-item-tag">Best Seller</span>
-                    </div>
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish3.png" alt="Ghẹ">
-                        <div>
-                            <div class="ticker-item-name">Ghẹ rang muối otoro</div>
-                            <div class="ticker-item-price">250.000 đ</div>
-                        </div>
-                        <span class="ticker-item-tag">Hải sản</span>
-                    </div>
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish4.png" alt="Lẩu Thái">
-                        <div>
-                            <div class="ticker-item-name">Lẩu Thái hải sản cay đặc biệt</div>
-                            <div class="ticker-item-price">299.000 đ</div>
-                        </div>
-                        <span class="ticker-item-tag">Lẩu</span>
-                    </div>
+                    </c:if>
                 </div>
-                <!-- Set 2 (duplicate for infinite) -->
+                <!-- Set 2 (duplicate for infinite scroll) -->
                 <div class="ticker-set" aria-hidden="true">
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish1.png" alt="Gỏi cuốn">
-                        <div>
-                            <div class="ticker-item-name">Gỏi cuốn tôm thịt</div>
-                            <div class="ticker-item-price">65.000 đ</div>
+                    <c:forEach var="product" items="${tickerProducts}" varStatus="status">
+                        <div class="ticker-item">
+                            <c:choose>
+                                <c:when test="${not empty product.imageUrl}">
+                                    <img src="${product.imageUrl}" alt="${product.productName}">
+                                </c:when>
+                                <c:otherwise>
+                                    <img src="${pageContext.request.contextPath}/assets/img/dish${(status.index % 4) + 1}.png" alt="${product.productName}">
+                                </c:otherwise>
+                            </c:choose>
+                            <div>
+                                <div class="ticker-item-name">${product.productName}</div>
+                                <div class="ticker-item-price"><fmt:formatNumber value="${product.price}" pattern="#,###" /> đ</div>
+                            </div>
+                            <span class="ticker-item-tag">${product.category.categoryName}</span>
                         </div>
-                        <span class="ticker-item-tag">Khai vị</span>
-                    </div>
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish2.png" alt="Bò lúc lắc">
-                        <div>
-                            <div class="ticker-item-name">Bò lúc lắc sốt tiêu đen</div>
-                            <div class="ticker-item-price">185.000 đ</div>
+                    </c:forEach>
+                    <c:if test="${empty tickerProducts}">
+                        <!-- Fallback if no products -->
+                        <div class="ticker-item">
+                            <img src="${pageContext.request.contextPath}/assets/img/dish1.png" alt="Món ăn">
+                            <div>
+                                <div class="ticker-item-name">Món ăn đặc biệt</div>
+                                <div class="ticker-item-price">0 đ</div>
+                            </div>
+                            <span class="ticker-item-tag">Đặc sản</span>
                         </div>
-                        <span class="ticker-item-tag">Món hot</span>
-                    </div>
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish3.png" alt="Hải sản">
-                        <div>
-                            <div class="ticker-item-name">Mâm hải sản tươi sống</div>
-                            <div class="ticker-item-price">320.000 đ</div>
-                        </div>
-                        <span class="ticker-item-tag">Đặc sản</span>
-                    </div>
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish4.png" alt="Lẩu">
-                        <div>
-                            <div class="ticker-item-name">Lẩu gà đen nấm rừng</div>
-                            <div class="ticker-item-price">280.000 đ</div>
-                        </div>
-                        <span class="ticker-item-tag">Mới ra</span>
-                    </div>
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish1.png" alt="Gỏi">
-                        <div>
-                            <div class="ticker-item-name">Gỏi bò cà pháo đồng quê</div>
-                            <div class="ticker-item-price">95.000 đ</div>
-                        </div>
-                        <span class="ticker-item-tag">Khai vị</span>
-                    </div>
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish2.png" alt="Nướng">
-                        <div>
-                            <div class="ticker-item-name">Nầm sữa cháy tỏi</div>
-                            <div class="ticker-item-price">145.000 đ</div>
-                        </div>
-                        <span class="ticker-item-tag">Best Seller</span>
-                    </div>
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish3.png" alt="Ghẹ">
-                        <div>
-                            <div class="ticker-item-name">Ghẹ rang muối otoro</div>
-                            <div class="ticker-item-price">250.000 đ</div>
-                        </div>
-                        <span class="ticker-item-tag">Hải sản</span>
-                    </div>
-                    <div class="ticker-item">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish4.png" alt="Lẩu Thái">
-                        <div>
-                            <div class="ticker-item-name">Lẩu Thái hải sản cay đặc biệt</div>
-                            <div class="ticker-item-price">299.000 đ</div>
-                        </div>
-                        <span class="ticker-item-tag">Lẩu</span>
-                    </div>
+                    </c:if>
                 </div>
             </div>
         </div>
@@ -269,78 +199,70 @@
             </div>
 
             <div class="menu-grid">
-                <!-- Card 1 -->
-                <div class="menu-card">
-                    <div class="menu-card-img">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish1.png" alt="Gỏi cuốn tôm thịt">
-                        <span class="menu-card-badge new">Mới</span>
-                    </div>
-                    <div class="menu-card-body">
-                        <div class="menu-card-cat">Khai vị</div>
-                        <h3 class="menu-card-title">Gỏi cuốn tôm thịt tươi</h3>
-                        <p class="menu-card-desc">Gỏi cuốn tươi với tôm sú và thịt heo, rau sống và bún, chấm nước mắm
-                            chua ngọt đặc biệt.</p>
-                        <div class="menu-card-footer">
-                            <div class="menu-card-price">65.000<span>đ</span></div>
-                            <a href="${pageContext.request.contextPath}/menu" class="btn-add-dish"><i
-                                    class="fa-solid fa-arrow-right"></i></a>
+                <c:choose>
+                    <c:when test="${not empty featuredProducts}">
+                        <c:forEach var="product" items="${featuredProducts}" varStatus="status">
+                            <div class="menu-card">
+                                <div class="menu-card-img">
+                                    <c:choose>
+                                        <c:when test="${not empty product.imageUrl}">
+                                            <img src="${product.imageUrl}" alt="${product.productName}">
+                                        </c:when>
+                                        <c:otherwise>
+                                            <img src="${pageContext.request.contextPath}/assets/img/dish${(status.index % 4) + 1}.png" alt="${product.productName}">
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <c:if test="${status.index == 0 || status.index == 3}">
+                                        <span class="menu-card-badge new">Mới</span>
+                                    </c:if>
+                                    <c:if test="${status.index == 1}">
+                                        <span class="menu-card-badge">Best</span>
+                                        <div class="menu-card-hot"><i class="fa-solid fa-fire-flame-curved"></i></div>
+                                    </c:if>
+                                </div>
+                                <div class="menu-card-body">
+                                    <div class="menu-card-cat">${product.category.categoryName}</div>
+                                    <h3 class="menu-card-title">${product.productName}</h3>
+                                    <p class="menu-card-desc">
+                                        <c:choose>
+                                            <c:when test="${not empty product.description}">
+                                                ${product.description}
+                                            </c:when>
+                                            <c:otherwise>
+                                                Món ăn được chế biến từ nguyên liệu tươi ngon, đảm bảo chất lượng và hương vị tuyệt hảo.
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </p>
+                                    <div class="menu-card-footer">
+                                        <div class="menu-card-price"><fmt:formatNumber value="${product.price}" pattern="#,###" /><span>đ</span></div>
+                                        <a href="${pageContext.request.contextPath}/menu" class="btn-add-dish"><i
+                                                class="fa-solid fa-arrow-right"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </c:when>
+                    <c:otherwise>
+                        <!-- Fallback to static content if no products -->
+                        <div class="menu-card">
+                            <div class="menu-card-img">
+                                <img src="${pageContext.request.contextPath}/assets/img/dish1.png" alt="Gỏi cuốn tôm thịt">
+                                <span class="menu-card-badge new">Mới</span>
+                            </div>
+                            <div class="menu-card-body">
+                                <div class="menu-card-cat">Khai vị</div>
+                                <h3 class="menu-card-title">Gỏi cuốn tôm thịt tươi</h3>
+                                <p class="menu-card-desc">Gỏi cuốn tươi với tôm sú và thịt heo, rau sống và bún, chấm nước mắm
+                                    chua ngọt đặc biệt.</p>
+                                <div class="menu-card-footer">
+                                    <div class="menu-card-price">65.000<span>đ</span></div>
+                                    <a href="${pageContext.request.contextPath}/menu" class="btn-add-dish"><i
+                                            class="fa-solid fa-arrow-right"></i></a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <!-- Card 2 -->
-                <div class="menu-card">
-                    <div class="menu-card-img">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish2.png" alt="Bò lúc lắc">
-                        <span class="menu-card-badge">Best</span>
-                        <div class="menu-card-hot"><i class="fa-solid fa-fire-flame-curved"></i></div>
-                    </div>
-                    <div class="menu-card-body">
-                        <div class="menu-card-cat">Món chính</div>
-                        <h3 class="menu-card-title">Bò lúc lắc bơ tỏi tiêu đen</h3>
-                        <p class="menu-card-desc">Thăn bò Úc cao cấp, xào cùng bơ tỏi phi thơm, tiêu đen Phú Quốc, ăn
-                            kèm cơm chiên.</p>
-                        <div class="menu-card-footer">
-                            <div class="menu-card-price">185.000<span>đ</span></div>
-                            <a href="${pageContext.request.contextPath}/menu" class="btn-add-dish"><i
-                                    class="fa-solid fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card 3 -->
-                <div class="menu-card">
-                    <div class="menu-card-img">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish3.png" alt="Mâm hải sản">
-                    </div>
-                    <div class="menu-card-body">
-                        <div class="menu-card-cat">Hải sản</div>
-                        <h3 class="menu-card-title">Mâm hải sản tươi sống đặc biệt</h3>
-                        <p class="menu-card-desc">Tôm hùm, ghẹ gạch, nghêu hấp xả, mực nướng sa tế — đặt trước để có giá
-                            tốt nhất.</p>
-                        <div class="menu-card-footer">
-                            <div class="menu-card-price">320.000<span>đ</span></div>
-                            <a href="${pageContext.request.contextPath}/menu" class="btn-add-dish"><i
-                                    class="fa-solid fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card 4 -->
-                <div class="menu-card">
-                    <div class="menu-card-img">
-                        <img src="${pageContext.request.contextPath}/assets/img/dish4.png" alt="Lẩu gà đen">
-                        <span class="menu-card-badge new">Mới</span>
-                    </div>
-                    <div class="menu-card-body">
-                        <div class="menu-card-cat">Lẩu</div>
-                        <h3 class="menu-card-title">Lẩu gà đen nấm rừng Vân Nam</h3>
-                        <p class="menu-card-desc">Gà đen hầm cùng nấm rừng Vân Nam trong nước dùng trong vắt, ngọt
-                            thanh, bổ dưỡng.</p>
-                        <div class="menu-card-footer">
-                            <div class="menu-card-price">280.000<span>đ</span></div>
-                            <a href="${pageContext.request.contextPath}/menu" class="btn-add-dish"><i
-                                    class="fa-solid fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                </div>
+                    </c:otherwise>
+                </c:choose>
             </div>
             <div class="view-all-wrap">
                 <a href="${pageContext.request.contextPath}/menu" class="btn-outline" style="display:inline-flex">

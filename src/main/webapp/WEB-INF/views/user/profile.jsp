@@ -196,7 +196,8 @@
         <div class="nav-links">
             <a href="${pageContext.request.contextPath}/user/menu">Thực đơn</a>
             <a href="${pageContext.request.contextPath}/user/booking/create">Đặt bàn</a>
-            <a href="${pageContext.request.contextPath}/user/booking/status">Tra cứu booking</a>
+            <a href="${pageContext.request.contextPath}/user/booking/status">Lịch sử booking</a>
+            <a href="${pageContext.request.contextPath}/user/pre-order">Đặt món trước</a>
         </div>
         <div class="nav-actions">
             <a href="${pageContext.request.contextPath}/user/home" class="btn-book" style="background:transparent; border:1px solid rgba(232,160,32,0.3); color:#e8a020;">
@@ -230,10 +231,7 @@
             <form method="post" action="${pageContext.request.contextPath}/user/profile">
                 <input type="hidden" name="returnUrl" value="${returnUrl}">
 
-                <div class="form-group">
-                    <label>Tên đăng nhập</label>
-                    <input type="text" value="${sessionScope.user.username}" readonly>
-                </div>
+
 
                 <div class="form-group">
                     <label>Họ và tên <span class="required">*</span></label>

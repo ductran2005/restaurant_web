@@ -1,6 +1,7 @@
 package market.restaurant_web.controller.user;
 
 import market.restaurant_web.entity.Booking;
+import market.restaurant_web.entity.User;
 import market.restaurant_web.service.BookingService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -9,8 +10,9 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * User booking status — /user/booking/status
- * Same logic as BookingStatusController, routes to user views.
+ * User booking history — /user/booking/status
+ * Automatically loads booking history based on logged-in user's phone.
+ * Also supports viewing single booking via ?code= param.
  */
 @WebServlet("/user/booking/status")
 public class UserBookingStatusController extends HttpServlet {
@@ -20,24 +22,28 @@ public class UserBookingStatusController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         String code = req.getParameter("code");
-        String phone = req.getParameter("phone");
         String msg = req.getParameter("msg");
         if (msg != null) req.setAttribute("msg", msg);
 
+        User user = (User) req.getSession().getAttribute("user");
+
         if (code != null && !code.isEmpty()) {
+            // View single booking detail
             Booking booking = bookingService.findByCode(code);
             req.setAttribute("booking", booking);
-            req.setAttribute("searched", true);
-        } else if (phone != null && !phone.isEmpty()) {
-            req.setAttribute("searched", true);
-            String phoneTrimmed = phone.trim().replaceAll("[^+0-9]", "");
-            if (phoneTrimmed.isEmpty()) {
-                req.setAttribute("error", "Số điện thoại không hợp lệ");
-            } else {
-                List<Booking> bookings = bookingService.findByPhone(phoneTrimmed);
-                req.setAttribute("bookings", bookings);
-                req.setAttribute("phone", phoneTrimmed);
+            req.setAttribute("viewMode", "detail");
+        } else if (user != null) {
+            // Auto-load booking history by user ID first
+            List<Booking> bookings = bookingService.findByUserId(user.getId());
+
+            // Fallback: if no bookings found by userId, try by phone (for old bookings)
+            if ((bookings == null || bookings.isEmpty()) && user.getPhone() != null && !user.getPhone().isEmpty()) {
+                String phone = user.getPhone().trim().replaceAll("[^+0-9]", "");
+                bookings = bookingService.findByPhone(phone);
             }
+
+            req.setAttribute("bookings", bookings);
+            req.setAttribute("viewMode", "history");
         }
 
         req.setAttribute("navActive", "status");
@@ -59,6 +65,15 @@ public class UserBookingStatusController extends HttpServlet {
             if ("confirm".equals(action)) {
                 bookingService.confirm(id);
                 resp.sendRedirect(req.getContextPath() + "/user/booking/status?code=" + code + "&msg=confirmed");
+                return;
+            }
+            if ("cancel".equals(action)) {
+                String reason = req.getParameter("reason");
+                if (reason == null || reason.isBlank()) {
+                    reason = "Khách hàng tự hủy";
+                }
+                bookingService.cancel(id, reason.trim());
+                resp.sendRedirect(req.getContextPath() + "/user/booking/status?msg=cancelled");
                 return;
             }
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);

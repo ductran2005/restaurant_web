@@ -55,11 +55,18 @@ public class BookingStatusController extends HttpServlet {
             int id = Integer.parseInt(idStr);
             if ("confirm".equals(action)) {
                 bookingService.confirm(id);
-                // redirect back to status with success message
                 resp.sendRedirect(req.getContextPath() + "/booking/status?code=" + code + "&msg=confirmed");
                 return;
             }
-            // other actions could go here
+            if ("cancel".equals(action)) {
+                String reason = req.getParameter("reason");
+                if (reason == null || reason.isBlank()) {
+                    reason = "Khách hàng tự hủy";
+                }
+                bookingService.cancel(id, reason.trim());
+                resp.sendRedirect(req.getContextPath() + "/booking/status?code=" + code + "&msg=cancelled");
+                return;
+            }
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         } catch (NumberFormatException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);

@@ -10,6 +10,7 @@ C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\api\SchedulerApiController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\auth\GoogleCallbackServlet.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\entity\Permission.java
+C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\api\DepositStatusController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\entity\PreOrderItem.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\exception\BusinessException.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\user\UserPreOrderCheckoutController.java
@@ -49,6 +50,7 @@ C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\staff\OrderEditorController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\admin\ReportsController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\dao\PermissionDao.java
+C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\service\EmailService.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\admin\TablesAreasController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\user\UserHomeController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\dao\ConfigDao.java

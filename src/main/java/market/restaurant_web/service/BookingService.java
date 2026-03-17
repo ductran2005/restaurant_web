@@ -42,6 +42,13 @@ public class BookingService {
         }
     }
 
+    /** Find all bookings created by a specific user (for booking history) */
+    public List<Booking> findByUserId(int userId) {
+        try (Session s = HibernateUtil.getSessionFactory().openSession()) {
+            return bookingDao.findByUserId(s, userId);
+        }
+    }
+
     public List<Booking> findByDateAndStatus(LocalDate date, String status) {
         try (Session s = HibernateUtil.getSessionFactory().openSession()) {
             return bookingDao.findByDateAndStatus(s, date, status);
@@ -55,6 +62,12 @@ public class BookingService {
         try {
             if (booking.getBookingCode() == null || booking.getBookingCode().isBlank()) {
                 booking.setBookingCode(generateCode());
+            }
+            // Re-attach user to current session (it comes as detached from HTTP session)
+            if (booking.getUser() != null && booking.getUser().getId() != null) {
+                market.restaurant_web.entity.User userRef = 
+                    s.getReference(market.restaurant_web.entity.User.class, booking.getUser().getId());
+                booking.setUser(userRef);
             }
             bookingDao.save(s, booking);
             tx.commit();

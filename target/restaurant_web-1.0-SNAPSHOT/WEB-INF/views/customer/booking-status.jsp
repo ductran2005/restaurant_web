@@ -520,6 +520,9 @@
                     <c:if test="${msg == 'confirmed'}">
                         <div class="alert-success"><i class="fa-solid fa-circle-check"></i> Đã xác nhận booking.</div>
                     </c:if>
+                    <c:if test="${msg == 'cancelled'}">
+                        <div class="alert-success"><i class="fa-solid fa-circle-check"></i> Đã hủy booking thành công.</div>
+                    </c:if>
 
                     <c:choose>
                         <%-- Search by code: single booking result --%>
@@ -677,6 +680,12 @@
                                         <a href="${pageContext.request.contextPath}/booking" class="btn-action">
                                             <i class="fa-solid fa-plus"></i> Đặt bàn mới
                                         </a>
+                                        <c:if test="${booking.status == 'PENDING' || booking.status == 'CONFIRMED'}">
+                                            <button type="button" class="btn-action" style="border-color:rgba(239,68,68,.3);color:#f87171;background:rgba(239,68,68,.06);"
+                                                onclick="openCancelModal(${booking.id}, '${booking.bookingCode}')">
+                                                <i class="fa-solid fa-ban"></i> Hủy đặt bàn
+                                            </button>
+                                        </c:if>
                                     </div>
                                 </div>
                             </c:when>
@@ -840,6 +849,49 @@
 
                 <!-- chatbot widget include -->
                 <jsp:include page="/chatbot.jsp" />
+
+                <!-- Cancel Modal -->
+                <div class="modal-overlay" id="cancelModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+                    <div style="background:#1a1814;border:1px solid rgba(232,160,32,.2);border-radius:16px;padding:28px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.6);">
+                        <h3 style="color:var(--text);font-size:17px;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+                            <i class="fa-solid fa-triangle-exclamation" style="color:#f87171"></i> Hủy đặt bàn
+                        </h3>
+                        <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">
+                            Bạn có chắc muốn hủy booking <strong id="cancelBookingCode" style="color:var(--primary)"></strong>?
+                        </p>
+                        <form method="post" action="${pageContext.request.contextPath}/booking/status">
+                            <input type="hidden" name="action" value="cancel">
+                            <input type="hidden" name="bookingId" id="cancelBookingId">
+                            <input type="hidden" name="code" id="cancelCode">
+                            <textarea name="reason" id="cancelReason" placeholder="Lý do hủy (không bắt buộc)..."
+                                style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:14px;font-family:inherit;resize:none;outline:none;box-sizing:border-box;min-height:80px;"></textarea>
+                            <div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end;">
+                                <button type="button" onclick="closeCancelModal()"
+                                    style="padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;border:none;background:rgba(255,255,255,.08);color:var(--text-muted);">Quay lại</button>
+                                <button type="submit"
+                                    style="padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;border:none;background:#ef4444;color:#fff;">
+                                    <i class="fa-solid fa-ban"></i> Xác nhận hủy
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <script>
+                    function openCancelModal(bookingId, bookingCode) {
+                        document.getElementById('cancelBookingId').value = bookingId;
+                        document.getElementById('cancelCode').value = bookingCode;
+                        document.getElementById('cancelBookingCode').textContent = bookingCode;
+                        document.getElementById('cancelReason').value = '';
+                        const m = document.getElementById('cancelModal');
+                        m.style.display = 'flex';
+                    }
+                    function closeCancelModal() {
+                        document.getElementById('cancelModal').style.display = 'none';
+                    }
+                    document.getElementById('cancelModal')?.addEventListener('click', function(e) {
+                        if (e.target === this) closeCancelModal();
+                    });
+                </script>
             </body>
 
             </html>

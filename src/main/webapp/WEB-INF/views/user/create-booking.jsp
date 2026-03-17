@@ -509,7 +509,8 @@
                     <div class="nav-links">
                         <a href="${pageContext.request.contextPath}/user/menu">Thực đơn</a>
                         <a href="${pageContext.request.contextPath}/user/booking/create" class="active">Đặt bàn</a>
-                        <a href="${pageContext.request.contextPath}/user/booking/status">Tra cứu booking</a>
+                        <a href="${pageContext.request.contextPath}/user/booking/status">Lịch sử booking</a>
+                        <a href="${pageContext.request.contextPath}/user/pre-order">Đặt món trước</a>
                     </div>
                     <div class="nav-actions">
                         <div class="user-dropdown" id="userDropdown">

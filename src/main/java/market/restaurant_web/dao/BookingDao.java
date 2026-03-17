@@ -78,6 +78,15 @@ public class BookingDao extends GenericDAO<Booking> {
                 .list();
     }
 
+    /** Find all bookings created by a specific user (for booking history) */
+    public List<Booking> findByUserId(Session s, int userId) {
+        return s.createQuery(
+                "FROM Booking WHERE user.id = :userId ORDER BY bookingDate DESC, bookingTime DESC",
+                Booking.class)
+                .setParameter("userId", userId)
+                .list();
+    }
+
     public long countByDateAndStatus(Session s, LocalDate date, String status) {
         return s.createQuery(
                 "SELECT COUNT(*) FROM Booking WHERE bookingDate = :date AND status = :status", Long.class)

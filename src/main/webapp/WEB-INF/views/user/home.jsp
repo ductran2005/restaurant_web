@@ -81,7 +81,7 @@
         /* Quick Action Cards */
         .quick-actions {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 24px;
             margin-bottom: 48px;
         }
@@ -136,6 +136,9 @@
         }
         .action-icon.menu {
             background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .action-icon.preorder {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
         }
         .action-title {
             font-family: 'Playfair Display', serif;
@@ -261,7 +264,7 @@
             .user-home-content { padding-top: 90px; }
             .welcome-banner { padding: 32px 24px; }
             .welcome-title { font-size: 26px; }
-            .quick-actions { grid-template-columns: 1fr; }
+            .quick-actions { grid-template-columns: 1fr 1fr; }
             .user-dropdown-btn span { display: none; }
         }
     </style>
@@ -277,7 +280,8 @@
         <div class="nav-links">
             <a href="${pageContext.request.contextPath}/user/menu">Thực đơn</a>
             <a href="${pageContext.request.contextPath}/user/booking/create">Đặt bàn</a>
-            <a href="${pageContext.request.contextPath}/user/booking/status">Tra cứu booking</a>
+            <a href="${pageContext.request.contextPath}/user/booking/status">Lịch sử booking</a>
+            <a href="${pageContext.request.contextPath}/user/pre-order">Đặt món trước</a>
         </div>
         <div class="nav-actions">
             <div class="user-dropdown" id="userDropdown">
@@ -323,7 +327,7 @@
             </a>
             <a href="${pageContext.request.contextPath}/user/booking/status" class="action-card">
                 <div class="action-icon status"><i class="fa-solid fa-magnifying-glass"></i></div>
-                <div class="action-title">Tra cứu booking</div>
+                <div class="action-title">Lịch sử booking</div>
                 <div class="action-desc">Kiểm tra trạng thái đặt bàn bằng mã booking hoặc số điện thoại.</div>
                 <div class="action-arrow">Tra cứu <i class="fa-solid fa-arrow-right"></i></div>
             </a>
@@ -332,6 +336,12 @@
                 <div class="action-title">Xem thực đơn</div>
                 <div class="action-desc">Khám phá hơn 50 món ngon đặc sắc từ ba miền Việt Nam.</div>
                 <div class="action-arrow">Xem ngay <i class="fa-solid fa-arrow-right"></i></div>
+            </a>
+            <a href="${pageContext.request.contextPath}/user/pre-order" class="action-card">
+                <div class="action-icon preorder"><i class="fa-solid fa-cart-shopping"></i></div>
+                <div class="action-title">Đặt món trước</div>
+                <div class="action-desc">Chọn sẵn món ăn trước khi đến nhà hàng, tiết kiệm thời gian chờ đợi.</div>
+                <div class="action-arrow">Đặt món <i class="fa-solid fa-arrow-right"></i></div>
             </a>
         </div>
     </div>

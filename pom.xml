@@ -85,6 +85,13 @@
             <artifactId>google-http-client-gson</artifactId>
             <version>1.43.3</version>
         </dependency>
+
+        <!-- Jakarta Mail (for sending confirmation emails) -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+            <version>2.0.3</version>
+        </dependency>
     </dependencies>
 
     <build>

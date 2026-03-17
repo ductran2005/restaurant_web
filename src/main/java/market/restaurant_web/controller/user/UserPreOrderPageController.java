@@ -126,6 +126,7 @@ public class UserPreOrderPageController extends HttpServlet {
                 case "updateQty": handleUpdateQty(req); break;
                 case "remove":  handleRemove(req); break;
                 case "confirm":
+                    handleConfirm(req);
                     resp.sendRedirect(req.getContextPath() + "/user/pre-order/checkout?code=" + bookingCode);
                     return;
                 default: break;
@@ -199,6 +200,61 @@ public class UserPreOrderPageController extends HttpServlet {
             if (item == null) throw new RuntimeException("Món không tồn tại");
             if (item.getBooking().isPreorderLocked()) throw new RuntimeException("Đã quá thời gian cho phép xóa món");
             s.remove(item);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            throw new RuntimeException(e.getMessage(), e);
+        } finally { s.close(); }
+    }
+
+    /** Save all cart items from the confirm form into DB, replacing existing pre-order items */
+    private void handleConfirm(HttpServletRequest req) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            String bookingCode = req.getParameter("bookingCode");
+            int itemCount = Integer.parseInt(req.getParameter("itemCount"));
+
+            Booking booking = bookingDao.findByCode(s, bookingCode);
+            if (booking == null) throw new RuntimeException("Booking không tồn tại");
+            if (booking.isPreorderLocked()) throw new RuntimeException("Đã quá thời gian cho phép đặt món trước");
+
+            // Delete existing pre-order items for this booking
+            s.createMutationQuery("DELETE FROM PreOrderItem WHERE booking.id = :bookingId")
+             .setParameter("bookingId", booking.getId())
+             .executeUpdate();
+
+            // Flush and clear persistence context to avoid stale state
+            // (bulk DELETE doesn't sync the persistence context, which conflicts
+            //  with orphanRemoval=true on Booking.preOrderItems)
+            s.flush();
+            s.clear();
+
+            // Re-fetch booking in clean persistence context
+            booking = bookingDao.findByCode(s, bookingCode);
+
+            // Insert new items from cart
+            for (int i = 0; i < itemCount; i++) {
+                String pidStr = req.getParameter("productId_" + i);
+                String qtyStr = req.getParameter("quantity_" + i);
+                if (pidStr == null || qtyStr == null) continue;
+
+                int productId = Integer.parseInt(pidStr);
+                int quantity  = Integer.parseInt(qtyStr);
+                if (quantity <= 0) continue;
+
+                Product product = productDao.findById(s, productId);
+                if (product == null) continue;
+
+                PreOrderItem item = new PreOrderItem();
+                item.setBooking(booking);
+                item.setProduct(product);
+                item.setQuantity(quantity);
+                s.persist(item);
+            }
+
+            // Flush inserts before commit
+            s.flush();
             tx.commit();
         } catch (Exception e) {
             if (tx != null) tx.rollback();

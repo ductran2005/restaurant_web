@@ -152,7 +152,7 @@ public class PreOrderPageController extends HttpServlet {
                     handleRemove(req);
                     break;
                 case "confirm":
-                    // Redirect to checkout
+                    handleConfirm(req);
                     resp.sendRedirect(req.getContextPath() + "/pre-order/checkout?code=" + bookingCode);
                     return;
                 default:
@@ -277,5 +277,40 @@ public class PreOrderPageController extends HttpServlet {
         } finally {
             s.close();
         }
+    }
+
+    private void handleConfirm(HttpServletRequest req) {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = s.beginTransaction();
+        try {
+            String bookingCode = req.getParameter("bookingCode");
+            int itemCount = Integer.parseInt(req.getParameter("itemCount"));
+
+            Booking booking = bookingDao.findByCode(s, bookingCode);
+            if (booking == null) throw new RuntimeException("Booking không tồn tại");
+            if (booking.isPreorderLocked()) throw new RuntimeException("Đã quá thời gian cho phép đặt món trước");
+
+            // Replace existing pre-order items
+            s.createMutationQuery("DELETE FROM PreOrderItem WHERE booking.id = :bookingId")
+             .setParameter("bookingId", booking.getId())
+             .executeUpdate();
+
+            for (int i = 0; i < itemCount; i++) {
+                int productId = Integer.parseInt(req.getParameter("productId_" + i));
+                int quantity  = Integer.parseInt(req.getParameter("quantity_" + i));
+                if (quantity <= 0) continue;
+                Product product = productDao.findById(s, productId);
+                if (product == null) continue;
+                PreOrderItem item = new PreOrderItem();
+                item.setBooking(booking);
+                item.setProduct(product);
+                item.setQuantity(quantity);
+                s.persist(item);
+            }
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            throw new RuntimeException(e.getMessage(), e);
+        } finally { s.close(); }
     }
 }

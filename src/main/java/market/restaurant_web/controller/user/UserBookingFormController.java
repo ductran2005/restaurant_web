@@ -126,7 +126,27 @@ public class UserBookingFormController extends HttpServlet {
             booking.setPartySize(partySize);
             booking.setNote(note);
 
+            // Link booking to logged-in user for history tracking
+            User sessionUser = (User) req.getSession().getAttribute("user");
+            if (sessionUser != null) {
+                booking.setUser(sessionUser);
+            }
+
             bookingService.create(booking);
+
+            // Send confirmation email to user (background thread)
+            User u = (User) req.getSession().getAttribute("user");
+            if (u != null && u.getEmail() != null && !u.getEmail().isBlank()) {
+                market.restaurant_web.service.EmailService.sendBookingConfirmation(
+                    u.getEmail(),
+                    booking.getCustomerName(),
+                    booking.getBookingCode(),
+                    booking.getBookingDate().toString(),
+                    booking.getBookingTime().toString(),
+                    booking.getPartySize(),
+                    booking.getNote()
+                );
+            }
 
             Object raw = getServletContext().getAttribute("newBookingCount");
             int count = (raw instanceof Integer) ? (Integer) raw : 0;

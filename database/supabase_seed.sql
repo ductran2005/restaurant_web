@@ -299,7 +299,10 @@ INSERT INTO system_config (config_key, config_value, description) VALUES
 ('CHATBOT_ENABLED', 'true', 'Bật/tắt chatbot AI trên trang khách hàng'),
 ('GOOGLE_CLIENT_ID', '120394683638-3i5duilf0c5dcch0l82c08to6ge9nd2f.apps.googleusercontent.com', 'Google OAuth Client ID'),
 ('GOOGLE_CLIENT_SECRET', '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', 'Google OAuth Client Secret'),
-('GOOGLE_REDIRECT_URI', 'http://localhost:8080/oauth2/google/callback', 'Google OAuth Redirect URI')
+('GOOGLE_REDIRECT_URI', 'http://localhost:8080/oauth2/google/callback', 'Google OAuth Redirect URI'),
+('RESTAURANT_NAME', 'Nhà Hàng Hương Việt', 'Tên nhà hàng (hiển thị trên hóa đơn)'),
+('RESTAURANT_ADDRESS', '123 Đường ABC, Quận 1, TP.HCM', 'Địa chỉ nhà hàng (hiển thị trên hóa đơn)'),
+('RESTAURANT_PHONE', '028 1234 5678', 'Số điện thoại nhà hàng (hiển thị trên hóa đơn)')
 ON CONFLICT (config_key) DO NOTHING;
 
 -- areas
