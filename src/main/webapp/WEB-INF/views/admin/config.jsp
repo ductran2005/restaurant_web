@@ -144,6 +144,74 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                 <%-- Email SMTP Settings --%>
+                                 <div class="table-card" style="padding:24px;grid-column:1/-1">
+                                     <h3 style="font-size:15px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px">
+                                         <i class="fa-solid fa-envelope" style="color:var(--primary)"></i> Cài đặt Email gửi xác nhận
+                                     </h3>
+                                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                                         <div class="form-group">
+                                             <label class="form-label">Email gửi (Gmail)</label>
+                                             <input type="hidden" name="configKey" value="smtp_user">
+                                             <input type="email" name="value_smtp_user" class="form-control"
+                                                 value="${config['smtp_user'] != null ? config['smtp_user'] : ''}"
+                                                 placeholder="yourmail@gmail.com">
+                                             <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
+                                                 <i class="fa-solid fa-circle-info"></i>
+                                                 Địa chỉ Gmail dùng để gửi email xác nhận đặt bàn
+                                             </div>
+                                         </div>
+                                         <div class="form-group">
+                                             <label class="form-label">App Password Gmail</label>
+                                             <input type="hidden" name="configKey" value="smtp_pass">
+                                             <input type="password" name="value_smtp_pass" id="smtpPassInput" class="form-control"
+                                                 value="${config['smtp_pass'] != null ? config['smtp_pass'] : ''}"
+                                                 placeholder="xxxx xxxx xxxx xxxx"
+                                                 autocomplete="new-password">
+                                             <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
+                                                 <i class="fa-solid fa-circle-info"></i>
+                                                 Tạo App Password tại:
+                                                 <a href="https://myaccount.google.com/apppasswords" target="_blank"
+                                                    style="color:var(--primary)">myaccount.google.com/apppasswords</a>
+                                                 (cần bật 2FA)
+                                             </div>
+                                         </div>
+                                         <div class="form-group">
+                                             <label class="form-label">Tên hiển thị khi gửi mail</label>
+                                             <input type="hidden" name="configKey" value="smtp_from_name">
+                                             <input type="text" name="value_smtp_from_name" class="form-control"
+                                                 value="${config['smtp_from_name'] != null ? config['smtp_from_name'] : 'Nhà hàng Hương Việt'}"
+                                                 placeholder="Nhà hàng Hương Việt">
+                                         </div>
+                                         <div class="form-group" style="align-self:end">
+                                             <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+                                                 <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted);cursor:pointer">
+                                                     <input type="checkbox" id="showPassToggle"
+                                                         onchange="document.getElementById('smtpPassInput').type = this.checked ? 'text' : 'password'">
+                                                     Hiện mật khẩu
+                                                 </label>
+                                             </div>
+                                             <div style="margin-top:12px;padding:10px 14px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:8px;font-size:12px;color:#4ade80">
+                                                 <i class="fa-solid fa-shield-halved"></i>
+                                                 App Password không phải mật khẩu Gmail thường.
+                                                 Chỉ dùng cho ứng dụng này và có thể thu hồi bất cứ lúc nào.
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+
+                                 <%-- Hidden configKeys for other fields --%>
+                                 <input type="hidden" name="configKey" value="vat_rate">
+                                 <input type="hidden" name="configKey" value="service_fee_rate">
+                                 <input type="hidden" name="configKey" value="opening_hours">
+                                 <input type="hidden" name="configKey" value="closing_hours">
+                                 <input type="hidden" name="configKey" value="hold_minutes">
+                                 <input type="hidden" name="configKey" value="cutoff_minutes">
+                                 <input type="hidden" name="configKey" value="session_timeout">
+                                 <input type="hidden" name="configKey" value="smtp_user">
+                                 <input type="hidden" name="configKey" value="smtp_pass">
+                                 <input type="hidden" name="configKey" value="smtp_from_name">
+
                                 </div>
 
                                 <div style="display:flex;justify-content:flex-end;margin-top:24px;gap:12px">

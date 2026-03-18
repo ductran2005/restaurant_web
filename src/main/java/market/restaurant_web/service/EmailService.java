@@ -6,45 +6,86 @@ import java.util.Properties;
 
 /**
  * Email service for sending booking confirmation emails.
- * Uses Gmail SMTP with App Password for authentication.
+ * SMTP credentials are loaded from DB (system_config) via ConfigService.
+ * Fallback to compile-time constants if DB values are not set.
  *
  * Setup instructions:
  * 1. Enable 2-Step Verification on your Google Account
  * 2. Generate an App Password: https://myaccount.google.com/apppasswords
- * 3. Update SMTP_USER and SMTP_PASS below with your credentials
+ * 3. Save credentials via Admin → Cấu hình hệ thống → Cài đặt Email
  */
 public class EmailService {
 
-    // ═══ SMTP Configuration ═══
-    // Replace with your Gmail and App Password
-    private static final String SMTP_HOST = "smtp.gmail.com";
-    private static final int SMTP_PORT = 587;
-    private static final String SMTP_USER = "ductest2310@gmail.com";
-    private static final String SMTP_PASS = "vebi jwiy zuhd nujz";
-    private static final String FROM_NAME = "Nhà hàng Hương Việt";
+    // ═══ Fallback compile-time defaults (used if DB config is empty) ═══
+    private static final String DEFAULT_SMTP_HOST = "smtp.gmail.com";
+    private static final int    DEFAULT_SMTP_PORT = 587;
+    private static final String DEFAULT_SMTP_USER = "ductest2310@gmail.com";
+    private static final String DEFAULT_SMTP_PASS = "vebi jwiy zuhd nujz";
+    private static final String DEFAULT_FROM_NAME = "Nhà hàng Hương Việt";
 
-    private static Session mailSession;
+    // ═══ Runtime config (loaded from DB) ═══
+    private static volatile String smtpUser     = DEFAULT_SMTP_USER;
+    private static volatile String smtpPass     = DEFAULT_SMTP_PASS;
+    private static volatile String fromName     = DEFAULT_FROM_NAME;
 
-    /** Get or create mail session (lazy singleton) */
+    // Mail session (reset when config changes)
+    private static volatile Session mailSession;
+
+    /**
+     * Called by ConfigController after admin saves email settings.
+     * Reloads SMTP credentials from DB and resets the mail session.
+     */
+    public static void reloadConfig(ConfigService configService) {
+        String user = configService.getValue("smtp_user");
+        String pass = configService.getValue("smtp_pass");
+        String name = configService.getValue("smtp_from_name");
+
+        if (user != null && !user.isBlank()) smtpUser = user.trim();
+        if (pass != null && !pass.isBlank()) smtpPass = pass.trim();
+        if (name != null && !name.isBlank()) fromName = name.trim();
+
+        // Reset session so next send uses new credentials
+        mailSession = null;
+        System.out.println("[EMAIL] SMTP config reloaded. User: " + smtpUser);
+    }
+
+    /**
+     * Initialize from DB on first use (e.g. after server restart).
+     * Safe to call multiple times — only loads if session is null.
+     */
+    public static void initFromDb(ConfigService configService) {
+        if (mailSession == null) {
+            reloadConfig(configService);
+        }
+    }
+
+    /** Get or create mail session (lazy singleton, reset on config change) */
     private static Session getMailSession() {
         if (mailSession == null) {
-            Properties props = new Properties();
-            props.put("mail.smtp.host", SMTP_HOST);
-            props.put("mail.smtp.port", String.valueOf(SMTP_PORT));
-            props.put("mail.smtp.auth", "true");
-            props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.starttls.required", "true");
-            props.put("mail.smtp.ssl.protocols", "TLSv1.2");
-            props.put("mail.smtp.connectiontimeout", "10000");
-            props.put("mail.smtp.timeout", "10000");
-            props.put("mail.smtp.writetimeout", "10000");
+            synchronized (EmailService.class) {
+                if (mailSession == null) {
+                    Properties props = new Properties();
+                    props.put("mail.smtp.host", DEFAULT_SMTP_HOST);
+                    props.put("mail.smtp.port", String.valueOf(DEFAULT_SMTP_PORT));
+                    props.put("mail.smtp.auth", "true");
+                    props.put("mail.smtp.starttls.enable", "true");
+                    props.put("mail.smtp.starttls.required", "true");
+                    props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+                    props.put("mail.smtp.connectiontimeout", "10000");
+                    props.put("mail.smtp.timeout", "10000");
+                    props.put("mail.smtp.writetimeout", "10000");
 
-            mailSession = Session.getInstance(props, new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(SMTP_USER, SMTP_PASS);
+                    final String user = smtpUser;
+                    final String pass = smtpPass;
+
+                    mailSession = Session.getInstance(props, new Authenticator() {
+                        @Override
+                        protected PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(user, pass);
+                        }
+                    });
                 }
-            });
+            }
         }
         return mailSession;
     }
@@ -57,10 +98,9 @@ public class EmailService {
             String bookingCode, String bookingDate, String bookingTime,
             int partySize, String note) {
 
-        // Run email sending in background thread
         new Thread(() -> {
             try {
-                String subject = "✅ Xác nhận đặt bàn " + bookingCode + " — Nhà hàng Hương Việt";
+                String subject = "✅ Xác nhận đặt bàn " + bookingCode + " — " + fromName;
                 String htmlBody = buildBookingConfirmationHtml(
                         customerName, bookingCode, bookingDate, bookingTime, partySize, note);
 
@@ -76,12 +116,11 @@ public class EmailService {
     /** Send an HTML email */
     private static void sendHtmlEmail(String to, String subject, String htmlBody) throws MessagingException, java.io.UnsupportedEncodingException {
         MimeMessage message = new MimeMessage(getMailSession());
-        message.setFrom(new InternetAddress(SMTP_USER, FROM_NAME, "UTF-8"));
+        message.setFrom(new InternetAddress(smtpUser, fromName, "UTF-8"));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
         message.setSubject(subject, "UTF-8");
         message.setContent(htmlBody, "text/html; charset=UTF-8");
         message.setSentDate(new java.util.Date());
-
         Transport.send(message);
     }
 
@@ -104,8 +143,8 @@ public class EmailService {
             + "<div style=\"background:linear-gradient(135deg,#1a1814,#232019);border:1px solid rgba(232,160,32,0.2);border-radius:16px 16px 0 0;padding:32px 24px;text-align:center\">"
             + "<div style=\"width:48px;height:48px;background:#e8a020;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px\">"
             + "<span style=\"font-size:22px\">🍽️</span></div>"
-            + "<h1 style=\"color:#f0ebe3;font-size:22px;margin:0 0 4px\">Nhà hàng Hương Việt</h1>"
-            + "<p style=\"color:#9e9488;font-size:12px;margin:0;letter-spacing:1px\">NHÀ HÀNG & QUÁN NHẬU</p>"
+            + "<h1 style=\"color:#f0ebe3;font-size:22px;margin:0 0 4px\">" + escapeHtml(fromName) + "</h1>"
+            + "<p style=\"color:#9e9488;font-size:12px;margin:0;letter-spacing:1px\">NHÀ HÀNG &amp; QUÁN NHẬU</p>"
             + "</div>"
 
             // Success banner
@@ -119,52 +158,37 @@ public class EmailService {
             + "<div style=\"background:#1a1814;border-left:1px solid rgba(232,160,32,0.2);border-right:1px solid rgba(232,160,32,0.2);padding:0\">"
             + "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-collapse:collapse\">"
 
-            // Booking code
             + "<tr><td style=\"padding:16px 20px;text-align:center;border-bottom:1px solid #2a2520\">"
             + "<p style=\"color:#9e9488;font-size:11px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px\">Mã đặt bàn</p>"
             + "<p style=\"color:#e8a020;font-size:24px;font-weight:800;margin:0;letter-spacing:2px\">" + escapeHtml(bookingCode) + "</p>"
             + "</td></tr>"
 
-            // Customer name
             + "<tr><td style=\"padding:12px 20px;border-bottom:1px solid #2a2520\">"
             + "<table width=\"100%\"><tr>"
             + "<td style=\"color:#9e9488;font-size:13px\">👤 Khách hàng</td>"
             + "<td style=\"color:#f0ebe3;font-size:14px;font-weight:600;text-align:right\">" + escapeHtml(customerName) + "</td>"
             + "</tr></table></td></tr>"
 
-            // Date
             + "<tr><td style=\"padding:12px 20px;border-bottom:1px solid #2a2520\">"
             + "<table width=\"100%\"><tr>"
             + "<td style=\"color:#9e9488;font-size:13px\">📅 Ngày</td>"
             + "<td style=\"color:#f0ebe3;font-size:14px;font-weight:600;text-align:right\">" + escapeHtml(bookingDate) + "</td>"
             + "</tr></table></td></tr>"
 
-            // Time
             + "<tr><td style=\"padding:12px 20px;border-bottom:1px solid #2a2520\">"
             + "<table width=\"100%\"><tr>"
             + "<td style=\"color:#9e9488;font-size:13px\">🕐 Giờ</td>"
             + "<td style=\"color:#f0ebe3;font-size:14px;font-weight:600;text-align:right\">" + escapeHtml(bookingTime) + "</td>"
             + "</tr></table></td></tr>"
 
-            // Party size
             + "<tr><td style=\"padding:12px 20px;border-bottom:1px solid #2a2520\">"
             + "<table width=\"100%\"><tr>"
             + "<td style=\"color:#9e9488;font-size:13px\">👥 Số khách</td>"
             + "<td style=\"color:#f0ebe3;font-size:14px;font-weight:600;text-align:right\">" + partySize + " người</td>"
             + "</tr></table></td></tr>"
 
-            // Note (optional)
             + noteSection
-
             + "</table></div>"
-
-            // Pre-order CTA
-            + "<div style=\"background:#232019;border-left:1px solid rgba(232,160,32,0.2);border-right:1px solid rgba(232,160,32,0.2);padding:20px 24px;text-align:center\">"
-            + "<p style=\"color:#f0ebe3;font-size:14px;font-weight:600;margin:0 0 8px\">🛒 Đặt món trước để tiết kiệm thời gian!</p>"
-            + "<p style=\"color:#9e9488;font-size:12px;margin:0 0 16px\">Chọn sẵn món ăn, chúng tôi sẽ chuẩn bị khi bạn đến</p>"
-            + "<a href=\"#\" style=\"display:inline-block;padding:12px 28px;background:#e8a020;color:#000;font-size:14px;font-weight:700;border-radius:8px;text-decoration:none\">"
-            + "Đặt món trước →</a>"
-            + "</div>"
 
             // Footer notes
             + "<div style=\"background:#1a1814;border:1px solid rgba(232,160,32,0.2);border-top:none;border-radius:0 0 16px 16px;padding:20px 24px\">"
@@ -176,11 +200,10 @@ public class EmailService {
             + "</ul>"
             + "</div>"
 
-            // Bottom footer
             + "<div style=\"text-align:center;padding:24px 16px\">"
             + "<p style=\"color:#9e9488;font-size:12px;margin:0 0 4px\">📍 123 Nguyễn Huệ, Q.1, TP.HCM</p>"
             + "<p style=\"color:#9e9488;font-size:12px;margin:0 0 4px\">📞 Hotline: <strong style=\"color:#e8a020\">1900 1234</strong> (8:00 – 23:00)</p>"
-            + "<p style=\"color:#666;font-size:11px;margin:12px 0 0\">© 2026 Nhà hàng Hương Việt. All rights reserved.</p>"
+            + "<p style=\"color:#666;font-size:11px;margin:12px 0 0\">© 2026 " + escapeHtml(fromName) + ". All rights reserved.</p>"
             + "</div>"
 
             + "</div>"
