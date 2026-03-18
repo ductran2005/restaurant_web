@@ -10,10 +10,12 @@ C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\user\UserProfileController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\entity\Order.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\util\PasswordUtil.java
+C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\cashier\BookingCheckoutController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\service\PaymentService.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\service\PermissionService.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\customer\PreOrderPageController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\service\CategoryService.java
+C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\user\UserBookingBillController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\dao\ProductDAO.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\admin\DashboardController.java
 C:\Users\DucTran\Documents\GitHub\restaurant_web\src\main\java\market\restaurant_web\controller\auth\AccessDeniedController.java
