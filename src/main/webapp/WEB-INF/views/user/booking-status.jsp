@@ -382,7 +382,7 @@
         <c:otherwise>
             <section class="history-hero">
                 <div class="section-label"><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử đặt bàn</div>
-                <h1>Booking của <em>${sessionScope.user.fullName}</em></h1>
+                <h1>Booking của <em><c:out value="${not empty sessionScope.user.fullName ? sessionScope.user.fullName : 'bạn'}" /></em></h1>
                 <p>Xem lại tất cả đặt bàn của bạn tại Nhà hàng Hương Việt.</p>
             </section>
 
