@@ -587,6 +587,23 @@
                                         </div>
                                     </div>
 
+                                    <!-- Email (tùy chọn để nhận xác nhận) -->
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <i class="fa-regular fa-envelope" style="color:var(--primary);margin-right:4px;"></i>
+                                            Email nhận xác nhận
+                                            <span style="color:var(--text-muted);font-weight:400;margin-left:4px;">(không bắt buộc)</span>
+                                        </label>
+                                        <input type="email" name="customerEmail"
+                                            class="form-control"
+                                            value="${not empty param.customerEmail ? param.customerEmail : ''}"
+                                            placeholder="example@gmail.com">
+                                        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">
+                                            <i class="fa-solid fa-circle-info"></i>
+                                            Nhập email để nhận thông tin xác nhận đặt bàn
+                                        </div>
+                                    </div>
+
                                     <!-- Ngày + Giờ -->
                                     <div class="form-row">
                                         <div class="form-group">

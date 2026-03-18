@@ -2,6 +2,7 @@ package market.restaurant_web.controller.customer;
 
 import market.restaurant_web.entity.Booking;
 import market.restaurant_web.service.BookingService;
+import market.restaurant_web.service.EmailService;
 import market.restaurant_web.util.ValidationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -57,6 +58,8 @@ public class BookingFormController extends HttpServlet {
             if (phone != null) {
                 phone = phone.replaceAll("[^+0-9]", "");
             }
+            String email = req.getParameter("customerEmail");
+            if (email != null) email = email.trim();
             String dateStr = req.getParameter("bookingDate");
             String timeStr = req.getParameter("bookingTime");
             boolean fromLanding = "true".equals(req.getParameter("fromLanding"));
@@ -150,6 +153,19 @@ public class BookingFormController extends HttpServlet {
             booking.setNote(note);
 
             bookingService.create(booking);
+
+            // Send confirmation email if customer provided email
+            if (email != null && !email.isBlank()) {
+                EmailService.sendBookingConfirmation(
+                    email,
+                    booking.getCustomerName(),
+                    booking.getBookingCode(),
+                    booking.getBookingDate().toString(),
+                    booking.getBookingTime().toString(),
+                    booking.getPartySize(),
+                    booking.getNote()
+                );
+            }
 
             // notify staff page: increment pending booking counter in application scope
             Object raw = getServletContext().getAttribute("newBookingCount");

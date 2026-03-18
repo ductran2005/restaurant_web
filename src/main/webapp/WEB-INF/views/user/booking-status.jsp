@@ -212,7 +212,7 @@
     </nav>
 
     <c:choose>
-        <%-- ═══ DETAIL VIEW: Single Booking ═══ --%>
+        <%-- ═══ DETAIL VIEW: Single Booking Found ═══ --%>
         <c:when test="${viewMode == 'detail' && not empty booking}">
             <section class="history-hero">
                 <div class="section-label"><i class="fa-solid fa-ticket"></i> Chi tiết booking</div>
@@ -349,6 +349,30 @@
                                 <i class="fa-solid fa-ban"></i> Hủy đặt bàn
                             </button>
                         </c:if>
+                    </div>
+                </div>
+            </div>
+        </c:when>
+
+        <%-- ═══ DETAIL VIEW: Booking NOT FOUND ═══ --%>
+        <c:when test="${viewMode == 'detail' && empty booking}">
+            <section class="history-hero">
+                <div class="section-label"><i class="fa-solid fa-ticket"></i> Tra cứu booking</div>
+                <h1>Không tìm thấy <em>booking</em></h1>
+                <p>Mã đặt bàn không tồn tại hoặc đã bị xóa.</p>
+            </section>
+            <div class="history-section">
+                <a href="${pageContext.request.contextPath}/user/booking/status" class="back-link">
+                    <i class="fa-solid fa-arrow-left"></i> Quay lại lịch sử
+                </a>
+                <div class="detail-card">
+                    <div class="empty-state">
+                        <i class="fa-solid fa-circle-exclamation" style="color:#f87171;opacity:0.6"></i>
+                        <h3>Không tìm thấy booking</h3>
+                        <p>Mã booking không hợp lệ hoặc không tồn tại trong hệ thống.<br>Vui lòng kiểm tra lại mã đặt bàn.</p>
+                        <a href="${pageContext.request.contextPath}/user/booking/create" class="btn-empty">
+                            <i class="fa-solid fa-plus"></i> Đặt bàn mới
+                        </a>
                     </div>
                 </div>
             </div>

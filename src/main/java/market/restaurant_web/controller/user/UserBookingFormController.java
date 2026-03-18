@@ -137,6 +137,7 @@ public class UserBookingFormController extends HttpServlet {
             // Send confirmation email to user (background thread)
             User u = (User) req.getSession().getAttribute("user");
             if (u != null && u.getEmail() != null && !u.getEmail().isBlank()) {
+                System.out.println("[BOOKING] Sending confirmation email to: " + u.getEmail());
                 market.restaurant_web.service.EmailService.sendBookingConfirmation(
                     u.getEmail(),
                     booking.getCustomerName(),
@@ -146,6 +147,10 @@ public class UserBookingFormController extends HttpServlet {
                     booking.getPartySize(),
                     booking.getNote()
                 );
+            } else {
+                System.out.println("[BOOKING] No email found for user, skipping. User: "
+                    + (u != null ? u.getFullName() : "null")
+                    + ", Email: " + (u != null ? u.getEmail() : "null"));
             }
 
             Object raw = getServletContext().getAttribute("newBookingCount");
