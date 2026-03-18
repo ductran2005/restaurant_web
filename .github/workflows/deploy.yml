@@ -21,10 +21,10 @@ jobs:
           git pull origin main
           
           echo "=== Rebuilding Docker ==="
-          docker-compose -f docker-compose.supabase.yml down
-          docker-compose -f docker-compose.supabase.yml build --no-cache
-          docker-compose -f docker-compose.supabase.yml up -d
+          docker compose -f docker-compose.supabase.yml down
+          docker compose -f docker-compose.supabase.yml build --no-cache
+          docker compose -f docker-compose.supabase.yml up -d
           
           echo "=== Checking status ==="
-          docker-compose -f docker-compose.supabase.yml ps
+          docker compose -f docker-compose.supabase.yml ps
           echo "=== Deploy DONE ==="
